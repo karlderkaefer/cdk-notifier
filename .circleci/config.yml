@@ -108,7 +108,7 @@ workflows:
   build:
     jobs:
       - get-version:
-          context: npm-github
+          context: sermantic-release
       - build:
           requires:
             - get-version
@@ -119,7 +119,7 @@ workflows:
           requires:
             - build
             - test
-          context: npm-github
+          context: sermantic-release
           filters:
             branches:
               only:
