@@ -1,3 +1,5 @@
 .env
 cdk-notifier
 .idea
+.version
+node_modules

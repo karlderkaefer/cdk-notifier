@@ -1,0 +1,44 @@
+{
+  "branches": [
+    "master",
+    "main"
+  ],
+  "repositoryUrl": "git@github.com:karlderkaefer/cdk-notifier.git",
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "docs/CHANGELOG.md"
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": [
+          "docs/CHANGELOG.md"
+        ]
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "assets": [
+          {
+            "path": "dist/*darwin_amd64.gz",
+            "label": "Darwin distribution"
+          },
+          {
+            "path": "dist/*linux_amd64.gz",
+            "label": "Linux distribution"
+          },
+          {
+            "path": "dist/*windows_amd64.exe.gz",
+            "label": "Windows distribution"
+          }
+        ]
+      }
+    ]
+  ]
+}
