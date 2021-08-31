@@ -17,6 +17,7 @@ jobs:
           name: test
           command: |
             go test -short ./... -v -race -coverprofile=coverage.txt -covermode=atomic
+      - codecov/upload
 
 
 workflows:
