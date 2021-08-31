@@ -19,13 +19,15 @@ var (
 	tagId         string
 	pullRequestId int
 	deleteComment bool
+	Version       string
 )
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "cdk-notifier",
-	Short: "Post CDK diff log to Github Pull Request",
-	Long:  "Post CDK diff log to Github Pull Request",
+	Use:     "cdk-notifier",
+	Short:   "Post CDK diff log to Github Pull Request",
+	Long:    "Post CDK diff log to Github Pull Request",
+	Version: Version,
 	Run: func(cmd *cobra.Command, args []string) {
 		appConfig := &config.AppConfig{
 			LogFile:       logFile,
@@ -78,6 +80,9 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&logFile, "log-file", "l", "./data/cdk-small.log", "path to cdk log file")
 	rootCmd.PersistentFlags().StringVarP(&tagId, "tag-id", "t", "stack", "unique identifier for stack within pipeline")
 	rootCmd.PersistentFlags().BoolVarP(&deleteComment, "delete", "d", true, "delete comments when no changes are detected for a specific tag id")
+	if Version == "" {
+		rootCmd.Version = "dev"
+	}
 }
 
 func setUpLogs(out io.Writer, level string) error {
