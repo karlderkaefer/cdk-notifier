@@ -1,10 +1,80 @@
 version: 2.1
+
 orbs:
   node: circleci/node@4.5.2
   go: circleci/go@1.7.0
   codecov: codecov/codecov@3.0.0
 
+commands:
+  set-version:
+    steps:
+      - run:
+          name: read version file and export to APP_VERISON
+          command: |
+            export APP_VERSION=$(cat .version)
+            echo "export APP_VERSION=${APP_VERSION}" >> $BASH_ENV
+            echo "read in version ${APP_VERSION}"
+
 jobs:
+  get-version:
+    executor: node/default
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          name: export version variable
+          command: |
+            npx semantic-release --dry-run
+            export NPX_STATUS="$?"
+            if [ ${NPX_STATUS} -ne 0 ]; then
+              echo "failed to run semantic release"
+              exit ${NPX_STATUS}
+            fi
+            export APP_VERSION="$(npx semantic-release --dry-run | grep 'The next release version is' | sed -E 's/.* ([[:digit:].]+)$/\1/')"
+            if [ -z "${APP_VERSION}" ]; then
+              echo "no new version detected"
+            else
+              echo "found next Version ${APP_VERSION}"
+            fi
+            echo "${APP_VERSION}" > .version
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .version
+
+  build:
+    docker:
+      - image: 'cimg/go:1.16'
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - set-version
+      - go/load-cache
+      - go/mod-download
+      - go/save-cache
+      - run:
+          name: install-tools
+          command: |
+            go get -u github.com/mitchellh/gox
+      - run:
+          name: cross compile
+          command: |
+            if [ -z "${APP_VERSION}" ]; then
+              export VERSION="${CIRCLE_BRANCH}-${CIRCLE_SHA1}"
+            else
+              export VERSION="${APP_VERSION}"
+            fi
+            echo "got version ${VERSION}"
+            gox -ldflags "-X github.com/signavio/aws-mfa-login/cmd.Version=${VERSION}" -os="linux darwin windows" -arch="amd64" -output="dist/${CIRCLE_PROJECT_REPONAME}_{{.OS}}_{{.Arch}}"
+            ./dist/${CIRCLE_PROJECT_REPONAME}_linux_amd64 --version
+            cd dist/ && gzip *
+      - persist_to_workspace:
+          name: save distributions
+          root: .
+          paths:
+            - ./dist
+
   test:
     docker:
       - image: 'cimg/go:1.16'
@@ -19,8 +89,39 @@ jobs:
             go test -short ./... -v -race -coverprofile=coverage.txt -covermode=atomic
       - codecov/upload
 
+  publish:
+    executor: node/default
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          command: |
+            npm install
+      - run:
+          name: release
+          command: |
+            npx semantic-release
+
 
 workflows:
   build:
     jobs:
-      - test
+      - get-version:
+          context: npm-github
+      - build:
+          requires:
+            - get-version
+      - test:
+          requires:
+            - get-version
+      - publish:
+          requires:
+            - build
+            - test
+          context: npm-github
+          filters:
+            branches:
+              only:
+                - master
+                - main
