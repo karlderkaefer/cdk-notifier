@@ -51,18 +51,27 @@ If a diff comment for tag-id exists and no changes are detected then comment wil
 You can control this behavior with `--delete false`.
 
 ```bash
-cdk-notfier --github-owner some-org --githhub-repo some-repo --github-token 1234 --log-file ./cdk.log --tag-id my-stack
+cdk-notfier --github-owner some-org --githhub-repo some-repo --github-token 1234 --log-file ./cdk.log --tag-id my-stack --pull-request-id 12
 ```
 The `tag-id` has to be unique within one pipeline. It's been used to identify the comment to update or delete.
 
-## Running on CirlceCI
-If you run cdk-notifier on CircleCi you dont need to set owner, repo or token. 
+This is an example how the diff would like on github 
+```bash
+cdk-notifier -l data/cdk-small.log -t test
+```
+![](images/diff.png)
+
+
+
+## Running on CircleCI
+If you run cdk-notifier on CircleCi you don't need to set owner, repo or token. 
 CircleCi will provide default variables which will read in by cdk-notifier when cli arg is not set.
 ```bash
 CIRCLE_PR_NUMBER
 CIRCLE_PROJECT_REPONAME
+CIRCLE_PROJECT_USERNAME
 ```
-but you need the add environment variable for github token or set CLi arg `github-token`.
+You can the add environment variable for github-token or set CLi arg `github-token`.
 ```bash
 GITHUB_TOKEN
 ```
