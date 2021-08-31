@@ -66,7 +66,7 @@ jobs:
               export VERSION="${APP_VERSION}"
             fi
             echo "got version ${VERSION}"
-            gox -ldflags "-X github.com/signavio/aws-mfa-login/cmd.Version=${VERSION}" -os="linux darwin windows" -arch="amd64" -output="dist/${CIRCLE_PROJECT_REPONAME}_{{.OS}}_{{.Arch}}"
+            gox -ldflags "-X github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/cmd.Version=${VERSION}" -os="linux darwin windows" -arch="amd64" -output="dist/${CIRCLE_PROJECT_REPONAME}_{{.OS}}_{{.Arch}}"
             ./dist/${CIRCLE_PROJECT_REPONAME}_linux_amd64 --version
             cd dist/ && gzip *
       - persist_to_workspace:
