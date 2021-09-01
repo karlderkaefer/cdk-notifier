@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/karlderkaefer/cdk-notifier/config"
 	"github.com/karlderkaefer/cdk-notifier/github"
 	"github.com/karlderkaefer/cdk-notifier/transform"
@@ -73,11 +74,15 @@ func Execute() {
 
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&v, "verbosity", "v", logrus.InfoLevel.String(), "Log level (debug, info, warn, error, fatal, panic)")
-	rootCmd.PersistentFlags().StringVarP(&repoName, "github-repo", "r", "", "Name of github repository without organisation. If not set will lookup for env var $CIRCLE_PROJECT_REPONAME")
-	rootCmd.PersistentFlags().StringVarP(&repoOwner, "github-owner", "o", "", "Name of gitub owner. If not set will lookup for env var $CIRCLE_PROJECT_USERNAME")
-	rootCmd.PersistentFlags().StringVar(&githubToken, "github-token", "", "Github token used to post comments to PR. If not set will lookup env var $GITHUB_TOKEN")
-	rootCmd.PersistentFlags().IntVarP(&pullRequestId, "pull-request-id", "p", 0, "Id of github pull request. If not set will lookup for env var $CIRCLE_PR_NUMBER")
-	rootCmd.PersistentFlags().StringVarP(&logFile, "log-file", "l", "./data/cdk-small.log", "path to cdk log file")
+	usageRepo := fmt.Sprintf("Name of github repository without organisation. If not set will lookup for env var '%s'", config.ENV_REPO_NAME)
+	usageOwner := fmt.Sprintf("Name of gitub owner. If not set will lookup for env var '%s'", config.ENV_REPO_OWNER)
+	usageToken := fmt.Sprintf("Github token used to post comments to PR. If not set will lookup for env var '%s'", config.ENV_GITHUB_TOKEN)
+	usagePr := fmt.Sprintf("Id or URL of github pull request. If not set will lookup for env var '%s'", config.ENV_PULL_REQUEST_ID)
+	rootCmd.PersistentFlags().StringVarP(&repoName, "github-repo", "r", "", usageRepo)
+	rootCmd.PersistentFlags().StringVarP(&repoOwner, "github-owner", "o", "", usageOwner)
+	rootCmd.PersistentFlags().StringVar(&githubToken, "github-token", "", usageToken)
+	rootCmd.PersistentFlags().IntVarP(&pullRequestId, "pull-request-id", "p", 0, usagePr)
+	rootCmd.PersistentFlags().StringVarP(&logFile, "log-file", "l", "./cdk.log", "path to cdk log file")
 	rootCmd.PersistentFlags().StringVarP(&tagId, "tag-id", "t", "stack", "unique identifier for stack within pipeline")
 	rootCmd.PersistentFlags().BoolVarP(&deleteComment, "delete", "d", true, "delete comments when no changes are detected for a specific tag id")
 	if Version == "" {
