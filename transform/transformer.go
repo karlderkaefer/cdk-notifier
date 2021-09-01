@@ -2,7 +2,6 @@ package transform
 
 import (
 	"bytes"
-	"fmt"
 	"github.com/acarl005/stripansi"
 	"github.com/karlderkaefer/cdk-notifier/config"
 	"github.com/sirupsen/logrus"
@@ -10,6 +9,7 @@ import (
 	"regexp"
 	"strings"
 	"text/template"
+	"unicode/utf8"
 )
 
 type LogTransformer struct {
@@ -46,33 +46,41 @@ func (t *LogTransformer) RemoveAnsiCode() {
 	t.LogContent = stripansi.Strip(t.LogContent)
 }
 
-func transformDiff(diffSymbol string, content string) string {
-	lines := strings.Split(content, "\n")
-	regexDiffSymbol := diffSymbol
-	// plus needs to be escaped in regex
-	if diffSymbol == "+" {
-		regexDiffSymbol = "\\+"
-	}
-	regex := fmt.Sprintf("(.*\\[%s\\].*)", regexDiffSymbol)
-	re := regexp.MustCompile(regex)
-	var output []string
-	for _, line := range lines {
-		if re.MatchString(line) {
-			// we gonna add diff symbol as first char of line
-			newLine := re.ReplaceAllString(line, diffSymbol+"$1")
-			// remove one trailing space to keep number of characters per line equal
-			newLine = strings.Replace(newLine, diffSymbol+" ", diffSymbol, 1)
-			output = append(output, newLine)
-		} else {
-			output = append(output, line)
-		}
-	}
-	return strings.Join(output, "\n")
+func trimFirstRune(s string) string {
+	_, i := utf8.DecodeRuneInString(s)
+	return s[i:]
 }
 
 func (t *LogTransformer) TransformDiff() {
-	t.LogContent = transformDiff("+", t.LogContent)
-	t.LogContent = transformDiff("-", t.LogContent)
+	lines := strings.Split(t.LogContent, "\n")
+	var output []string
+	for _, line := range lines {
+		// https://regex101.com/r/9ORjxP/1
+		regex := regexp.MustCompile(`(?m)(?:(?:\[(?P<resourcesSymbol>[\+-]+)\])|(?:│\s{1}(?P<securitySymbol>[\+-]+)\s{1}│))`)
+		matches := regex.FindStringSubmatch(line)
+		var foundSymbol string
+		for i, m := range matches {
+			// we got two possible matches
+			// 1. [+] or [-] (group resourceSymbol)
+			// 2. | + | or | - | (group securitySymbol)
+			// if we hit one of those conditions we capture symbol
+			if i != 0 && m != "" {
+				foundSymbol = m
+				logrus.Tracef("Detected change for symbol %s for line %s", foundSymbol, line)
+			}
+		}
+		// replace first character of line with the diff symbol
+		modifiedLine := line
+		if foundSymbol != "" {
+			// keep first character for resource elements
+			if !strings.HasPrefix(line, "[") {
+				modifiedLine = trimFirstRune(line)
+			}
+			modifiedLine = foundSymbol + modifiedLine
+		}
+		output = append(output, modifiedLine)
+	}
+	t.LogContent = strings.Join(output, "\n")
 }
 
 func (t *LogTransformer) Truncate() {
