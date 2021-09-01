@@ -1,4 +1,8 @@
+
 # cdk-notifier
+[![CircleCI](https://circleci.com/gh/circleci/circleci-docs.svg?style=shield)](https://circleci.com/gh/circleci/circleci-docs)
+[![codecov](https://codecov.io/gh/karlderkaefer/cdk-notifier/branch/main/graph/badge.svg?token=C0BGW4EUOX)](https://codecov.io/gh/karlderkaefer/cdk-notifier)
+
 lightweight CLI tool to parse a CDK log file and post changes to pull request requests.
 Can be used to get more confidence on approving pull requests because reviewer will be aware of changes done to your environments.
 
