@@ -1,3 +1,17 @@
+# [1.1.0](https://github.com/karlderkaefer/cdk-notifier/compare/v1.0.1...v1.1.0) (2021-09-01)
+
+
+### Bug Fixes
+
+* parsing of CIRCLE_PULL_REQUEST ([83e841b](https://github.com/karlderkaefer/cdk-notifier/commit/83e841b38ae526b16cee0888d0248aa6f05a824e))
+* update help text ([b0a7d44](https://github.com/karlderkaefer/cdk-notifier/commit/b0a7d443d31b1d8da2cb8edb03279acf9cfb1ebf))
+* update transformer test ([3abe572](https://github.com/karlderkaefer/cdk-notifier/commit/3abe572252d9f75b3e7e6ea0c902ba4722a8d7b1))
+
+
+### Features
+
+* add markdown diff for IAM Statement Changes ([74ef9dd](https://github.com/karlderkaefer/cdk-notifier/commit/74ef9ddb355d45db20fbbd7dbe7ebeaddb13406d))
+
 ## [1.0.1](https://github.com/karlderkaefer/cdk-notifier/compare/v1.0.0...v1.0.1) (2021-08-31)
 
 
