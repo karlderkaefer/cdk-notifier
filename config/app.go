@@ -75,7 +75,6 @@ func readFromEnv(env string) string {
 	return val
 }
 
-// CIRCLE_PULL_REQUEST=https://github.com/signavio/suite-infrastructure/pull/1361
 func readPullRequestFromEnv() (int, error) {
 	url := os.Getenv(ENV_PULL_REQUEST_ID)
 	elements := strings.Split(url, "/")
