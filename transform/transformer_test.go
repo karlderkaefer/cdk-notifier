@@ -52,7 +52,15 @@ func TestLogTransformer_TransformDiff(t *testing.T) {
 		},
 		{
 			input:    "│ + │ ${SpmMainInitScript/ProviderHandler/ServiceRole.Arn}            │ Allow  │ sts:AssumeRole                │ Service:lambda.amazonaws.com                                    │           │",
-			expected: "│ + │ ${SpmMainInitScript/ProviderHandler/ServiceRole.Arn}            │ Allow  │ sts:AssumeRole                │ Service:lambda.amazonaws.com                                    │           │",
+			expected: "+ + │ ${SpmMainInitScript/ProviderHandler/ServiceRole.Arn}            │ Allow  │ sts:AssumeRole                │ Service:lambda.amazonaws.com                                    │           │",
+		},
+		{
+			input:    "│ - │ ${SpmMainInitScript/ProviderHandler/ServiceRole.Arn}            │ Allow  │ sts:AssumeRole                │ Service:lambda.amazonaws.com                                    │           │",
+			expected: "- - │ ${SpmMainInitScript/ProviderHandler/ServiceRole.Arn}            │ Allow  │ sts:AssumeRole                │ Service:lambda.amazonaws.com                                    │           │",
+		},
+		{
+			input:    " │   ├─ [-] Removed: .query_cache_size",
+			expected: "-│   ├─ [-] Removed: .query_cache_size",
 		},
 	}
 	for _, c := range cases {
