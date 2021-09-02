@@ -41,9 +41,10 @@ func TestAppConfig_ReadPullRequestFromEnv(t *testing.T) {
 			err:      nil,
 		},
 		{
+			// not setting pull request id should not throw error
 			input:    "",
 			expected: 0,
-			err:      &strconv.NumError{},
+			err:      nil,
 		},
 		{
 			input:    "https://github.com/pansenentertainment/uepsilon/pull",
@@ -126,6 +127,51 @@ func TestAppConfig_Init(t *testing.T) {
 				PullRequest:   23,
 			},
 			err: &ConfigValidationError{"github-token", ENV_GITHUB_TOKEN},
+		},
+		{
+			description: "test misssing pull request id will cause no error",
+			inputConfig: AppConfig{
+				LogFile:       "./cdk.log",
+				DeleteComment: true,
+			},
+			envVars: map[string]string{
+				ENV_REPO_NAME:    "Uepsilon",
+				ENV_REPO_OWNER:   "pansenentertainment",
+				ENV_GITHUB_TOKEN: "some-token",
+			},
+			expectedConfig: AppConfig{
+				LogFile:       "./cdk.log",
+				DeleteComment: true,
+				RepoName:      "Uepsilon",
+				RepoOwner:     "pansenentertainment",
+				GithubToken:   "some-token",
+				PullRequest:   0,
+			},
+			err: nil,
+		},
+		{
+			description: "test parse int error",
+			inputConfig: AppConfig{
+				LogFile:     "./cdk.log",
+				RepoName:    "Uepsilon",
+				RepoOwner:   "pansenentertainment",
+				GithubToken: "some-token",
+			},
+			envVars: map[string]string{
+				ENV_PULL_REQUEST_ID: "23as",
+			},
+			expectedConfig: AppConfig{
+				LogFile:     "./cdk.log",
+				RepoName:    "Uepsilon",
+				RepoOwner:   "pansenentertainment",
+				GithubToken: "some-token",
+				PullRequest: 0,
+			},
+			err: &strconv.NumError{
+				Func: "ParseInt",
+				Num:  "23as",
+				Err:  strconv.ErrSyntax,
+			},
 		},
 	}
 	for _, c := range testCasesInit {
