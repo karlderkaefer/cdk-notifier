@@ -43,6 +43,11 @@ var rootCmd = &cobra.Command{
 		if err != nil {
 			logrus.Fatal(err)
 		}
+		if appConfig.PullRequest == 0 {
+			err = &config.ConfigValidationError{CliArg: "pull-request-id", EnvVar: config.ENV_PULL_REQUEST_ID}
+			logrus.Warnf("Skipping... because %s", err)
+			return
+		}
 		logrus.Debugf("got app config: %#v", appConfig)
 
 		transformer := transform.NewLogTransformer(appConfig)
