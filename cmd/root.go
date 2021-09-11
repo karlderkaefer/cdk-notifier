@@ -17,10 +17,11 @@ var (
 	repoName      string
 	repoOwner     string
 	githubToken   string
-	tagId         string
-	pullRequestId int
+	tagID         string
+	pullRequestID int
 	deleteComment bool
-	Version       string
+	// Version cdk-notifier application version
+	Version string
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -32,10 +33,10 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		appConfig := &config.AppConfig{
 			LogFile:       logFile,
-			TagId:         tagId,
+			TagID:         tagID,
 			RepoName:      repoName,
 			RepoOwner:     repoOwner,
-			PullRequest:   pullRequestId,
+			PullRequest:   pullRequestID,
 			DeleteComment: deleteComment,
 			GithubToken:   githubToken,
 		}
@@ -44,17 +45,16 @@ var rootCmd = &cobra.Command{
 			logrus.Fatal(err)
 		}
 		if appConfig.PullRequest == 0 {
-			err = &config.ConfigValidationError{CliArg: "pull-request-id", EnvVar: config.ENV_PULL_REQUEST_ID}
+			err = &config.ValidationError{CliArg: "pull-request-id", EnvVar: config.EnvPullRequestID}
 			logrus.Warnf("Skipping... because %s", err)
 			return
 		}
-		logrus.Debugf("got app config: %#v", appConfig)
+		logrus.Tracef("got app config: %#v", appConfig)
 
 		transformer := transform.NewLogTransformer(appConfig)
 		transformer.Process()
 
-		gc := github.NewGithubConfig(appConfig)
-		gc.Context = cmd.Context()
+		gc := github.NewGithubClient(cmd.Context(), appConfig, nil)
 		gc.CommentContent = transformer.LogContent
 		gc.Authenticate()
 		err = gc.PostComment()
@@ -79,16 +79,16 @@ func Execute() {
 
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&v, "verbosity", "v", logrus.InfoLevel.String(), "Log level (debug, info, warn, error, fatal, panic)")
-	usageRepo := fmt.Sprintf("Name of github repository without organisation. If not set will lookup for env var '%s'", config.ENV_REPO_NAME)
-	usageOwner := fmt.Sprintf("Name of gitub owner. If not set will lookup for env var '%s'", config.ENV_REPO_OWNER)
-	usageToken := fmt.Sprintf("Github token used to post comments to PR. If not set will lookup for env var '%s'", config.ENV_GITHUB_TOKEN)
-	usagePr := fmt.Sprintf("Id or URL of github pull request. If not set will lookup for env var '%s'", config.ENV_PULL_REQUEST_ID)
+	usageRepo := fmt.Sprintf("Name of github repository without organisation. If not set will lookup for env var '%s'", config.EnvRepoName)
+	usageOwner := fmt.Sprintf("Name of gitub owner. If not set will lookup for env var '%s'", config.EnvRepoOwner)
+	usageToken := fmt.Sprintf("Github token used to post comments to PR. If not set will lookup for env var '%s'", config.EnvGithubToken)
+	usagePr := fmt.Sprintf("Id or URL of github pull request. If not set will lookup for env var '%s'", config.EnvPullRequestID)
 	rootCmd.PersistentFlags().StringVarP(&repoName, "github-repo", "r", "", usageRepo)
 	rootCmd.PersistentFlags().StringVarP(&repoOwner, "github-owner", "o", "", usageOwner)
 	rootCmd.PersistentFlags().StringVar(&githubToken, "github-token", "", usageToken)
-	rootCmd.PersistentFlags().IntVarP(&pullRequestId, "pull-request-id", "p", 0, usagePr)
+	rootCmd.PersistentFlags().IntVarP(&pullRequestID, "pull-request-id", "p", 0, usagePr)
 	rootCmd.PersistentFlags().StringVarP(&logFile, "log-file", "l", "./cdk.log", "path to cdk log file")
-	rootCmd.PersistentFlags().StringVarP(&tagId, "tag-id", "t", "stack", "unique identifier for stack within pipeline")
+	rootCmd.PersistentFlags().StringVarP(&tagID, "tag-id", "t", "stack", "unique identifier for stack within pipeline")
 	rootCmd.PersistentFlags().BoolVarP(&deleteComment, "delete", "d", true, "delete comments when no changes are detected for a specific tag id")
 	if Version == "" {
 		rootCmd.Version = "dev"

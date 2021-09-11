@@ -12,28 +12,35 @@ import (
 	"unicode/utf8"
 )
 
+// LogTransformer is responsible to process the log file and do following transformation steps
+// 1. Clean any ANSI chars and XTERM color created from cdk diff command
+// 2. Transform additions and removals to markdown diff syntax
+// 3. Create unique message header
+// 4. truncate content if message is longer than GitHub API can handle
 type LogTransformer struct {
 	LogContent string
 	Logfile    string
-	TagId      string
+	TagID      string
 }
 
+// GithubTemplate wrapper object to use go templating
 type GithubTemplate struct {
-	TagId     string
+	TagID     string
 	Content   string
 	JobLink   string
 	Backticks string
 }
 
+// NewLogTransformer create new log transfer based on config.AppConfig
 func NewLogTransformer(config *config.AppConfig) *LogTransformer {
 	return &LogTransformer{
 		LogContent: "",
 		Logfile:    config.LogFile,
-		TagId:      config.TagId,
+		TagID:      config.TagID,
 	}
 }
 
-func (t *LogTransformer) ReadFile() error {
+func (t *LogTransformer) readFile() error {
 	content, err := ioutil.ReadFile(t.Logfile)
 	if err != nil {
 		return err
@@ -42,7 +49,7 @@ func (t *LogTransformer) ReadFile() error {
 	return nil
 }
 
-func (t *LogTransformer) RemoveAnsiCode() {
+func (t *LogTransformer) removeAnsiCode() {
 	t.LogContent = stripansi.Strip(t.LogContent)
 }
 
@@ -51,7 +58,7 @@ func trimFirstRune(s string) string {
 	return s[i:]
 }
 
-func (t *LogTransformer) TransformDiff() {
+func (t *LogTransformer) transformDiff() {
 	lines := strings.Split(t.LogContent, "\n")
 	var output []string
 	for _, line := range lines {
@@ -83,8 +90,8 @@ func (t *LogTransformer) TransformDiff() {
 	t.LogContent = strings.Join(output, "\n")
 }
 
-func (t *LogTransformer) Truncate() {
-	// Message:Body is too long (maximum is 65536 characters)
+// truncate to avoid Message:Body is too long (maximum is 65536 characters)
+func (t *LogTransformer) truncate() {
 	runes := bytes.Runes([]byte(t.LogContent))
 	if len(runes) > 65000 {
 		truncated := string(runes[:65000])
@@ -93,15 +100,15 @@ func (t *LogTransformer) Truncate() {
 	}
 }
 
-func (t *LogTransformer) AddHeader() {
+func (t *LogTransformer) addHeader() {
 	templateContent := `
-## cdk diff for {{ .TagId }} {{ .JobLink }}
+## cdk diff for {{ .TagID }} {{ .JobLink }}
 {{ .Backticks }}diff
 {{ .Content }}
 {{ .Backticks }}
 `
 	githubTemplate := &GithubTemplate{
-		TagId:     t.TagId,
+		TagID:     t.TagID,
 		Content:   t.LogContent,
 		Backticks: "```",
 		JobLink:   "",
@@ -118,16 +125,22 @@ func (t *LogTransformer) AddHeader() {
 	t.LogContent = stringWriter.String()
 }
 
-func (t *LogTransformer) PrintFile() {
+func (t *LogTransformer) printFile() {
 	logrus.Infof("File contents: %s", t.LogContent)
 }
 
+// Process log file
+// 1. Clean any ANSI chars and XTERM color created from cdk diff command
+// 2. Transform additions and removals to markdown diff syntax
+// 3. Create unique message header
+// 4. truncate content if message is longer than GitHub API can handle
 func (t *LogTransformer) Process() {
-	err := t.ReadFile()
+	err := t.readFile()
 	if err != nil {
 		logrus.Fatal(err)
 	}
-	t.RemoveAnsiCode()
-	t.TransformDiff()
-	t.AddHeader()
+	t.removeAnsiCode()
+	t.transformDiff()
+	t.addHeader()
+	t.truncate()
 }

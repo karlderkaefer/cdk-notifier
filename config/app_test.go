@@ -54,7 +54,7 @@ func TestAppConfig_ReadPullRequestFromEnv(t *testing.T) {
 	}
 
 	for _, c := range testCases {
-		_ = os.Setenv(ENV_PULL_REQUEST_ID, c.input)
+		_ = os.Setenv(EnvPullRequestID, c.input)
 		actual, err := readPullRequestFromEnv()
 		assert.IsType(t, c.err, err)
 		assert.Equal(t, c.expected, actual)
@@ -69,10 +69,10 @@ func TestAppConfig_Init(t *testing.T) {
 				LogFile: "./cdk.log",
 			},
 			envVars: map[string]string{
-				ENV_PULL_REQUEST_ID: "23",
-				ENV_GITHUB_TOKEN:    "some-token",
-				ENV_REPO_NAME:       "Uepsilon",
-				ENV_REPO_OWNER:      "pansenentertainment",
+				EnvPullRequestID: "23",
+				EnvGithubToken:   "some-token",
+				EnvRepoName:      "Uepsilon",
+				EnvRepoOwner:     "pansenentertainment",
 			},
 			expectedConfig: AppConfig{
 				LogFile:     "./cdk.log",
@@ -93,10 +93,10 @@ func TestAppConfig_Init(t *testing.T) {
 				PullRequest: 12,
 			},
 			envVars: map[string]string{
-				ENV_PULL_REQUEST_ID: "23",
-				ENV_GITHUB_TOKEN:    "some-token",
-				ENV_REPO_NAME:       "Uepsilon",
-				ENV_REPO_OWNER:      "pansenentertainment",
+				EnvPullRequestID: "23",
+				EnvGithubToken:   "some-token",
+				EnvRepoName:      "Uepsilon",
+				EnvRepoOwner:     "pansenentertainment",
 			},
 			expectedConfig: AppConfig{
 				LogFile:     "./cdk.log",
@@ -114,9 +114,9 @@ func TestAppConfig_Init(t *testing.T) {
 				DeleteComment: true,
 			},
 			envVars: map[string]string{
-				ENV_PULL_REQUEST_ID: "23",
-				ENV_REPO_NAME:       "Uepsilon",
-				ENV_REPO_OWNER:      "pansenentertainment",
+				EnvPullRequestID: "23",
+				EnvRepoName:      "Uepsilon",
+				EnvRepoOwner:     "pansenentertainment",
 			},
 			expectedConfig: AppConfig{
 				LogFile:       "./cdk.log",
@@ -126,7 +126,7 @@ func TestAppConfig_Init(t *testing.T) {
 				GithubToken:   "",
 				PullRequest:   23,
 			},
-			err: &ConfigValidationError{"github-token", ENV_GITHUB_TOKEN},
+			err: &ValidationError{"github-token", EnvGithubToken},
 		},
 		{
 			description: "test misssing pull request id will cause no error",
@@ -135,9 +135,9 @@ func TestAppConfig_Init(t *testing.T) {
 				DeleteComment: true,
 			},
 			envVars: map[string]string{
-				ENV_REPO_NAME:    "Uepsilon",
-				ENV_REPO_OWNER:   "pansenentertainment",
-				ENV_GITHUB_TOKEN: "some-token",
+				EnvRepoName:    "Uepsilon",
+				EnvRepoOwner:   "pansenentertainment",
+				EnvGithubToken: "some-token",
 			},
 			expectedConfig: AppConfig{
 				LogFile:       "./cdk.log",
@@ -158,7 +158,7 @@ func TestAppConfig_Init(t *testing.T) {
 				GithubToken: "some-token",
 			},
 			envVars: map[string]string{
-				ENV_PULL_REQUEST_ID: "23as",
+				EnvPullRequestID: "23as",
 			},
 			expectedConfig: AppConfig{
 				LogFile:     "./cdk.log",
@@ -182,7 +182,7 @@ func TestAppConfig_Init(t *testing.T) {
 		err := c.inputConfig.Init()
 		assert.Equal(t, c.err, err)
 		assert.Equal(t, c.expectedConfig, c.inputConfig)
-		for k, _ := range c.envVars {
+		for k := range c.envVars {
 			_ = os.Unsetenv(k)
 		}
 	}

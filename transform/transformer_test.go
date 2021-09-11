@@ -9,10 +9,10 @@ func TestLogTransformer_ReadFile(t *testing.T) {
 	transformer := &LogTransformer{
 		Logfile: "../data/cdk-diff1.log",
 	}
-	err := transformer.ReadFile()
+	err := transformer.readFile()
 	assert.NoError(t, err)
-	transformer.RemoveAnsiCode()
-	transformer.PrintFile()
+	transformer.removeAnsiCode()
+	transformer.printFile()
 }
 
 type TestObject struct {
@@ -35,7 +35,7 @@ func TestLogTransformer_RemoveAnsiCode(t *testing.T) {
 		logTransformer := &LogTransformer{
 			LogContent: c.input,
 		}
-		logTransformer.RemoveAnsiCode()
+		logTransformer.removeAnsiCode()
 		assert.Equal(t, c.expected, logTransformer.LogContent)
 	}
 }
@@ -67,7 +67,7 @@ func TestLogTransformer_TransformDiff(t *testing.T) {
 		logTransformer := &LogTransformer{
 			LogContent: c.input,
 		}
-		logTransformer.TransformDiff()
+		logTransformer.transformDiff()
 		assert.Equal(t, c.expected, logTransformer.LogContent)
 	}
 }
@@ -82,13 +82,13 @@ func TestLogTransformer_AddHeader(t *testing.T) {
 		{
 			transformer: LogTransformer{
 				LogContent: "+[+] helloworld",
-				TagId:      "some title",
+				TagID:      "some title",
 			},
 			expected: "\n## cdk diff for some title \n```diff\n+[+] helloworld\n```\n",
 		},
 	}
 	for _, c := range cases {
-		c.transformer.AddHeader()
+		c.transformer.addHeader()
 		assert.Equal(t, c.expected, c.transformer.LogContent)
 	}
 }
