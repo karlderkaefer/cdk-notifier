@@ -1,3 +1,11 @@
+## [1.1.1](https://github.com/karlderkaefer/cdk-notifier/compare/v1.1.0...v1.1.1) (2021-09-02)
+
+
+### Bug Fixes
+
+* add test cases for app config ([119c4bc](https://github.com/karlderkaefer/cdk-notifier/commit/119c4bc73000bd0f42f38b59e510c75f139b74cc))
+* make pull request id optional value ([f8e86ef](https://github.com/karlderkaefer/cdk-notifier/commit/f8e86ef931268b9bc80b5b15f743cd761210c277))
+
 # [1.1.0](https://github.com/karlderkaefer/cdk-notifier/compare/v1.0.1...v1.1.0) (2021-09-01)
 
 

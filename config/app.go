@@ -26,12 +26,12 @@ const (
 
 // ValidationError indicated a missing configuration either CLI argument or environment variable
 type ValidationError struct {
-	cliArg string
-	envVar string
+	CliArg string
+	EnvVar string
 }
 
 func (e *ValidationError) Error() string {
-	return fmt.Sprintf("missing argument. Set --%s argument or env var %s", e.cliArg, e.envVar)
+	return fmt.Sprintf("missing argument. Set --%s argument or env var %s", e.CliArg, e.EnvVar)
 }
 
 const (
@@ -76,9 +76,6 @@ func (a *AppConfig) Init() error {
 	if a.GithubToken == "" {
 		return &ValidationError{"github-token", EnvGithubToken}
 	}
-	if a.PullRequest == 0 {
-		return &ValidationError{"pull-request-id", EnvPullRequestID}
-	}
 	return nil
 }
 
@@ -92,6 +89,10 @@ func readFromEnv(env string) string {
 
 func readPullRequestFromEnv() (int, error) {
 	url := os.Getenv(EnvPullRequestID)
+	if url == "" {
+		logrus.Warnf("env var %s is not set or empty", EnvPullRequestID)
+		return 0, nil
+	}
 	elements := strings.Split(url, "/")
 	prNumber := elements[len(elements)-1]
 	val, err := strconv.ParseInt(prNumber, 10, 0)
