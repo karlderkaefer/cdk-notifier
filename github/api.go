@@ -52,6 +52,8 @@ func NewGithubClient(ctx context.Context, config *config.AppConfig, issuesMock I
 	}
 	if ctx == nil {
 		githubClient.Context = context.Background()
+	} else {
+		githubClient.Context = ctx
 	}
 	if issuesMock != nil {
 		githubClient.Issues = issuesMock
@@ -61,7 +63,7 @@ func NewGithubClient(ctx context.Context, config *config.AppConfig, issuesMock I
 		)
 		tokenClient := oauth2.NewClient(ctx, cred)
 		githubClient.Client = github.NewClient(tokenClient)
-
+		githubClient.Issues = githubClient.Client.Issues
 	}
 	return githubClient
 }
@@ -125,7 +127,7 @@ func (gc *Client) PostComment() error {
 		if err != nil {
 			return err
 		}
-		logrus.Infof("Updated comment with id %d and tag id %s", editedComment.ID, gc.TagID)
+		logrus.Infof("Updated comment with id %d and tag id %s %v", editedComment.ID, gc.TagID, getIssueCommentURL(editedComment))
 		return nil
 	}
 	if strings.Contains(gc.CommentContent, "There were no differences") {
@@ -136,6 +138,13 @@ func (gc *Client) PostComment() error {
 	if err != nil {
 		return err
 	}
-	logrus.Infof("Created comment with id %d and tag id %s", newComment.ID, gc.TagID)
+	logrus.Infof("Created comment with id %d and tag id %s %v", newComment.ID, gc.TagID, getIssueCommentURL(newComment))
 	return nil
+}
+
+func getIssueCommentURL(comment *github.IssueComment) string {
+	if comment == nil || comment.HTMLURL == nil {
+		return ""
+	}
+	return *comment.HTMLURL
 }
