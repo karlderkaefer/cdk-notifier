@@ -7,7 +7,13 @@ import (
 	"github.com/karlderkaefer/cdk-notifier/config"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
+	"regexp"
 	"strings"
+)
+
+const (
+	// HeaderPrefix default prefix for comment message
+	HeaderPrefix = "## cdk diff for"
 )
 
 // IssuesService interface for required GitHub actions with API
@@ -96,8 +102,7 @@ func (gc *Client) FindComment() (*github.IssueComment, error) {
 		return nil, err
 	}
 	for _, comment := range comments {
-		id := fmt.Sprintf("## cdk diff for %s", gc.TagID)
-		if strings.Contains(comment.GetBody(), id) {
+		if strings.Contains(comment.GetBody(), gc.getHeaderTagID()) {
 			logrus.Debugf("Found existing comment for %s", gc.TagID)
 			return comment, nil
 		}
@@ -115,7 +120,7 @@ func (gc *Client) PostComment() error {
 		return err
 	}
 	if comment != nil {
-		if gc.DeleteComments && strings.Contains(gc.CommentContent, "There were no differences") {
+		if gc.DeleteComments && !gc.hasChanges() {
 			_, err := gc.Issues.DeleteComment(gc.Context, gc.Owner, gc.Repo, comment.GetID())
 			if err != nil {
 				return err
@@ -130,7 +135,7 @@ func (gc *Client) PostComment() error {
 		logrus.Infof("Updated comment with id %d and tag id %s %v", editedComment.ID, gc.TagID, getIssueCommentURL(editedComment))
 		return nil
 	}
-	if strings.Contains(gc.CommentContent, "There were no differences") {
+	if !gc.hasChanges() {
 		logrus.Infof("There is no diff detected for tag id %s. Skip posting diff.", gc.TagID)
 		return nil
 	}
@@ -140,6 +145,15 @@ func (gc *Client) PostComment() error {
 	}
 	logrus.Infof("Created comment with id %d and tag id %s %v", newComment.ID, gc.TagID, getIssueCommentURL(newComment))
 	return nil
+}
+
+func (gc *Client) getHeaderTagID() string {
+	return fmt.Sprintf("%s %s", HeaderPrefix, gc.TagID)
+}
+
+func (gc *Client) hasChanges() bool {
+	regex := regexp.MustCompile(`(?m)(Policy Changes|Resources\n|Statement Changes)`)
+	return regex.MatchString(gc.CommentContent)
 }
 
 func getIssueCommentURL(comment *github.IssueComment) string {

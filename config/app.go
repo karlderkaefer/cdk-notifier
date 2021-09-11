@@ -19,11 +19,6 @@ type AppConfig struct {
 	DeleteComment bool
 }
 
-const (
-	// HeaderPrefix default prefix for comment message
-	HeaderPrefix = "## cdk diff for"
-)
-
 // ValidationError indicated a missing configuration either CLI argument or environment variable
 type ValidationError struct {
 	CliArg string

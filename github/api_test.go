@@ -7,6 +7,7 @@ import (
 	"github.com/karlderkaefer/cdk-notifier/config"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	"io/ioutil"
 	"testing"
 )
 
@@ -50,7 +51,7 @@ func TestUpdateExistingComment(t *testing.T) {
 	commentsMock := []*github.IssueComment{
 		{
 			ID:   github.Int64(1),
-			Body: github.String("## cdk diff for example\nhello-world"),
+			Body: github.String(fmt.Sprintf("%s %s\n%s", HeaderPrefix, "example", "hello-word")),
 		},
 	}
 
@@ -58,7 +59,7 @@ func TestUpdateExistingComment(t *testing.T) {
 	client := NewGithubClient(context.Background(), &config.AppConfig{TagID: "example"}, mock)
 
 	// test update existing comment
-	client.CommentContent = "## cdk diff for example\nUpdated"
+	client.CommentContent = fmt.Sprintf("%s %s\n%s", HeaderPrefix, "example", "Updated")
 	found, err := client.FindComment()
 	assert.NoError(t, err)
 	assert.NotNil(t, found)
@@ -76,11 +77,11 @@ func TestGithubConfig_FindComment(t *testing.T) {
 	commentsMock := []*github.IssueComment{
 		{
 			ID:   github.Int64(1),
-			Body: github.String("## cdk diff for real-tag\nhello-word"),
+			Body: github.String(fmt.Sprintf("%s %s\n%s", HeaderPrefix, "real-tag", "hello-word")),
 		},
 		{
 			ID:   github.Int64(2),
-			Body: github.String("## cdk diff for not-real-tag\nsome-description"),
+			Body: github.String(fmt.Sprintf("%s %s\n%s", HeaderPrefix, "not-real-tag", "some-description")),
 		},
 	}
 	mock := &MockPullRequestService{comments: commentsMock}
@@ -105,7 +106,7 @@ func TestGithubClient_ListComments(t *testing.T) {
 	for i := 1; i <= maxLength; i++ {
 		commentsMock = append(commentsMock, &github.IssueComment{
 			ID:   github.Int64(int64(i)),
-			Body: github.String(fmt.Sprintf("## cdk diff for example-%d", i)),
+			Body: github.String(fmt.Sprintf("%s example-%d", HeaderPrefix, i)),
 		})
 	}
 
@@ -121,4 +122,41 @@ func TestGithubClient_ListComments(t *testing.T) {
 
 	mock.comments = nil
 
+}
+
+type HasChangesTest struct {
+	input            string
+	expectHasChanges bool
+}
+
+func TestClient_hasChanges(t *testing.T) {
+	cases := []HasChangesTest{
+		{
+			input:            readFile("../data/cdk-multistack.log"),
+			expectHasChanges: true,
+		},
+		{
+			input:            "Stack core-network\nThere were no differences\nStack corenetwork735961878498apsoutheast21AE73C6D\nThere were no differences\nThere were no Resources differences",
+			expectHasChanges: false,
+		},
+		{
+			input:            "Stack core-network\nThere were no differences\nResources\nStack corenetwork735961878498apsoutheast21AE73C6D\nThere were no differences",
+			expectHasChanges: true,
+		},
+	}
+	for _, c := range cases {
+		client := Client{
+			CommentContent: c.input,
+		}
+		actual := client.hasChanges()
+		assert.Equal(t, c.expectHasChanges, actual)
+	}
+}
+
+func readFile(path string) string {
+	content, err := ioutil.ReadFile(path)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	return string(content)
 }

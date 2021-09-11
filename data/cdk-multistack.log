@@ -1,0 +1,30 @@
+Stack CoreIamStack
+There were no differences
+Stack CoreIamStackmain12345678eucentral1E9950359
+IAM Statement Changes
+┌───┬─────────────────────────────────────────────────────────┬────────┬───────────────────────────────────────────────────┬────────────────────────────────────────────────────────────────────────┬───────────┐
+│   │ Resource                                                │ Effect │ Action                                            │ Principal                                                              │ Condition │
+├───┼─────────────────────────────────────────────────────────┼────────┼───────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────┼───────────┤
+│ - │ *                                                       │ Allow  │ eks:Describe*                                     │ AWS:${main-12345678************/CircleCiAccessRole}                    │           │
+│   │                                                         │        │ eks:List*                                         │                                                                        │           │
+│ - │ *                                                       │ Allow  │ autoscaling:DescribeAutoScalingGroups             │ AWS:${main-12345678************/BillingAccessRole}                     │           │
+│   │                                                         │        │ cloudwatch:GetMetricData                          │                                                                        │           │
+└───┴─────────────────────────────────────────────────────────┴────────┴───────────────────────────────────────────────────┴────────────────────────────────────────────────────────────────────────┴───────────┘
+IAM Policy Changes
+┌───┬────────────────────────────────────────────────────────────────────┬────────────────────────────────────────────────────────────────────────────────┐
+│   │ Resource                                                           │ Managed Policy ARN                                                             │
+├───┼────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────┤
+│ + │ ${main-12345678************/UserManagementAccessRole}              │ arn:${AWS::Partition}:iam::12345678:policy/reset_pw                            │
+└───┴────────────────────────────────────────────────────────────────────┴────────────────────────────────────────────────────────────────────────────────┘
+(NOTE: There may be security-related changes not in this list. See https://github.com/aws/aws-cdk/issues/1299)
+
+Resources
+[-] AWS::IAM::Policy CircleCiAccessRoleDefaultPolicy8190211F destroy
+[+] AWS::IAM::ManagedPolicy main-12345678************/SecAuditReadOnlyAccessPolicy SecAuditReadOnlyAccessPolicyF428ECE7 
+[~] AWS::IAM::Role main-12345678************/CircleCiAccessRole CircleCiAccessRoleC219E1B2 
+ ├─ [+] ManagedPolicyArns
+ │   └─ [{"Fn::Join":["",["arn:",{"Ref":"AWS::Partition"},":iam::12345678:policy/EksKubeConfigUpdate"]]}]
+ ├─ [+] PermissionsBoundary
+ │   └─ {"Fn::Join":["",["arn:",{"Ref":"AWS::Partition"},":iam::12345678:policy/PermissionBoundaryPolicy"]]}
+ └─ [+] DependsOn
+     └─ ["EksKubeConfigUpdate43433205","PermissionBoundaryPolicy910600B0"]

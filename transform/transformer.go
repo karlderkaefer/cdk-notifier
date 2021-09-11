@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"github.com/acarl005/stripansi"
 	"github.com/karlderkaefer/cdk-notifier/config"
+	"github.com/karlderkaefer/cdk-notifier/github"
 	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"regexp"
@@ -23,12 +24,13 @@ type LogTransformer struct {
 	TagID      string
 }
 
-// GithubTemplate wrapper object to use go templating
-type GithubTemplate struct {
-	TagID     string
-	Content   string
-	JobLink   string
-	Backticks string
+// githubTemplate wrapper object to use go templating
+type githubTemplate struct {
+	TagID        string
+	Content      string
+	JobLink      string
+	Backticks    string
+	HeaderPrefix string
 }
 
 // NewLogTransformer create new log transfer based on config.AppConfig
@@ -102,16 +104,17 @@ func (t *LogTransformer) truncate() {
 
 func (t *LogTransformer) addHeader() {
 	templateContent := `
-## cdk diff for {{ .TagID }} {{ .JobLink }}
+{{ .HeaderPrefix }} {{ .TagID }} {{ .JobLink }}
 {{ .Backticks }}diff
 {{ .Content }}
 {{ .Backticks }}
 `
-	githubTemplate := &GithubTemplate{
-		TagID:     t.TagID,
-		Content:   t.LogContent,
-		Backticks: "```",
-		JobLink:   "",
+	githubTemplate := &githubTemplate{
+		TagID:        t.TagID,
+		Content:      t.LogContent,
+		Backticks:    "```",
+		JobLink:      "",
+		HeaderPrefix: github.HeaderPrefix,
 	}
 	tmpl, err := template.New("githubTemplate").Parse(templateContent)
 	if err != nil {
