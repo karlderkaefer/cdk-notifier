@@ -2,7 +2,6 @@ package github
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/google/go-github/v37/github"
 	"github.com/karlderkaefer/cdk-notifier/config"
@@ -15,25 +14,8 @@ func initLogger() {
 	logrus.SetLevel(7)
 }
 
-type MockGithubPullRequestService struct {
-	Comments []*github.PullRequestComment
-	Response *github.Response
-	Error    error
-}
-
 type MockPullRequestService struct {
 	comments []*github.IssueComment
-}
-
-func (m MockPullRequestService) getCommentById(id int64) *github.IssueComment {
-	for _, comment := range m.comments {
-		fmt.Println("checking ", comment)
-		if comment.ID == &id {
-			fmt.Println("should be her")
-			return comment
-		}
-	}
-	return nil
 }
 
 func (m *MockPullRequestService) DeleteComment(ctx context.Context, owner string, repo string, commentID int64) (*github.Response, error) {
@@ -51,7 +33,7 @@ func (m *MockPullRequestService) EditComment(ctx context.Context, owner string, 
 			return m.comments[i], nil, nil
 		}
 	}
-	return nil, nil, errors.New(fmt.Sprintf("Could not find comment with id %d in database %v", commentID, m.comments))
+	return nil, nil, fmt.Errorf("could not find comment with id %d in database %v", commentID, m.comments)
 }
 
 func (m *MockPullRequestService) CreateComment(ctx context.Context, owner string, repo string, number int, comment *github.IssueComment) (*github.IssueComment, *github.Response, error) {
@@ -73,7 +55,7 @@ func TestUpdateExistingComment(t *testing.T) {
 	}
 
 	mock := &MockPullRequestService{comments: commentsMock}
-	client := NewCithubClient(context.Background(), &config.AppConfig{TagId: "example"}, mock)
+	client := NewGithubClient(context.Background(), &config.AppConfig{TagID: "example"}, mock)
 
 	// test update existing comment
 	client.CommentContent = "## cdk diff for example\nUpdated"
@@ -102,14 +84,14 @@ func TestGithubConfig_FindComment(t *testing.T) {
 		},
 	}
 	mock := &MockPullRequestService{comments: commentsMock}
-	client := NewCithubClient(context.Background(), &config.AppConfig{TagId: "real-tag"}, mock)
+	client := NewGithubClient(context.Background(), &config.AppConfig{TagID: "real-tag"}, mock)
 
 	comment, err := client.FindComment()
 	assert.NoError(t, err)
 	assert.NotNil(t, comment)
 	assert.Equal(t, commentsMock[0], comment)
 
-	client.TagId = "non-existing-tag"
+	client.TagID = "non-existing-tag"
 	comment, err = client.FindComment()
 	assert.NoError(t, err)
 	assert.Nil(t, comment)
@@ -128,7 +110,7 @@ func TestGithubClient_ListComments(t *testing.T) {
 	}
 
 	mock := &MockPullRequestService{comments: commentsMock}
-	client := NewCithubClient(context.Background(), &config.AppConfig{TagId: "example"}, mock)
+	client := NewGithubClient(context.Background(), &config.AppConfig{TagID: "example"}, mock)
 
 	comments, err := client.ListComments()
 	t.Logf("%v", comments)
