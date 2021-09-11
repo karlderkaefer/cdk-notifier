@@ -49,13 +49,12 @@ var rootCmd = &cobra.Command{
 			logrus.Warnf("Skipping... because %s", err)
 			return
 		}
-		logrus.Debugf("got app config: %#v", appConfig)
+		logrus.Tracef("got app config: %#v", appConfig)
 
 		transformer := transform.NewLogTransformer(appConfig)
 		transformer.Process()
 
 		gc := github.NewGithubClient(cmd.Context(), appConfig, nil)
-		gc.Context = cmd.Context()
 		gc.CommentContent = transformer.LogContent
 		gc.Authenticate()
 		err = gc.PostComment()
