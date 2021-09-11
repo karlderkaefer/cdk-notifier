@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/karlderkaefer/cdk-notifier/compare/v1.1.2...v1.2.0) (2021-09-11)
+
+
+### Features
+
+* support multi stack detection ([5aa4368](https://github.com/karlderkaefer/cdk-notifier/commit/5aa4368388fa8bf499f5336c355ef6cec7390502)), closes [#6](https://github.com/karlderkaefer/cdk-notifier/issues/6)
+
 ## [1.1.2](https://github.com/karlderkaefer/cdk-notifier/compare/v1.1.1...v1.1.2) (2021-09-11)
 
 
