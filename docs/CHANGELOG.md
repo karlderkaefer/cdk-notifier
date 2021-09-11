@@ -1,3 +1,13 @@
+## [1.1.2](https://github.com/karlderkaefer/cdk-notifier/compare/v1.1.1...v1.1.2) (2021-09-11)
+
+
+### Bug Fixes
+
+* add issue url to output ([f5f05ba](https://github.com/karlderkaefer/cdk-notifier/commit/f5f05badf54638102a12d530e5b10f37070ca51c))
+* fixing golang lint errors ([c3432d8](https://github.com/karlderkaefer/cdk-notifier/commit/c3432d83dcd5257c18d37949d0c8571299c6e0e6))
+* mock github api test ([7043428](https://github.com/karlderkaefer/cdk-notifier/commit/70434289da7bceb22d70e995cd8f1cacbc9650a2))
+* set log level for printing app config to trace ([9586f43](https://github.com/karlderkaefer/cdk-notifier/commit/9586f43134c2b732a596092f6605f2e813f71c07))
+
 ## [1.1.1](https://github.com/karlderkaefer/cdk-notifier/compare/v1.1.0...v1.1.1) (2021-09-02)
 
 
