@@ -3,7 +3,7 @@ version: 2.1
 orbs:
   node: circleci/node@4.5.2
   go: circleci/go@1.7.0
-  codecov: codecov/codecov@3.0.0
+  codecov: codecov/codecov@3.2.2
 
 commands:
   set-version:
