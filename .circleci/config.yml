@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   node: circleci/node@5.0.0
-  go: circleci/go@1.7.0
+  go: circleci/go@1.7.1
   codecov: codecov/codecov@3.2.2
 
 commands:
