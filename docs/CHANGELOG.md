@@ -1,3 +1,10 @@
+## [1.2.3](https://github.com/karlderkaefer/cdk-notifier/compare/v1.2.2...v1.2.3) (2022-03-10)
+
+
+### Bug Fixes
+
+* **deps:** update golang.org/x/oauth2 commit hash to 6242fa9 ([e1143ce](https://github.com/karlderkaefer/cdk-notifier/commit/e1143cece932218dbf49d54c351da60c631997ec))
+
 ## [1.2.2](https://github.com/karlderkaefer/cdk-notifier/compare/v1.2.1...v1.2.2) (2022-02-23)
 
 
