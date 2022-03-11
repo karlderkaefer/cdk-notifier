@@ -1,3 +1,10 @@
+## [1.2.4](https://github.com/karlderkaefer/cdk-notifier/compare/v1.2.3...v1.2.4) (2022-03-11)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/spf13/cobra to v1.4.0 ([224ebf0](https://github.com/karlderkaefer/cdk-notifier/commit/224ebf0b92072df51030745111f4db12ecdf1517))
+
 ## [1.2.3](https://github.com/karlderkaefer/cdk-notifier/compare/v1.2.2...v1.2.3) (2022-03-10)
 
 
