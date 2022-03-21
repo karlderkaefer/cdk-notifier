@@ -1,3 +1,10 @@
+## [1.2.6](https://github.com/karlderkaefer/cdk-notifier/compare/v1.2.5...v1.2.6) (2022-03-21)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/quasilyte/go-ruleguard/dsl to v0.3.18 ([6f92b93](https://github.com/karlderkaefer/cdk-notifier/commit/6f92b937670d3c53cb09a9e53a4ab1b65778f452))
+
 ## [1.2.5](https://github.com/karlderkaefer/cdk-notifier/compare/v1.2.4...v1.2.5) (2022-03-16)
 
 
