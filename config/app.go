@@ -39,6 +39,7 @@ type NotifierConfig struct {
 	Token         string `mapstructure:"TOKEN"`
 	PullRequestID int    `mapstructure:"PR_ID"`
 	DeleteComment bool   `mapstructure:"DELETE_COMMENT"`
+	Vcs           string `mapstructure:"VERSION_CONTROL_SYSTEM"`
 }
 
 // Init will create default NotifierConfig with following priority

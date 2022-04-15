@@ -56,7 +56,8 @@ func TestUpdateExistingComment(t *testing.T) {
 	}
 
 	mock := &MockPullRequestService{comments: commentsMock}
-	client := NewGithubClient(context.Background(), &config.NotifierConfig{TagID: "example"}, mock)
+	client := NewGithubClient(context.Background(), &config.NotifierConfig{TagID: "example"})
+	client.setGithubIssuesService(mock)
 
 	// test update existing comment
 	client.CommentContent = fmt.Sprintf("%s %s\n%s", HeaderPrefix, "example", "Updated")
@@ -85,7 +86,8 @@ func TestGithubConfig_FindComment(t *testing.T) {
 		},
 	}
 	mock := &MockPullRequestService{comments: commentsMock}
-	client := NewGithubClient(context.Background(), &config.NotifierConfig{TagID: "real-tag"}, mock)
+	client := NewGithubClient(context.Background(), &config.NotifierConfig{TagID: "real-tag"})
+	client.setGithubIssuesService(mock)
 
 	comment, err := client.FindComment()
 	assert.NoError(t, err)
@@ -111,7 +113,8 @@ func TestGithubClient_ListComments(t *testing.T) {
 	}
 
 	mock := &MockPullRequestService{comments: commentsMock}
-	client := NewGithubClient(context.Background(), &config.NotifierConfig{TagID: "example"}, mock)
+	client := NewGithubClient(context.Background(), &config.NotifierConfig{TagID: "example"})
+	client.setGithubIssuesService(mock)
 
 	comments, err := client.ListComments()
 	t.Logf("%v", comments)
@@ -148,7 +151,7 @@ func TestClient_hasChanges(t *testing.T) {
 		client := GithubClient{
 			CommentContent: c.input,
 		}
-		actual := client.hasChanges()
+		actual := diffHasChanges(client.CommentContent)
 		assert.Equal(t, c.expectHasChanges, actual)
 	}
 }

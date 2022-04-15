@@ -40,10 +40,16 @@ var rootCmd = &cobra.Command{
 		transformer := transform.NewLogTransformer(appConfig)
 		transformer.Process()
 
-		gc := ci.NewGithubClient(cmd.Context(), appConfig, nil)
-		gc.CommentContent = transformer.LogContent
-		gc.Authenticate()
-		err = gc.PostComment()
+		notifier, err := ci.GetNotifierService(cmd.Context(), appConfig)
+		if err != nil {
+			logrus.Fatalln(err)
+		}
+		notifier.SetCommentContent(transformer.LogContent)
+		err = notifier.Authenticate()
+		if err != nil {
+			logrus.Fatalln(err)
+		}
+		err = notifier.PostComment()
 		if err != nil {
 			logrus.Fatalln(err)
 		}
@@ -78,6 +84,7 @@ func init() {
 	rootCmd.Flags().StringP("log-file", "l", "", "path to cdk log file")
 	rootCmd.Flags().StringP("tag-id", "t", "stack", "unique identifier for stack within pipeline")
 	rootCmd.Flags().StringP("delete", "d", "", "delete comments when no changes are detected for a specific tag id")
+	rootCmd.Flags().String("vcs", "github", "Version Control System [github|bitbucket]")
 
 	// mapping for viper [mapstruct value, flag name]
 	viperMappings := make(map[string]string)
@@ -88,6 +95,7 @@ func init() {
 	viperMappings["LOG_FILE"] = "log-file"
 	viperMappings["TAG_ID"] = "tag-id"
 	viperMappings["DELETE_COMMENT"] = "delete"
+	viperMappings["VERSION_CONTROL_SYSTEM"] = "vcs"
 
 	for k, v := range viperMappings {
 		err := viper.BindPFlag(k, rootCmd.Flags().Lookup(v))

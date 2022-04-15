@@ -2,12 +2,10 @@ package ci
 
 import (
 	"context"
-	"fmt"
 	"github.com/google/go-github/v37/github"
 	"github.com/karlderkaefer/cdk-notifier/config"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
-	"regexp"
 	"strings"
 )
 
@@ -16,8 +14,8 @@ const (
 	HeaderPrefix = "## cdk diff for"
 )
 
-// IssuesService interface for required GitHub actions with API
-type IssuesService interface {
+// GithubIssuesService interface for required GitHub actions with API
+type GithubIssuesService interface {
 	ListComments(ctx context.Context, owner string, repo string, number int, opts *github.IssueListCommentsOptions) ([]*github.IssueComment, *github.Response, error)
 	DeleteComment(ctx context.Context, owner string, repo string, commentID int64) (*github.Response, error)
 	EditComment(ctx context.Context, owner string, repo string, commentID int64, comment *github.IssueComment) (*github.IssueComment, *github.Response, error)
@@ -33,7 +31,7 @@ type NotifierGithubService interface {
 
 // GithubClient GitHub client configuration
 type GithubClient struct {
-	Issues         IssuesService
+	Issues         GithubIssuesService
 	Context        context.Context
 	Client         *github.Client
 	Config         *config.NotifierConfig
@@ -41,7 +39,7 @@ type GithubClient struct {
 }
 
 // NewGithubClient create new github client. Can also consume a mocked IssueService
-func NewGithubClient(ctx context.Context, config *config.NotifierConfig, issuesMock IssuesService) *GithubClient {
+func NewGithubClient(ctx context.Context, config *config.NotifierConfig) *GithubClient {
 	githubClient := &GithubClient{
 		Config: config,
 	}
@@ -50,26 +48,29 @@ func NewGithubClient(ctx context.Context, config *config.NotifierConfig, issuesM
 	} else {
 		githubClient.Context = ctx
 	}
-	if issuesMock != nil {
-		githubClient.Issues = issuesMock
-	} else {
-		cred := oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: config.Token},
-		)
-		tokenClient := oauth2.NewClient(ctx, cred)
-		githubClient.Client = github.NewClient(tokenClient)
-		githubClient.Issues = githubClient.Client.Issues
-	}
 	return githubClient
 }
 
-// Authenticate authenticate client with github token
-func (gc *GithubClient) Authenticate() {
+// SetCommentContent will pre-set the content that will be published to pull request
+func (gc *GithubClient) SetCommentContent(content string) {
+	gc.CommentContent = content
+}
+
+// Authenticate client with GitHub token
+func (gc *GithubClient) Authenticate() error {
 	token := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: gc.Config.Token},
 	)
 	tokenClient := oauth2.NewClient(gc.Context, token)
 	gc.Client = github.NewClient(tokenClient)
+	if gc.Issues == nil {
+		gc.Issues = gc.Client.Issues
+	}
+	return nil
+}
+
+func (gc *GithubClient) setGithubIssuesService(issuesMock GithubIssuesService) {
+	gc.Issues = issuesMock
 }
 
 // ListComments GitHub API implementation to list all comments of pull request
@@ -91,7 +92,7 @@ func (gc *GithubClient) FindComment() (*github.IssueComment, error) {
 		return nil, err
 	}
 	for _, comment := range comments {
-		if strings.Contains(comment.GetBody(), gc.getHeaderTagID()) {
+		if strings.Contains(comment.GetBody(), getHeaderTagID(gc.Config)) {
 			logrus.Debugf("Found existing comment for %s", gc.Config.TagID)
 			return comment, nil
 		}
@@ -109,7 +110,7 @@ func (gc *GithubClient) PostComment() error {
 		return err
 	}
 	if comment != nil {
-		if gc.Config.DeleteComment && !gc.hasChanges() {
+		if gc.Config.DeleteComment && !diffHasChanges(gc.CommentContent) {
 			_, err := gc.Issues.DeleteComment(gc.Context, gc.Config.RepoOwner, gc.Config.RepoName, comment.GetID())
 			if err != nil {
 				return err
@@ -124,7 +125,7 @@ func (gc *GithubClient) PostComment() error {
 		logrus.Infof("Updated comment with id %d and tag id %s %v", editedComment.ID, gc.Config.TagID, getIssueCommentURL(editedComment))
 		return nil
 	}
-	if !gc.hasChanges() {
+	if !diffHasChanges(gc.CommentContent) {
 		logrus.Infof("There is no diff detected for tag id %s. Skip posting diff.", gc.Config.TagID)
 		return nil
 	}
@@ -134,15 +135,6 @@ func (gc *GithubClient) PostComment() error {
 	}
 	logrus.Infof("Created comment with id %d and tag id %s %v", newComment.ID, gc.Config.TagID, getIssueCommentURL(newComment))
 	return nil
-}
-
-func (gc *GithubClient) getHeaderTagID() string {
-	return fmt.Sprintf("%s %s", HeaderPrefix, gc.Config.TagID)
-}
-
-func (gc *GithubClient) hasChanges() bool {
-	regex := regexp.MustCompile(`(?m)(Policy Changes|Resources\n|Statement Changes)`)
-	return regex.MatchString(gc.CommentContent)
 }
 
 func getIssueCommentURL(comment *github.IssueComment) string {
