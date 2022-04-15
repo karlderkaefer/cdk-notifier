@@ -47,14 +47,14 @@ type Client struct {
 }
 
 // NewGithubClient create new github client. Can also consume a mocked IssueService
-func NewGithubClient(ctx context.Context, config *config.AppConfig, issuesMock IssuesService) *Client {
+func NewGithubClient(ctx context.Context, config *config.NotifierConfig, issuesMock IssuesService) *Client {
 	githubClient := &Client{
 		Owner:          config.RepoOwner,
 		Repo:           config.RepoName,
 		TagID:          config.TagID,
-		PullRequestID:  config.PullRequest,
+		PullRequestID:  config.PullRequestID,
 		DeleteComments: config.DeleteComment,
-		Token:          config.GithubToken,
+		Token:          config.Token,
 	}
 	if ctx == nil {
 		githubClient.Context = context.Background()
@@ -65,7 +65,7 @@ func NewGithubClient(ctx context.Context, config *config.AppConfig, issuesMock I
 		githubClient.Issues = issuesMock
 	} else {
 		cred := oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: config.GithubToken},
+			&oauth2.Token{AccessToken: config.Token},
 		)
 		tokenClient := oauth2.NewClient(ctx, cred)
 		githubClient.Client = github.NewClient(tokenClient)

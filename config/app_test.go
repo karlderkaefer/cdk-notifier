@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"os"
@@ -16,13 +17,13 @@ type testCase struct {
 
 type testCaseInit struct {
 	description    string
-	inputConfig    AppConfig
+	inputConfig    NotifierConfig
 	envVars        map[string]string
-	expectedConfig AppConfig
+	expectedConfig NotifierConfig
 	err            error
 }
 
-func TestAppConfig_ReadPullRequestFromEnv(t *testing.T) {
+func TestNotifierConfig_ReadPullRequestFromEnv(t *testing.T) {
 	logrus.SetLevel(7)
 	testCases := []testCase{
 		{
@@ -54,118 +55,94 @@ func TestAppConfig_ReadPullRequestFromEnv(t *testing.T) {
 	}
 
 	for _, c := range testCases {
-		_ = os.Setenv(EnvPullRequestID, c.input)
+		_ = os.Setenv(EnvGithubPullRequestID, c.input)
 		actual, err := readPullRequestFromEnv()
 		assert.IsType(t, c.err, err)
 		assert.Equal(t, c.expected, actual)
 	}
 }
 
-func TestAppConfig_Init(t *testing.T) {
+func TestNotifierConfig_Init(t *testing.T) {
 	testCasesInit := []testCaseInit{
 		{
 			description: "test set values by env variables",
-			inputConfig: AppConfig{
+			inputConfig: NotifierConfig{
 				LogFile: "./cdk.log",
 			},
 			envVars: map[string]string{
-				EnvPullRequestID: "23",
-				EnvGithubToken:   "some-token",
-				EnvRepoName:      "Uepsilon",
-				EnvRepoOwner:     "pansenentertainment",
+				EnvGithubPullRequestID: "23",
+				EnvGithubToken:         "some-token",
+				EnvGithubRepoName:      "Uepsilon",
+				EnvGithubRepoOwner:     "pansenentertainment",
 			},
-			expectedConfig: AppConfig{
-				LogFile:     "./cdk.log",
-				RepoName:    "Uepsilon",
-				RepoOwner:   "pansenentertainment",
-				GithubToken: "some-token",
-				PullRequest: 23,
-			},
-			err: nil,
-		},
-		{
-			description: "test override of env vars with cli arguments",
-			inputConfig: AppConfig{
-				LogFile:     "./cdk.log",
-				RepoName:    "changedRepo",
-				GithubToken: "changedToken",
-				RepoOwner:   "changedOwner",
-				PullRequest: 12,
-			},
-			envVars: map[string]string{
-				EnvPullRequestID: "23",
-				EnvGithubToken:   "some-token",
-				EnvRepoName:      "Uepsilon",
-				EnvRepoOwner:     "pansenentertainment",
-			},
-			expectedConfig: AppConfig{
-				LogFile:     "./cdk.log",
-				RepoName:    "changedRepo",
-				GithubToken: "changedToken",
-				RepoOwner:   "changedOwner",
-				PullRequest: 12,
+			expectedConfig: NotifierConfig{
+				LogFile:       "./cdk.log",
+				RepoName:      "Uepsilon",
+				RepoOwner:     "pansenentertainment",
+				Token:         "some-token",
+				PullRequestID: 23,
 			},
 			err: nil,
 		},
 		{
 			description: "test missing github token values by env variables",
-			inputConfig: AppConfig{
+			inputConfig: NotifierConfig{
 				LogFile:       "./cdk.log",
 				DeleteComment: true,
 			},
 			envVars: map[string]string{
-				EnvPullRequestID: "23",
-				EnvRepoName:      "Uepsilon",
-				EnvRepoOwner:     "pansenentertainment",
+				EnvGithubPullRequestID: "23",
+				EnvGithubRepoName:      "Uepsilon",
+				EnvGithubRepoOwner:     "pansenentertainment",
 			},
-			expectedConfig: AppConfig{
+			expectedConfig: NotifierConfig{
 				LogFile:       "./cdk.log",
 				DeleteComment: true,
 				RepoName:      "Uepsilon",
 				RepoOwner:     "pansenentertainment",
-				GithubToken:   "",
-				PullRequest:   23,
+				Token:         "",
+				PullRequestID: 23,
 			},
-			err: &ValidationError{"github-token", EnvGithubToken},
+			err: &ValidationError{"token", EnvGithubToken},
 		},
 		{
 			description: "test misssing pull request id will cause no error",
-			inputConfig: AppConfig{
+			inputConfig: NotifierConfig{
 				LogFile:       "./cdk.log",
 				DeleteComment: true,
 			},
 			envVars: map[string]string{
-				EnvRepoName:    "Uepsilon",
-				EnvRepoOwner:   "pansenentertainment",
-				EnvGithubToken: "some-token",
+				EnvGithubRepoName:  "Uepsilon",
+				EnvGithubRepoOwner: "pansenentertainment",
+				EnvGithubToken:     "some-token",
 			},
-			expectedConfig: AppConfig{
+			expectedConfig: NotifierConfig{
 				LogFile:       "./cdk.log",
 				DeleteComment: true,
 				RepoName:      "Uepsilon",
 				RepoOwner:     "pansenentertainment",
-				GithubToken:   "some-token",
-				PullRequest:   0,
+				Token:         "some-token",
+				PullRequestID: 0,
 			},
 			err: nil,
 		},
 		{
 			description: "test parse int error",
-			inputConfig: AppConfig{
-				LogFile:     "./cdk.log",
-				RepoName:    "Uepsilon",
-				RepoOwner:   "pansenentertainment",
-				GithubToken: "some-token",
+			inputConfig: NotifierConfig{
+				LogFile:   "./cdk.log",
+				RepoName:  "Uepsilon",
+				RepoOwner: "pansenentertainment",
+				Token:     "some-token",
 			},
 			envVars: map[string]string{
-				EnvPullRequestID: "23as",
+				EnvGithubPullRequestID: "23as",
 			},
-			expectedConfig: AppConfig{
-				LogFile:     "./cdk.log",
-				RepoName:    "Uepsilon",
-				RepoOwner:   "pansenentertainment",
-				GithubToken: "some-token",
-				PullRequest: 0,
+			expectedConfig: NotifierConfig{
+				LogFile:       "./cdk.log",
+				RepoName:      "Uepsilon",
+				RepoOwner:     "pansenentertainment",
+				Token:         "some-token",
+				PullRequestID: 0,
 			},
 			err: &strconv.NumError{
 				Func: "ParseInt",
@@ -177,11 +154,12 @@ func TestAppConfig_Init(t *testing.T) {
 	for _, c := range testCasesInit {
 		t.Log(c.description)
 		for k, v := range c.envVars {
+			fmt.Printf("set env variable %s: %s\n", k, v)
 			_ = os.Setenv(k, v)
 		}
 		err := c.inputConfig.Init()
-		assert.Equal(t, c.err, err)
-		assert.Equal(t, c.expectedConfig, c.inputConfig)
+		assert.Equal(t, c.err, err, c.description)
+		assert.Equal(t, c.expectedConfig, c.inputConfig, c.description)
 		for k := range c.envVars {
 			_ = os.Unsetenv(k)
 		}

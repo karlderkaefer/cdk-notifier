@@ -7,19 +7,13 @@ import (
 	"github.com/karlderkaefer/cdk-notifier/transform"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"io"
 	"os"
 )
 
 var (
-	v             string
-	logFile       string
-	repoName      string
-	repoOwner     string
-	githubToken   string
-	tagID         string
-	pullRequestID int
-	deleteComment bool
+	v string
 	// Version cdk-notifier application version
 	Version string
 )
@@ -31,21 +25,13 @@ var rootCmd = &cobra.Command{
 	Long:    "Post CDK diff log to Github Pull Request",
 	Version: Version,
 	Run: func(cmd *cobra.Command, args []string) {
-		appConfig := &config.AppConfig{
-			LogFile:       logFile,
-			TagID:         tagID,
-			RepoName:      repoName,
-			RepoOwner:     repoOwner,
-			PullRequest:   pullRequestID,
-			DeleteComment: deleteComment,
-			GithubToken:   githubToken,
-		}
+		appConfig := &config.NotifierConfig{}
 		err := appConfig.Init()
 		if err != nil {
 			logrus.Fatal(err)
 		}
-		if appConfig.PullRequest == 0 {
-			err = &config.ValidationError{CliArg: "pull-request-id", EnvVar: config.EnvPullRequestID}
+		if appConfig.PullRequestID == 0 {
+			err = &config.ValidationError{CliArg: "pull-request-id", EnvVar: config.EnvGithubPullRequestID}
 			logrus.Warnf("Skipping... because %s", err)
 			return
 		}
@@ -79,17 +65,37 @@ func Execute() {
 
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&v, "verbosity", "v", logrus.InfoLevel.String(), "Log level (debug, info, warn, error, fatal, panic)")
-	usageRepo := fmt.Sprintf("Name of github repository without organisation. If not set will lookup for env var '%s'", config.EnvRepoName)
-	usageOwner := fmt.Sprintf("Name of gitub owner. If not set will lookup for env var '%s'", config.EnvRepoOwner)
+
+	usageRepo := fmt.Sprintf("Name of github repository without organisation. If not set will lookup for env var '%s'", config.EnvGithubRepoName)
+	usageOwner := fmt.Sprintf("Name of gitub owner. If not set will lookup for env var '%s'", config.EnvGithubRepoOwner)
 	usageToken := fmt.Sprintf("Github token used to post comments to PR. If not set will lookup for env var '%s'", config.EnvGithubToken)
-	usagePr := fmt.Sprintf("Id or URL of github pull request. If not set will lookup for env var '%s'", config.EnvPullRequestID)
-	rootCmd.PersistentFlags().StringVarP(&repoName, "github-repo", "r", "", usageRepo)
-	rootCmd.PersistentFlags().StringVarP(&repoOwner, "github-owner", "o", "", usageOwner)
-	rootCmd.PersistentFlags().StringVar(&githubToken, "github-token", "", usageToken)
-	rootCmd.PersistentFlags().IntVarP(&pullRequestID, "pull-request-id", "p", 0, usagePr)
-	rootCmd.PersistentFlags().StringVarP(&logFile, "log-file", "l", "./cdk.log", "path to cdk log file")
-	rootCmd.PersistentFlags().StringVarP(&tagID, "tag-id", "t", "stack", "unique identifier for stack within pipeline")
-	rootCmd.PersistentFlags().BoolVarP(&deleteComment, "delete", "d", true, "delete comments when no changes are detected for a specific tag id")
+	usagePr := fmt.Sprintf("Id or URL of github pull request. If not set will lookup for env var '%s'", config.EnvGithubPullRequestID)
+
+	rootCmd.Flags().StringP("repo", "r", "", usageRepo)
+	rootCmd.Flags().StringP("owner", "o", "", usageOwner)
+	rootCmd.Flags().String("token", "", usageToken)
+	rootCmd.Flags().StringP("pull-request-id", "p", "", usagePr)
+	rootCmd.Flags().StringP("log-file", "l", "", "path to cdk log file")
+	rootCmd.Flags().StringP("tag-id", "t", "stack", "unique identifier for stack within pipeline")
+	rootCmd.Flags().StringP("delete", "d", "", "delete comments when no changes are detected for a specific tag id")
+
+	// mapping for viper [mapstruct value, flag name]
+	viperMappings := make(map[string]string)
+	viperMappings["REPO_NAME"] = "repo"
+	viperMappings["REPO_OWNER"] = "owner"
+	viperMappings["TOKEN"] = "token"
+	viperMappings["PR_ID"] = "pull-request-id"
+	viperMappings["LOG_FILE"] = "log-file"
+	viperMappings["TAG_ID"] = "tag-id"
+	viperMappings["DELETE_COMMENT"] = "delete"
+
+	for k, v := range viperMappings {
+		err := viper.BindPFlag(k, rootCmd.Flags().Lookup(v))
+		if err != nil {
+			logrus.Error(err)
+		}
+	}
+
 	if Version == "" {
 		rootCmd.Version = "dev"
 	}

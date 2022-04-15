@@ -34,7 +34,7 @@ type githubTemplate struct {
 }
 
 // NewLogTransformer create new log transfer based on config.AppConfig
-func NewLogTransformer(config *config.AppConfig) *LogTransformer {
+func NewLogTransformer(config *config.NotifierConfig) *LogTransformer {
 	return &LogTransformer{
 		LogContent: "",
 		Logfile:    config.LogFile,

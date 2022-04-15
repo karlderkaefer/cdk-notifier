@@ -3,21 +3,11 @@ package config
 import (
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"os"
 	"strconv"
 	"strings"
 )
-
-// AppConfig application configuration initialized by cobra arguments or environment variabels
-type AppConfig struct {
-	LogFile       string
-	TagID         string
-	RepoName      string
-	RepoOwner     string
-	GithubToken   string
-	PullRequest   int
-	DeleteComment bool
-}
 
 // ValidationError indicated a missing configuration either CLI argument or environment variable
 type ValidationError struct {
@@ -32,71 +22,106 @@ func (e *ValidationError) Error() string {
 const (
 	// EnvGithubToken Name of environment variable for github token
 	EnvGithubToken = "GITHUB_TOKEN"
-	// EnvPullRequestID Name of environment variable for pull request url
-	EnvPullRequestID = "CIRCLE_PULL_REQUEST"
-	// EnvRepoName Name of environment variable for GitHub repo
-	EnvRepoName = "CIRCLE_PROJECT_REPONAME"
-	// EnvRepoOwner Name of environment variable for GitHub owner
-	EnvRepoOwner = "CIRCLE_PROJECT_USERNAME"
+	// EnvGithubPullRequestID Name of environment variable for pull request url
+	EnvGithubPullRequestID = "CIRCLE_PULL_REQUEST"
+	// EnvGithubRepoName Name of environment variable for GitHub repo
+	EnvGithubRepoName = "CIRCLE_PROJECT_REPONAME"
+	// EnvGithubRepoOwner Name of environment variable for GitHub owner
+	EnvGithubRepoOwner = "CIRCLE_PROJECT_USERNAME"
 )
 
-// Init will create default AppConfig with following priority
+// NotifierConfig holds configuration
+type NotifierConfig struct {
+	LogFile       string `mapstructure:"LOG_FILE"`
+	TagID         string `mapstructure:"TAG_ID"`
+	RepoName      string `mapstructure:"REPO_NAME"`
+	RepoOwner     string `mapstructure:"REPO_OWNER"`
+	Token         string `mapstructure:"TOKEN"`
+	PullRequestID int    `mapstructure:"PR_ID"`
+	DeleteComment bool   `mapstructure:"DELETE_COMMENT"`
+}
+
+// Init will create default NotifierConfig with following priority
 // 1. Environment Variables GITHUB_TOKEN, CIRCLE_PULL_REQUEST, CIRCLE_PROJECT_REPONAME, CIRCLE_PROJECT_USERNAME
 // 2. CLI args
 // returns ValidationError if required field where not set
-func (a *AppConfig) Init() error {
-	if a.RepoName == "" {
-		a.RepoName = readFromEnv(EnvRepoName)
+func (c *NotifierConfig) Init() error {
+	err := c.loadViperConfig()
+	if err != nil {
+		logrus.Errorln(err)
+		return err
 	}
-	if a.RepoOwner == "" {
-		a.RepoOwner = readFromEnv(EnvRepoOwner)
-	}
-	if a.GithubToken == "" {
-		a.GithubToken = readFromEnv(EnvGithubToken)
-	}
-	if a.PullRequest == 0 {
-		prNumber, err := readPullRequestFromEnv()
-		if err != nil {
-			return err
-		}
-		a.PullRequest = prNumber
-	}
-	// validate
-	if a.RepoName == "" {
-		return &ValidationError{"github-repo", EnvRepoName}
-	}
-	if a.RepoOwner == "" {
-		return &ValidationError{"github-owner", EnvRepoOwner}
-	}
-	if a.GithubToken == "" {
-		return &ValidationError{"github-token", EnvGithubToken}
+	err = c.validate()
+	if err != nil {
+		logrus.Errorln(err)
+		return err
 	}
 	return nil
 }
 
-func readFromEnv(env string) string {
-	val := os.Getenv(env)
-	if val != "" {
-		logrus.Debugf("Reading env var %s with value '%s'", env, val)
+func (c *NotifierConfig) loadViperConfig() error {
+	viper.AutomaticEnv()
+	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+
+	for target, source := range createBindings() {
+		err := viper.BindEnv(source, target)
+		if err != nil {
+			return err
+		}
 	}
-	return val
+
+	err := viper.Unmarshal(c)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// create binding to map individual CI environment variables to Config struct fields
+func createBindings() map[string]string {
+	bindings := make(map[string]string)
+	// CircleCi
+	bindings[EnvGithubRepoName] = "REPO_NAME"
+	bindings[EnvGithubRepoOwner] = "REPO_OWNER"
+	bindings[EnvGithubToken] = "TOKEN"
+	return bindings
+}
+
+func (c *NotifierConfig) validate() error {
+	if c.PullRequestID == 0 {
+		prNumber, err := readPullRequestFromEnv()
+		if err != nil {
+			return err
+		}
+		c.PullRequestID = prNumber
+	}
+	if c.RepoName == "" {
+		return &ValidationError{"repo", EnvGithubRepoName}
+	}
+	if c.RepoOwner == "" {
+		return &ValidationError{"owner", EnvGithubRepoOwner}
+	}
+	if c.Token == "" {
+		return &ValidationError{"token", EnvGithubToken}
+	}
+	return nil
 }
 
 func readPullRequestFromEnv() (int, error) {
-	url := os.Getenv(EnvPullRequestID)
+	url := os.Getenv(EnvGithubPullRequestID)
 	if url == "" {
-		logrus.Warnf("env var %s is not set or empty", EnvPullRequestID)
+		logrus.Warnf("env var %s is not set or empty", EnvGithubPullRequestID)
 		return 0, nil
 	}
 	elements := strings.Split(url, "/")
 	prNumber := elements[len(elements)-1]
 	val, err := strconv.ParseInt(prNumber, 10, 0)
 	if err != nil {
-		logrus.Errorf("Could not parse env %s with value '%v' to int", EnvPullRequestID, url)
+		logrus.Errorf("Could not parse env %s with value '%v' to int", EnvGithubPullRequestID, url)
 		return 0, err
 	}
 	if val != 0 {
-		logrus.Debugf("Reading env var %s with value '%d'", EnvPullRequestID, val)
+		logrus.Debugf("Reading env var %s with value '%d'", EnvGithubPullRequestID, val)
 	}
 	return int(val), nil
 }
