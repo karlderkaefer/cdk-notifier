@@ -1,4 +1,4 @@
-package github
+package ci
 
 import (
 	"context"
@@ -92,7 +92,7 @@ func TestGithubConfig_FindComment(t *testing.T) {
 	assert.NotNil(t, comment)
 	assert.Equal(t, commentsMock[0], comment)
 
-	client.TagID = "non-existing-tag"
+	client.Config.TagID = "non-existing-tag"
 	comment, err = client.FindComment()
 	assert.NoError(t, err)
 	assert.Nil(t, comment)
@@ -145,7 +145,7 @@ func TestClient_hasChanges(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		client := Client{
+		client := GithubClient{
 			CommentContent: c.input,
 		}
 		actual := client.hasChanges()

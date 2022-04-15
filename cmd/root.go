@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/karlderkaefer/cdk-notifier/ci"
 	"github.com/karlderkaefer/cdk-notifier/config"
-	"github.com/karlderkaefer/cdk-notifier/github"
 	"github.com/karlderkaefer/cdk-notifier/transform"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -40,7 +40,7 @@ var rootCmd = &cobra.Command{
 		transformer := transform.NewLogTransformer(appConfig)
 		transformer.Process()
 
-		gc := github.NewGithubClient(cmd.Context(), appConfig, nil)
+		gc := ci.NewGithubClient(cmd.Context(), appConfig, nil)
 		gc.CommentContent = transformer.LogContent
 		gc.Authenticate()
 		err = gc.PostComment()
