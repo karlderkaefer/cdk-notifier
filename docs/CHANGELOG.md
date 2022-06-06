@@ -1,3 +1,10 @@
+## [1.2.11](https://github.com/karlderkaefer/cdk-notifier/compare/v1.2.10...v1.2.11) (2022-06-06)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/stretchr/testify to v1.7.2 ([ee9685a](https://github.com/karlderkaefer/cdk-notifier/commit/ee9685a1f5538d0230e0b72d1e79b733c9a1c7f9))
+
 ## [1.2.10](https://github.com/karlderkaefer/cdk-notifier/compare/v1.2.9...v1.2.10) (2022-05-25)
 
 
