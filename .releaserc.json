@@ -27,11 +27,19 @@
         "assets": [
           {
             "path": "dist/*darwin_amd64.gz",
-            "label": "Darwin distribution"
+            "label": "Darwin amd64 distribution"
+          },
+          {
+            "path": "dist/*darwin_arm64.gz",
+            "label": "Darwin arm64 distribution"
           },
           {
             "path": "dist/*linux_amd64.gz",
-            "label": "Linux distribution"
+            "label": "Linux amd64 distribution"
+          },
+          {
+            "path": "dist/*linux_arm64.gz",
+            "label": "Linux arm64 distribution"
           },
           {
             "path": "dist/*windows_amd64.exe.gz",
