@@ -1,4 +1,4 @@
-package ci
+package provider
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
+	"sync"
 	"testing"
 )
 
@@ -15,21 +16,40 @@ func initLogger() {
 	logrus.SetLevel(7)
 }
 
+const defaultTag = "test-tag"
+
 type MockPullRequestService struct {
+	sync.RWMutex
 	comments []*github.IssueComment
 }
 
 func (m *MockPullRequestService) DeleteComment(ctx context.Context, owner string, repo string, commentID int64) (*github.Response, error) {
+	var index int
+	var found bool
+	for i, comment := range m.comments {
+		if *comment.ID == commentID {
+			index = i
+			found = true
+		}
+	}
+	if !found {
+		return nil, fmt.Errorf("could not find comment to delete with id %d", commentID)
+	}
+	copy(m.comments[index:], m.comments[index+1:])
+	m.comments[len(m.comments)-1] = nil
+	m.comments = m.comments[:len(m.comments)-1]
 	return nil, nil
 }
 
 func (m *MockPullRequestService) EditComment(ctx context.Context, owner string, repo string, commentID int64, comment *github.IssueComment) (*github.IssueComment, *github.Response, error) {
+	m.Lock()
+	defer m.Unlock()
 	for i, localComment := range m.comments {
-		fmt.Printf("incoming comment: %v}\nincoming id: %v\ncomment: %v\n", comment, commentID, localComment)
 		if *localComment.ID == commentID {
 			m.comments[i] = &github.IssueComment{
-				ID:   &commentID,
-				Body: comment.Body,
+				ID:      &commentID,
+				Body:    comment.Body,
+				HTMLURL: comment.HTMLURL,
 			}
 			return m.comments[i], nil, nil
 		}
@@ -38,6 +58,8 @@ func (m *MockPullRequestService) EditComment(ctx context.Context, owner string, 
 }
 
 func (m *MockPullRequestService) CreateComment(ctx context.Context, owner string, repo string, number int, comment *github.IssueComment) (*github.IssueComment, *github.Response, error) {
+	m.Lock()
+	defer m.Unlock()
 	m.comments = append(m.comments, comment)
 	return comment, nil, nil
 }
@@ -46,59 +68,37 @@ func (m *MockPullRequestService) ListComments(ctx context.Context, owner string,
 	return m.comments, nil, nil
 }
 
+func defaultTestGithubProvider(comments []*github.IssueComment) *GithubClient {
+	mock := &MockPullRequestService{comments: comments}
+	return &GithubClient{
+		Issues:         mock,
+		Context:        context.Background(),
+		Config:         config.NotifierConfig{TagID: "test-tag", DeleteComment: true},
+		CommentContent: defaultTag,
+	}
+}
+
 func TestUpdateExistingComment(t *testing.T) {
 	initLogger()
 	commentsMock := []*github.IssueComment{
 		{
 			ID:   github.Int64(1),
-			Body: github.String(fmt.Sprintf("%s %s\n%s", HeaderPrefix, "example", "hello-word")),
+			Body: github.String(fmt.Sprintf("%s %s\n%s", HeaderPrefix, defaultTag, "hello-word")),
 		},
 	}
-
-	mock := &MockPullRequestService{comments: commentsMock}
-	client := NewGithubClient(context.Background(), &config.NotifierConfig{TagID: "example"})
-	client.setGithubIssuesService(mock)
+	client := defaultTestGithubProvider(commentsMock)
+	comments, err := client.ListComments()
+	assert.NoError(t, err)
+	assert.Len(t, comments, 1, "expect one comment in databasse")
 
 	// test update existing comment
-	client.CommentContent = fmt.Sprintf("%s %s\n%s", HeaderPrefix, "example", "Updated")
-	found, err := client.FindComment()
+	client.CommentContent = fmt.Sprintf("%s %s\n%s", HeaderPrefix, defaultTag, "there are Policy Changes detected")
+	operation, err := client.PostComment()
 	assert.NoError(t, err)
-	assert.NotNil(t, found)
-	err = client.PostComment()
+	comments, err = client.ListComments()
 	assert.NoError(t, err)
-	assert.Len(t, mock.comments, 1, "Expect one member in mock database.")
-	comment, err := client.FindComment()
-	assert.NoError(t, err)
-	assert.NotNil(t, comment)
-	assert.Equal(t, client.CommentContent, comment.GetBody(), "Expected updated body for comment")
-	t.Logf("updated comment: %v", comment)
-}
-
-func TestGithubConfig_FindComment(t *testing.T) {
-	commentsMock := []*github.IssueComment{
-		{
-			ID:   github.Int64(1),
-			Body: github.String(fmt.Sprintf("%s %s\n%s", HeaderPrefix, "real-tag", "hello-word")),
-		},
-		{
-			ID:   github.Int64(2),
-			Body: github.String(fmt.Sprintf("%s %s\n%s", HeaderPrefix, "not-real-tag", "some-description")),
-		},
-	}
-	mock := &MockPullRequestService{comments: commentsMock}
-	client := NewGithubClient(context.Background(), &config.NotifierConfig{TagID: "real-tag"})
-	client.setGithubIssuesService(mock)
-
-	comment, err := client.FindComment()
-	assert.NoError(t, err)
-	assert.NotNil(t, comment)
-	assert.Equal(t, commentsMock[0], comment)
-
-	client.Config.TagID = "non-existing-tag"
-	comment, err = client.FindComment()
-	assert.NoError(t, err)
-	assert.Nil(t, comment)
-
+	assert.Len(t, comments, 1, "expect one comment in databasse after update")
+	assert.Equal(t, API_COMMENT_UPDATED.String(), operation.String(), "Expected Update Operation")
 }
 
 func TestGithubClient_ListComments(t *testing.T) {
@@ -111,19 +111,11 @@ func TestGithubClient_ListComments(t *testing.T) {
 			Body: github.String(fmt.Sprintf("%s example-%d", HeaderPrefix, i)),
 		})
 	}
-
-	mock := &MockPullRequestService{comments: commentsMock}
-	client := NewGithubClient(context.Background(), &config.NotifierConfig{TagID: "example"})
-	client.setGithubIssuesService(mock)
-
+	client := defaultTestGithubProvider(commentsMock)
 	comments, err := client.ListComments()
 	t.Logf("%v", comments)
 	assert.NoError(t, err)
 	assert.Len(t, comments, maxLength, "Expected number of initial comment to be %d", maxLength)
-	assert.Len(t, mock.comments, maxLength, "Expect %d members in mock database", maxLength)
-	assert.Equal(t, commentsMock, comments)
-
-	mock.comments = nil
 
 }
 

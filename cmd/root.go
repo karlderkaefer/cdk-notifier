@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/karlderkaefer/cdk-notifier/ci"
 	"github.com/karlderkaefer/cdk-notifier/config"
+	"github.com/karlderkaefer/cdk-notifier/provider"
 	"github.com/karlderkaefer/cdk-notifier/transform"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -35,21 +35,16 @@ var rootCmd = &cobra.Command{
 			logrus.Warnf("Skipping... because %s", err)
 			return
 		}
-		logrus.Tracef("got app config: %#v", appConfig)
 
 		transformer := transform.NewLogTransformer(appConfig)
 		transformer.Process()
 
-		notifier, err := ci.GetNotifierService(cmd.Context(), appConfig)
+		notifier, err := provider.CreateNotifierService(cmd.Context(), *appConfig)
 		if err != nil {
 			logrus.Fatalln(err)
 		}
 		notifier.SetCommentContent(transformer.LogContent)
-		err = notifier.Authenticate()
-		if err != nil {
-			logrus.Fatalln(err)
-		}
-		err = notifier.PostComment()
+		_, err = notifier.PostComment()
 		if err != nil {
 			logrus.Fatalln(err)
 		}
@@ -72,10 +67,10 @@ func Execute() {
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&v, "verbosity", "v", logrus.InfoLevel.String(), "Log level (debug, info, warn, error, fatal, panic)")
 
-	usageRepo := fmt.Sprintf("Name of github repository without organisation. If not set will lookup for env var '%s'", config.EnvGithubRepoName)
-	usageOwner := fmt.Sprintf("Name of gitub owner. If not set will lookup for env var '%s'", config.EnvGithubRepoOwner)
-	usageToken := fmt.Sprintf("Github token used to post comments to PR. If not set will lookup for env var '%s'", config.EnvGithubToken)
-	usagePr := fmt.Sprintf("Id or URL of github pull request. If not set will lookup for env var '%s'", config.EnvGithubPullRequestID)
+	usageRepo := fmt.Sprintf("Name of repository without organisation. If not set will lookup for env var [%s|%s],'", "REPO_NAME", config.EnvGithubRepoName)
+	usageOwner := fmt.Sprintf("Name of owner. If not set will lookup for env var [%s|%s]", "REPO_OWNER", config.EnvGithubRepoOwner)
+	usageToken := fmt.Sprintf("Authentication token used to post comments to PR. If not set will lookup for env var [%s|%s|%s]", "TOKEN_USER", config.EnvGithubToken, config.EnvBitbucketToken)
+	usagePr := fmt.Sprintf("Id or URL of pull request. If not set will lookup for env var [%s|%s|%s]", "PR_ID", config.EnvGithubPullRequestID, config.EnvBitbucketPrId)
 
 	rootCmd.Flags().StringP("repo", "r", "", usageRepo)
 	rootCmd.Flags().StringP("owner", "o", "", usageOwner)
@@ -83,14 +78,16 @@ func init() {
 	rootCmd.Flags().StringP("pull-request-id", "p", "", usagePr)
 	rootCmd.Flags().StringP("log-file", "l", "", "path to cdk log file")
 	rootCmd.Flags().StringP("tag-id", "t", "stack", "unique identifier for stack within pipeline")
-	rootCmd.Flags().StringP("delete", "d", "", "delete comments when no changes are detected for a specific tag id")
-	rootCmd.Flags().String("vcs", "github", "Version Control System [github|bitbucket]")
+	rootCmd.Flags().StringP("delete", "d", "", "delete comments when no changes are detected for a specific tag id (default: delete)")
+	rootCmd.Flags().String("vcs", "github", "Version Control System [github|bitbucket] (default: github)")
+	rootCmd.Flags().StringP("user", "u", "", "Optional set username for token (required for bitbucket)")
 
 	// mapping for viper [mapstruct value, flag name]
 	viperMappings := make(map[string]string)
 	viperMappings["REPO_NAME"] = "repo"
 	viperMappings["REPO_OWNER"] = "owner"
 	viperMappings["TOKEN"] = "token"
+	viperMappings["TOKEN_USER"] = "user"
 	viperMappings["PR_ID"] = "pull-request-id"
 	viperMappings["LOG_FILE"] = "log-file"
 	viperMappings["TAG_ID"] = "tag-id"

@@ -28,6 +28,12 @@ const (
 	EnvGithubRepoName = "CIRCLE_PROJECT_REPONAME"
 	// EnvGithubRepoOwner Name of environment variable for GitHub owner
 	EnvGithubRepoOwner = "CIRCLE_PROJECT_USERNAME"
+	// EnvBitbucketToken Name of environment variable for bitbucket token
+	EnvBitbucketToken = "BITBUCKET_TOKEN"
+	// EnvBitbucketUser Name of environment variable for bitbucket user
+	EnvBitbucketUser = "BITBUCKET_USER"
+	// EnvBitbucketPrId ID of Pull Request - only available on pull request triggered builds
+	EnvBitbucketPrId = "BITBUCKET_PR_ID"
 )
 
 // NotifierConfig holds configuration
@@ -37,6 +43,7 @@ type NotifierConfig struct {
 	RepoName      string `mapstructure:"REPO_NAME"`
 	RepoOwner     string `mapstructure:"REPO_OWNER"`
 	Token         string `mapstructure:"TOKEN"`
+	TokenUser     string `mapstructure:"TOKEN_USER"`
 	PullRequestID int    `mapstructure:"PR_ID"`
 	DeleteComment bool   `mapstructure:"DELETE_COMMENT"`
 	Vcs           string `mapstructure:"VERSION_CONTROL_SYSTEM"`
@@ -85,6 +92,10 @@ func createBindings() map[string]string {
 	bindings[EnvGithubRepoName] = "REPO_NAME"
 	bindings[EnvGithubRepoOwner] = "REPO_OWNER"
 	bindings[EnvGithubToken] = "TOKEN"
+	// Bitbucket
+	bindings[EnvBitbucketToken] = "TOKEN"
+	bindings[EnvBitbucketUser] = "TOKEN_USER"
+	bindings[EnvBitbucketPrId] = "PR_ID"
 	return bindings
 }
 

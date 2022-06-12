@@ -3,8 +3,8 @@ package transform
 import (
 	"bytes"
 	"github.com/acarl005/stripansi"
-	"github.com/karlderkaefer/cdk-notifier/ci"
 	"github.com/karlderkaefer/cdk-notifier/config"
+	"github.com/karlderkaefer/cdk-notifier/provider"
 	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"regexp"
@@ -114,7 +114,7 @@ func (t *LogTransformer) addHeader() {
 		Content:      t.LogContent,
 		Backticks:    "```",
 		JobLink:      "",
-		HeaderPrefix: ci.HeaderPrefix,
+		HeaderPrefix: provider.HeaderPrefix,
 	}
 	tmpl, err := template.New("githubTemplate").Parse(templateContent)
 	if err != nil {
