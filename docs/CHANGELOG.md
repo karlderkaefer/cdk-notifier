@@ -1,3 +1,10 @@
+## [1.2.12](https://github.com/karlderkaefer/cdk-notifier/compare/v1.2.11...v1.2.12) (2022-06-12)
+
+
+### Bug Fixes
+
+* **go:** upgrade to go 1.18 ([00edef5](https://github.com/karlderkaefer/cdk-notifier/commit/00edef56449b582c18fd3189eb2488d82b002064))
+
 ## [1.2.11](https://github.com/karlderkaefer/cdk-notifier/compare/v1.2.10...v1.2.11) (2022-06-06)
 
 
