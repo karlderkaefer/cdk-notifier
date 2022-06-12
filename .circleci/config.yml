@@ -85,7 +85,7 @@ jobs:
       - image: 'cimg/go:1.18'
     steps:
       - checkout
-#      - go/load-cache
+      - go/load-cache
       - go/mod-download
       - go/save-cache
       - run:
