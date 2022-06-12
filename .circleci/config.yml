@@ -45,6 +45,11 @@ jobs:
   build:
     docker:
       - image: 'cimg/go:1.18'
+    parameters:
+      os:
+        type: string
+      arch:
+        type: string
     steps:
       - checkout
       - attach_workspace:
@@ -54,10 +59,6 @@ jobs:
       - go/mod-download
       - go/save-cache
       - run:
-          name: install-tools
-          command: |
-            go get -u github.com/mitchellh/gox
-      - run:
           name: cross compile
           command: |
             if [ -z "${APP_VERSION}" ]; then
@@ -66,8 +67,12 @@ jobs:
               export VERSION="${APP_VERSION}"
             fi
             echo "got version ${VERSION}"
-            gox -ldflags "-X github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/cmd.Version=${VERSION}" -os="linux darwin windows" -arch="amd64" -output="dist/${CIRCLE_PROJECT_REPONAME}_{{.OS}}_{{.Arch}}"
-            ./dist/${CIRCLE_PROJECT_REPONAME}_linux_amd64 --version
+            export GOOS=<< parameters.os >>
+            export GOARCH=<< parameters.arch >>
+            go build -o "dist/${CIRCLE_PROJECT_REPONAME}_${GOOS}_${GOARCH}" -ldflags "-X github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/cmd.Version=${VERSION}"
+            if [ "$GOOS" -eq "linux" ] && [ "$GOARCH" -eq "amd64" ]; then
+               ./dist/${CIRCLE_PROJECT_REPONAME}_${GOOS}_${GOARCH} --version
+            fi
             cd dist/ && gzip *
       - persist_to_workspace:
           name: save distributions
@@ -80,7 +85,7 @@ jobs:
       - image: 'cimg/go:1.18'
     steps:
       - checkout
-      - go/load-cache
+#      - go/load-cache
       - go/mod-download
       - go/save-cache
       - run:
@@ -110,6 +115,10 @@ workflows:
       - get-version:
           context: semantics-release
       - build:
+          matrix:
+            parameters:
+              os: [linux, darwin, windows]
+              arch: [amd64, arm64]
           requires:
             - get-version
       - test:
