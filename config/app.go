@@ -2,21 +2,22 @@ package config
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 // AppConfig application configuration initialized by cobra arguments or environment variabels
 type AppConfig struct {
-	LogFile       string
-	TagID         string
-	RepoName      string
-	RepoOwner     string
-	GithubToken   string
-	PullRequest   int
-	DeleteComment bool
+	LogFile      string
+	TagID        string
+	ProjectID    int
+	GitlabToken  string
+	MergeRequest int
+	DeleteNote   bool
+	GitlabUrl    string
 }
 
 // ValidationError indicated a missing configuration either CLI argument or environment variable
@@ -30,46 +31,48 @@ func (e *ValidationError) Error() string {
 }
 
 const (
-	// EnvGithubToken Name of environment variable for github token
-	EnvGithubToken = "GITHUB_TOKEN"
-	// EnvPullRequestID Name of environment variable for pull request url
-	EnvPullRequestID = "CIRCLE_PULL_REQUEST"
-	// EnvRepoName Name of environment variable for GitHub repo
-	EnvRepoName = "CIRCLE_PROJECT_REPONAME"
-	// EnvRepoOwner Name of environment variable for GitHub owner
-	EnvRepoOwner = "CIRCLE_PROJECT_USERNAME"
+	// EnvGitlabToken Name of environment variable for Gitlab token
+	EnvGitlabToken = "CI_JOB_TOKEN"
+	// EnvMergeRequestID Name of environment variable for pull request url
+	EnvMergeRequestID = "CI_MERGE_REQUEST_ID"
+	// EnvGitlabUrl Name of environment variable for Gitlab Base Url
+	EnvGitlabUrl = "GITLAB_BASE_URL"
+	// EnvGitlabPid Name of environment variable for Gitlab Project ID
+	EnvGitlabPid = "CI_MERGE_REQUEST_PROJECT_ID"
 )
 
 // Init will create default AppConfig with following priority
-// 1. Environment Variables GITHUB_TOKEN, CIRCLE_PULL_REQUEST, CIRCLE_PROJECT_REPONAME, CIRCLE_PROJECT_USERNAME
+// 1. Environment Variables CI_JOB_TOKEN, CI_MERGE_REQUEST_ID, CI_PROJECT_NAME, GITLAB_BASE_URL, CI_MERGE_REQUEST_PROJECT_ID
 // 2. CLI args
 // returns ValidationError if required field where not set
 func (a *AppConfig) Init() error {
-	if a.RepoName == "" {
-		a.RepoName = readFromEnv(EnvRepoName)
+	if a.GitlabToken == "" {
+		a.GitlabToken = readFromEnv(EnvGitlabToken)
 	}
-	if a.RepoOwner == "" {
-		a.RepoOwner = readFromEnv(EnvRepoOwner)
+	if a.ProjectID == 0 {
+		var err error
+
+		pidStr := readFromEnv(EnvGitlabPid)
+		pidInt64, err := strconv.ParseInt(pidStr, 10, 0)
+		if err != nil {
+			logrus.Errorf("Could not parse env %s with value '%v' to int", EnvMergeRequestID, pidStr)
+			panic(err)
+		}
+		a.ProjectID = int(pidInt64)
 	}
-	if a.GithubToken == "" {
-		a.GithubToken = readFromEnv(EnvGithubToken)
-	}
-	if a.PullRequest == 0 {
-		prNumber, err := readPullRequestFromEnv()
+	if a.MergeRequest == 0 {
+		prNumber, err := readMergeRequestFromEnv()
 		if err != nil {
 			return err
 		}
-		a.PullRequest = prNumber
+		a.MergeRequest = prNumber
 	}
 	// validate
-	if a.RepoName == "" {
-		return &ValidationError{"github-repo", EnvRepoName}
+	if a.ProjectID == 0 {
+		return &ValidationError{"gitlab-pid", EnvGitlabPid}
 	}
-	if a.RepoOwner == "" {
-		return &ValidationError{"github-owner", EnvRepoOwner}
-	}
-	if a.GithubToken == "" {
-		return &ValidationError{"github-token", EnvGithubToken}
+	if a.GitlabToken == "" {
+		return &ValidationError{"gitlab-token", EnvGitlabToken}
 	}
 	return nil
 }
@@ -82,21 +85,21 @@ func readFromEnv(env string) string {
 	return val
 }
 
-func readPullRequestFromEnv() (int, error) {
-	url := os.Getenv(EnvPullRequestID)
+func readMergeRequestFromEnv() (int, error) {
+	url := os.Getenv(EnvMergeRequestID)
 	if url == "" {
-		logrus.Warnf("env var %s is not set or empty", EnvPullRequestID)
+		logrus.Warnf("env var %s is not set or empty", EnvMergeRequestID)
 		return 0, nil
 	}
 	elements := strings.Split(url, "/")
 	prNumber := elements[len(elements)-1]
 	val, err := strconv.ParseInt(prNumber, 10, 0)
 	if err != nil {
-		logrus.Errorf("Could not parse env %s with value '%v' to int", EnvPullRequestID, url)
+		logrus.Errorf("Could not parse env %s with value '%v' to int", EnvMergeRequestID, url)
 		return 0, err
 	}
 	if val != 0 {
-		logrus.Debugf("Reading env var %s with value '%d'", EnvPullRequestID, val)
+		logrus.Debugf("Reading env var %s with value '%d'", EnvMergeRequestID, val)
 	}
 	return int(val), nil
 }

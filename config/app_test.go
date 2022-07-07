@@ -1,11 +1,12 @@
 package config
 
 import (
-	"github.com/sirupsen/logrus"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"strconv"
 	"testing"
+
+	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
 )
 
 type testCase struct {
@@ -26,7 +27,7 @@ func TestAppConfig_ReadPullRequestFromEnv(t *testing.T) {
 	logrus.SetLevel(7)
 	testCases := []testCase{
 		{
-			input:    "https://github.com/pansenentertainment/uepsilon/pull/1361",
+			input:    "https://gitlab.com/svause/somerepo/-/merge_requests/1361",
 			expected: 1361,
 			err:      nil,
 		},
@@ -47,15 +48,15 @@ func TestAppConfig_ReadPullRequestFromEnv(t *testing.T) {
 			err:      nil,
 		},
 		{
-			input:    "https://github.com/pansenentertainment/uepsilon/pull",
+			input:    "https://gitlab.com/svause/somerepo/-/merge_requests/",
 			expected: 0,
 			err:      &strconv.NumError{},
 		},
 	}
 
 	for _, c := range testCases {
-		_ = os.Setenv(EnvPullRequestID, c.input)
-		actual, err := readPullRequestFromEnv()
+		_ = os.Setenv(EnvMergeRequestID, c.input)
+		actual, err := readMergeRequestFromEnv()
 		assert.IsType(t, c.err, err)
 		assert.Equal(t, c.expected, actual)
 	}
@@ -69,83 +70,77 @@ func TestAppConfig_Init(t *testing.T) {
 				LogFile: "./cdk.log",
 			},
 			envVars: map[string]string{
-				EnvPullRequestID: "23",
-				EnvGithubToken:   "some-token",
-				EnvRepoName:      "Uepsilon",
-				EnvRepoOwner:     "pansenentertainment",
+				EnvMergeRequestID: "23",
+				EnvGitlabToken:    "some-token",
+				EnvGitlabPid:      "1",
+				EnvGitlabUrl:      "https://gitlab.com/",
 			},
 			expectedConfig: AppConfig{
-				LogFile:     "./cdk.log",
-				RepoName:    "Uepsilon",
-				RepoOwner:   "pansenentertainment",
-				GithubToken: "some-token",
-				PullRequest: 23,
+				LogFile:      "./cdk.log",
+				ProjectID:    1,
+				GitlabToken:  "some-token",
+				MergeRequest: 23,
 			},
 			err: nil,
 		},
 		{
 			description: "test override of env vars with cli arguments",
 			inputConfig: AppConfig{
-				LogFile:     "./cdk.log",
-				RepoName:    "changedRepo",
-				GithubToken: "changedToken",
-				RepoOwner:   "changedOwner",
-				PullRequest: 12,
+				LogFile:      "./cdk.log",
+				GitlabToken:  "changedToken",
+				MergeRequest: 12,
+				ProjectID:    2,
 			},
 			envVars: map[string]string{
-				EnvPullRequestID: "23",
-				EnvGithubToken:   "some-token",
-				EnvRepoName:      "Uepsilon",
-				EnvRepoOwner:     "pansenentertainment",
+				EnvMergeRequestID: "23",
+				EnvGitlabToken:    "some-token",
+				EnvGitlabPid:      "1",
+				EnvGitlabUrl:      "https://gitlab.com/",
 			},
 			expectedConfig: AppConfig{
-				LogFile:     "./cdk.log",
-				RepoName:    "changedRepo",
-				GithubToken: "changedToken",
-				RepoOwner:   "changedOwner",
-				PullRequest: 12,
+				LogFile:      "./cdk.log",
+				GitlabToken:  "changedToken",
+				MergeRequest: 12,
+				ProjectID:    2,
 			},
 			err: nil,
 		},
 		{
-			description: "test missing github token values by env variables",
+			description: "test missing gitlab token values by env variables",
 			inputConfig: AppConfig{
-				LogFile:       "./cdk.log",
-				DeleteComment: true,
+				LogFile:    "./cdk.log",
+				DeleteNote: true,
 			},
 			envVars: map[string]string{
-				EnvPullRequestID: "23",
-				EnvRepoName:      "Uepsilon",
-				EnvRepoOwner:     "pansenentertainment",
+				EnvMergeRequestID: "23",
+				EnvGitlabPid:      "1",
+				EnvGitlabUrl:      "https://gitlab.com/",
 			},
 			expectedConfig: AppConfig{
-				LogFile:       "./cdk.log",
-				DeleteComment: true,
-				RepoName:      "Uepsilon",
-				RepoOwner:     "pansenentertainment",
-				GithubToken:   "",
-				PullRequest:   23,
+				LogFile:      "./cdk.log",
+				DeleteNote:   true,
+				ProjectID:    1,
+				GitlabToken:  "",
+				MergeRequest: 23,
 			},
-			err: &ValidationError{"github-token", EnvGithubToken},
+			err: &ValidationError{"gitlab-token", EnvGitlabToken},
 		},
 		{
-			description: "test misssing pull request id will cause no error",
+			description: "test misssing merge request id will cause no error",
 			inputConfig: AppConfig{
-				LogFile:       "./cdk.log",
-				DeleteComment: true,
+				LogFile:    "./cdk.log",
+				DeleteNote: true,
 			},
 			envVars: map[string]string{
-				EnvRepoName:    "Uepsilon",
-				EnvRepoOwner:   "pansenentertainment",
-				EnvGithubToken: "some-token",
+				EnvGitlabPid:   "1",
+				EnvGitlabToken: "some-token",
 			},
 			expectedConfig: AppConfig{
-				LogFile:       "./cdk.log",
-				DeleteComment: true,
-				RepoName:      "Uepsilon",
-				RepoOwner:     "pansenentertainment",
-				GithubToken:   "some-token",
-				PullRequest:   0,
+				LogFile:      "./cdk.log",
+				DeleteNote:   true,
+				ProjectID:    1,
+				GitlabToken:  "some-token",
+				MergeRequest: 0,
 			},
 			err: nil,
 		},
@@ -153,19 +148,17 @@ func TestAppConfig_Init(t *testing.T) {
 			description: "test parse int error",
 			inputConfig: AppConfig{
 				LogFile:     "./cdk.log",
-				RepoName:    "Uepsilon",
-				RepoOwner:   "pansenentertainment",
-				GithubToken: "some-token",
+				ProjectID:   1,
+				GitlabToken: "some-token",
 			},
 			envVars: map[string]string{
-				EnvPullRequestID: "23as",
+				EnvMergeRequestID: "23as",
 			},
 			expectedConfig: AppConfig{
-				LogFile:     "./cdk.log",
-				RepoName:    "Uepsilon",
-				RepoOwner:   "pansenentertainment",
-				GithubToken: "some-token",
-				PullRequest: 0,
+				LogFile:      "./cdk.log",
+				ProjectID:    1,
+				GitlabToken:  "some-token",
+				MergeRequest: 0,
 			},
 			err: &strconv.NumError{
 				Func: "ParseInt",

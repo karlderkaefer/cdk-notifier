@@ -2,30 +2,31 @@ package transform
 
 import (
 	"bytes"
-	"github.com/acarl005/stripansi"
-	"github.com/karlderkaefer/cdk-notifier/config"
-	"github.com/karlderkaefer/cdk-notifier/github"
-	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"regexp"
 	"strings"
 	"text/template"
 	"unicode/utf8"
+
+	"github.com/acarl005/stripansi"
+	"github.com/napalm684/cdk-notifier/config"
+	"github.com/napalm684/cdk-notifier/gitlab"
+	"github.com/sirupsen/logrus"
 )
 
 // LogTransformer is responsible to process the log file and do following transformation steps
 // 1. Clean any ANSI chars and XTERM color created from cdk diff command
 // 2. Transform additions and removals to markdown diff syntax
 // 3. Create unique message header
-// 4. truncate content if message is longer than GitHub API can handle
+// 4. truncate content if message is longer than Gitlab API can handle
 type LogTransformer struct {
 	LogContent string
 	Logfile    string
 	TagID      string
 }
 
-// githubTemplate wrapper object to use go templating
-type githubTemplate struct {
+// gitlabTemplate wrapper object to use go templating
+type gitlabTemplate struct {
 	TagID        string
 	Content      string
 	JobLink      string
@@ -92,11 +93,11 @@ func (t *LogTransformer) transformDiff() {
 	t.LogContent = strings.Join(output, "\n")
 }
 
-// truncate to avoid Message:Body is too long (maximum is 65536 characters)
+// truncate to avoid Message:Body is too long (maximum is 1000000 characters)
 func (t *LogTransformer) truncate() {
 	runes := bytes.Runes([]byte(t.LogContent))
-	if len(runes) > 65000 {
-		truncated := string(runes[:65000])
+	if len(runes) > 999900 {
+		truncated := string(runes[:999900])
 		truncated += "\n...truncated"
 		t.LogContent = truncated
 	}
@@ -109,19 +110,19 @@ func (t *LogTransformer) addHeader() {
 {{ .Content }}
 {{ .Backticks }}
 `
-	githubTemplate := &githubTemplate{
+	gitlabTemplate := &gitlabTemplate{
 		TagID:        t.TagID,
 		Content:      t.LogContent,
 		Backticks:    "```",
 		JobLink:      "",
-		HeaderPrefix: github.HeaderPrefix,
+		HeaderPrefix: gitlab.HeaderPrefix,
 	}
-	tmpl, err := template.New("githubTemplate").Parse(templateContent)
+	tmpl, err := template.New("gitlabTemplate").Parse(templateContent)
 	if err != nil {
 		logrus.Fatal(err)
 	}
 	stringWriter := bytes.NewBufferString("")
-	err = tmpl.Execute(stringWriter, githubTemplate)
+	err = tmpl.Execute(stringWriter, gitlabTemplate)
 	if err != nil {
 		logrus.Fatal(err)
 	}
@@ -136,7 +137,7 @@ func (t *LogTransformer) printFile() {
 // 1. Clean any ANSI chars and XTERM color created from cdk diff command
 // 2. Transform additions and removals to markdown diff syntax
 // 3. Create unique message header
-// 4. truncate content if message is longer than GitHub API can handle
+// 4. truncate content if message is longer than Gitlab API can handle
 func (t *LogTransformer) Process() {
 	err := t.readFile()
 	if err != nil {

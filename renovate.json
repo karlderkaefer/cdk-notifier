@@ -1,6 +1,6 @@
 {
   "extends": [
-    "github>karlderkaefer/renovate-config:golang",
+    "github>napalm684/renovate-config:golang",
     "schedule:monthly"
   ]
 }
