@@ -7,6 +7,11 @@
 lightweight CLI tool to parse a CDK log file and post changes to merge request requests.
 Can be used to get more confidence on approving merge requests because reviewer will be aware of changes done to your environments.
 
+## Motivation
+This is a quick and "dirty" port of the awesome work done by [karlderkaefer](https://github.com/karlderkaefer) [here](https://github.com/karlderkaefer/cdk-notifier) to allow the
+tool to work with Gitlab. I had an immediate need for the functionality and am only maintaining this fork until the work can be ported to the original
+repository. At that time this repository will be archived.
+
 ## Install
 
 Install binary with latest release
@@ -86,5 +91,3 @@ BREAKING CHANGE: remove comments api
 # update docu
 docs: update readme
 ```
-
-

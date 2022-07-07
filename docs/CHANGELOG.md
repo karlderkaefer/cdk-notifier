@@ -1,10 +1,3 @@
-# [1.3.0](https://github.com/napalm684/cdk-notifier/compare/v1.2.12...v1.3.0) (2022-07-07)
-
-
-### Features
-
-* Gitlab support ([cef4fde](https://github.com/napalm684/cdk-notifier/commit/cef4fde60f2126f7be21a0fdca583112da418267))
-
 ## [1.2.12](https://github.com/karlderkaefer/cdk-notifier/compare/v1.2.11...v1.2.12) (2022-06-12)
 
 
