@@ -1,3 +1,17 @@
+# [2.0.0](https://github.com/napalm684/cdk-notifier/compare/v1.2.12...v2.0.0) (2022-07-08)
+
+
+### Features
+
+* **api:** Gitlab Support ([#7](https://github.com/napalm684/cdk-notifier/issues/7)) ([a568774](https://github.com/napalm684/cdk-notifier/commit/a568774a0c3958cd673fe759331c01b33396dd1f))
+* Gitlab support ([cef4fde](https://github.com/napalm684/cdk-notifier/commit/cef4fde60f2126f7be21a0fdca583112da418267))
+* **pencil:** Gitlab Support ([e1a3182](https://github.com/napalm684/cdk-notifier/commit/e1a3182702f1555d66ed5a06364d1427643f3450))
+
+
+### BREAKING CHANGES
+
+* **api:** Replace Github with Gitlab API
+
 ## [1.2.12](https://github.com/karlderkaefer/cdk-notifier/compare/v1.2.11...v1.2.12) (2022-06-12)
 
 
