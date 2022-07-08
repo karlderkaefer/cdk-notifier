@@ -33,12 +33,12 @@ cdk-notifier --help
 #
 #Flags:
 #  -d, --delete                delete comments when no changes are detected for a specific tag id (default true)
-#  -u, --url string            Gitlab url (default "https://gitlab.com")
-#      --gitlab-token string   Gitlab token used to post comments to MR
+#  -u, --url string            Gitlab url (default "https://gitlab.com"). If not set will lookup for env var GITLAB_BASE_URL
+#      --gitlab-token string   Gitlab token used to post comments to MR. If not set will lookup for env var GITLAB_TOKEN
 #  -p  --gitlab-pid int        Gitlab project ID for merge request. If not set will lookup for env var CI_MERGE_REQUEST_PROJECT_ID
 #  -h, --help                  help for cdk-notifier
 #  -l, --log-file string       path to cdk log file (default "./cdk.log")
-#  -m, --merge-request-id int  Id of gitlab merge request. If not set will lookup for env var $CI_JOB_TOKEN
+#  -m, --merge-request-id int  Id of gitlab merge request. If not set will lookup for env var CI_MERGE_REQUEST_IID
 #  -t, --tag-id string         unique identifier for stack within pipeline (default "stack")
 #  -v, --verbosity string      Log level (debug, info, warn, error, fatal, panic) (default "info")
 #      --version               version for cdk-notifier

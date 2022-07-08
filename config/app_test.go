@@ -80,6 +80,7 @@ func TestAppConfig_Init(t *testing.T) {
 				ProjectID:    1,
 				GitlabToken:  "some-token",
 				MergeRequest: 23,
+				GitlabUrl:    "https://gitlab.com/",
 			},
 			err: nil,
 		},
@@ -102,6 +103,7 @@ func TestAppConfig_Init(t *testing.T) {
 				GitlabToken:  "changedToken",
 				MergeRequest: 12,
 				ProjectID:    2,
+				GitlabUrl:    "https://gitlab.com/",
 			},
 			err: nil,
 		},
@@ -122,6 +124,7 @@ func TestAppConfig_Init(t *testing.T) {
 				ProjectID:    1,
 				GitlabToken:  "",
 				MergeRequest: 23,
+				GitlabUrl:    "https://gitlab.com/",
 			},
 			err: &ValidationError{"gitlab-token", EnvGitlabToken},
 		},
@@ -134,6 +137,7 @@ func TestAppConfig_Init(t *testing.T) {
 			envVars: map[string]string{
 				EnvGitlabPid:   "1",
 				EnvGitlabToken: "some-token",
+				EnvGitlabUrl:   "https://gitlab.com/",
 			},
 			expectedConfig: AppConfig{
 				LogFile:      "./cdk.log",
@@ -141,6 +145,7 @@ func TestAppConfig_Init(t *testing.T) {
 				ProjectID:    1,
 				GitlabToken:  "some-token",
 				MergeRequest: 0,
+				GitlabUrl:    "https://gitlab.com/",
 			},
 			err: nil,
 		},
@@ -153,12 +158,14 @@ func TestAppConfig_Init(t *testing.T) {
 			},
 			envVars: map[string]string{
 				EnvMergeRequestID: "23as",
+				EnvGitlabUrl:      "https://gitlab.com/",
 			},
 			expectedConfig: AppConfig{
 				LogFile:      "./cdk.log",
 				ProjectID:    1,
 				GitlabToken:  "some-token",
 				MergeRequest: 0,
+				GitlabUrl:    "https://gitlab.com/",
 			},
 			err: &strconv.NumError{
 				Func: "ParseInt",

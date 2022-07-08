@@ -32,9 +32,9 @@ func (e *ValidationError) Error() string {
 
 const (
 	// EnvGitlabToken Name of environment variable for Gitlab token
-	EnvGitlabToken = "CI_JOB_TOKEN"
+	EnvGitlabToken = "GITLAB_TOKEN"
 	// EnvMergeRequestID Name of environment variable for pull request url
-	EnvMergeRequestID = "CI_MERGE_REQUEST_ID"
+	EnvMergeRequestID = "CI_MERGE_REQUEST_IID"
 	// EnvGitlabUrl Name of environment variable for Gitlab Base Url
 	EnvGitlabUrl = "GITLAB_BASE_URL"
 	// EnvGitlabPid Name of environment variable for Gitlab Project ID
@@ -59,6 +59,9 @@ func (a *AppConfig) Init() error {
 			panic(err)
 		}
 		a.ProjectID = int(pidInt64)
+	}
+	if a.GitlabUrl == "" {
+		a.GitlabUrl = readFromEnv(EnvGitlabUrl)
 	}
 	if a.MergeRequest == 0 {
 		prNumber, err := readMergeRequestFromEnv()
