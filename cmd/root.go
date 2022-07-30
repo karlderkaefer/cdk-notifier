@@ -30,8 +30,9 @@ var rootCmd = &cobra.Command{
 		if err != nil {
 			logrus.Fatal(err)
 		}
+		fmt.Printf("%v\n", appConfig)
 		if appConfig.PullRequestID == 0 {
-			err = &config.ValidationError{CliArg: "pull-request-id", EnvVar: config.EnvGithubPullRequestID}
+			err = &config.ValidationError{CliArg: "pull-request-id", EnvVar: []string{"PR_ID", config.EnvCiCircleCiPullRequestID, config.EnvCiBitbucketPrId}}
 			logrus.Warnf("Skipping... because %s", err)
 			return
 		}
@@ -67,10 +68,10 @@ func Execute() {
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&v, "verbosity", "v", logrus.InfoLevel.String(), "Log level (debug, info, warn, error, fatal, panic)")
 
-	usageRepo := fmt.Sprintf("Name of repository without organisation. If not set will lookup for env var [%s|%s],'", "REPO_NAME", config.EnvGithubRepoName)
-	usageOwner := fmt.Sprintf("Name of owner. If not set will lookup for env var [%s|%s]", "REPO_OWNER", config.EnvGithubRepoOwner)
+	usageRepo := fmt.Sprintf("Name of repository without organisation. If not set will lookup for env var [%s|%s],'", "REPO_NAME", config.EnvCiCircleCiRepoName)
+	usageOwner := fmt.Sprintf("Name of owner. If not set will lookup for env var [%s|%s]", "REPO_OWNER", config.EnvCiCircleCiRepoOwner)
 	usageToken := fmt.Sprintf("Authentication token used to post comments to PR. If not set will lookup for env var [%s|%s|%s]", "TOKEN_USER", config.EnvGithubToken, config.EnvBitbucketToken)
-	usagePr := fmt.Sprintf("Id or URL of pull request. If not set will lookup for env var [%s|%s|%s]", "PR_ID", config.EnvGithubPullRequestID, config.EnvBitbucketPrId)
+	usagePr := fmt.Sprintf("Id or URL of pull request. If not set will lookup for env var [%s|%s|%s]", "PR_ID", config.EnvCiCircleCiPullRequestID, config.EnvCiBitbucketPrId)
 
 	rootCmd.Flags().StringP("repo", "r", "", usageRepo)
 	rootCmd.Flags().StringP("owner", "o", "", usageOwner)
@@ -78,8 +79,9 @@ func init() {
 	rootCmd.Flags().StringP("pull-request-id", "p", "", usagePr)
 	rootCmd.Flags().StringP("log-file", "l", "", "path to cdk log file")
 	rootCmd.Flags().StringP("tag-id", "t", "stack", "unique identifier for stack within pipeline")
-	rootCmd.Flags().StringP("delete", "d", "", "delete comments when no changes are detected for a specific tag id (default: delete)")
-	rootCmd.Flags().String("vcs", "github", "Version Control System [github|bitbucket] (default: github)")
+	rootCmd.Flags().StringP("delete", "d", "", "delete comments when no changes are detected for a specific tag id")
+	rootCmd.Flags().String("vcs", "github", "Version Control System [github|bitbucket]")
+	rootCmd.Flags().String("ci", "circleci", "CI System used [circleci|bitbucket]")
 	rootCmd.Flags().StringP("user", "u", "", "Optional set username for token (required for bitbucket)")
 
 	// mapping for viper [mapstruct value, flag name]
@@ -93,6 +95,7 @@ func init() {
 	viperMappings["TAG_ID"] = "tag-id"
 	viperMappings["DELETE_COMMENT"] = "delete"
 	viperMappings["VERSION_CONTROL_SYSTEM"] = "vcs"
+	viperMappings["CI_SYSTEM"] = "ci"
 
 	for k, v := range viperMappings {
 		err := viper.BindPFlag(k, rootCmd.Flags().Lookup(v))

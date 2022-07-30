@@ -12,7 +12,7 @@ import (
 // ValidationError indicated a missing configuration either CLI argument or environment variable
 type ValidationError struct {
 	CliArg string
-	EnvVar string
+	EnvVar []string
 }
 
 func (e *ValidationError) Error() string {
@@ -22,18 +22,30 @@ func (e *ValidationError) Error() string {
 const (
 	// EnvGithubToken Name of environment variable for github token
 	EnvGithubToken = "GITHUB_TOKEN"
-	// EnvGithubPullRequestID Name of environment variable for pull request url
-	EnvGithubPullRequestID = "CIRCLE_PULL_REQUEST"
-	// EnvGithubRepoName Name of environment variable for GitHub repo
-	EnvGithubRepoName = "CIRCLE_PROJECT_REPONAME"
-	// EnvGithubRepoOwner Name of environment variable for GitHub owner
-	EnvGithubRepoOwner = "CIRCLE_PROJECT_USERNAME"
 	// EnvBitbucketToken Name of environment variable for bitbucket token
 	EnvBitbucketToken = "BITBUCKET_TOKEN"
 	// EnvBitbucketUser Name of environment variable for bitbucket user
 	EnvBitbucketUser = "BITBUCKET_USER"
-	// EnvBitbucketPrId ID of Pull Request - only available on pull request triggered builds
-	EnvBitbucketPrId = "BITBUCKET_PR_ID"
+
+	// EnvCiCircleCiPullRequestID Name of environment variable for pull request url
+	EnvCiCircleCiPullRequestID = "CIRCLE_PULL_REQUEST"
+	// EnvCiCircleCiRepoName Name of environment variable for GitHub repo
+	EnvCiCircleCiRepoName = "CIRCLE_PROJECT_REPONAME"
+	// EnvCiCircleCiRepoOwner Name of environment variable for GitHub owner
+	EnvCiCircleCiRepoOwner = "CIRCLE_PROJECT_USERNAME"
+
+	// EnvCiBitbucketPrId Bitbucket CI variable for pull request id - only available on pull request triggered builds
+	EnvCiBitbucketPrId = "BITBUCKET_PR_ID"
+	// EnvCiBitbucketRepoOwner Bitbucket CI variable for repo owner
+	EnvCiBitbucketRepoOwner = "BITBUCKET_REPO_OWNER"
+	// EnvCiBitbucketRepoName Bitbucket CI variable for repo name
+	EnvCiBitbucketRepoName = "BITBUCKET_REPO_SLUG"
+
+	VcsGithub    = "github"
+	VcsBitbucket = "bitbucket"
+
+	CiCircleCi  = "circleci"
+	CiBitbucket = "bitbucket"
 )
 
 // NotifierConfig holds configuration
@@ -47,6 +59,7 @@ type NotifierConfig struct {
 	PullRequestID int    `mapstructure:"PR_ID"`
 	DeleteComment bool   `mapstructure:"DELETE_COMMENT"`
 	Vcs           string `mapstructure:"VERSION_CONTROL_SYSTEM"`
+	Ci            string `mapstructure:"CI_SYSTEM"`
 }
 
 // Init will create default NotifierConfig with following priority
@@ -70,7 +83,6 @@ func (c *NotifierConfig) Init() error {
 func (c *NotifierConfig) loadViperConfig() error {
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-
 	for target, source := range createBindings() {
 		err := viper.BindEnv(source, target)
 		if err != nil {
@@ -87,20 +99,29 @@ func (c *NotifierConfig) loadViperConfig() error {
 
 // create binding to map individual CI environment variables to Config struct fields
 func createBindings() map[string]string {
+	ci := viper.GetString("ci_system")
 	bindings := make(map[string]string)
-	// CircleCi
-	bindings[EnvGithubRepoName] = "REPO_NAME"
-	bindings[EnvGithubRepoOwner] = "REPO_OWNER"
-	bindings[EnvGithubToken] = "TOKEN"
-	// Bitbucket
-	bindings[EnvBitbucketToken] = "TOKEN"
+	switch ci {
+	case CiBitbucket:
+		bindings[EnvCiBitbucketPrId] = "PR_ID"
+		bindings[EnvCiBitbucketRepoName] = "REPO_NAME"
+		bindings[EnvCiBitbucketRepoOwner] = "REPO_OWNER"
+	case CiCircleCi:
+		bindings[EnvCiCircleCiRepoName] = "REPO_NAME"
+		bindings[EnvCiCircleCiRepoOwner] = "REPO_OWNER"
+	default:
+		logrus.Warnf("Could not detect CI environemnt from '%s'. Skipping override from CI Env vars", ci)
+	}
+	// mapping token environment vars regardless of environment since no conflicts expected
 	bindings[EnvBitbucketUser] = "TOKEN_USER"
-	bindings[EnvBitbucketPrId] = "PR_ID"
+	bindings[EnvBitbucketToken] = "TOKEN"
+	bindings[EnvGithubToken] = "TOKEN"
 	return bindings
 }
 
 func (c *NotifierConfig) validate() error {
-	if c.PullRequestID == 0 {
+	ci := viper.GetString("ci_system")
+	if c.PullRequestID == 0 && ci == CiCircleCi {
 		prNumber, err := readPullRequestFromEnv()
 		if err != nil {
 			return err
@@ -108,32 +129,32 @@ func (c *NotifierConfig) validate() error {
 		c.PullRequestID = prNumber
 	}
 	if c.RepoName == "" {
-		return &ValidationError{"repo", EnvGithubRepoName}
+		return &ValidationError{"repo", []string{"REPO_NAME", EnvCiCircleCiRepoName, EnvCiBitbucketRepoName}}
 	}
 	if c.RepoOwner == "" {
-		return &ValidationError{"owner", EnvGithubRepoOwner}
+		return &ValidationError{"owner", []string{"REPO_OWNER", EnvCiCircleCiRepoOwner, EnvCiBitbucketRepoOwner}}
 	}
 	if c.Token == "" {
-		return &ValidationError{"token", EnvGithubToken}
+		return &ValidationError{"token", []string{"TOKEN", EnvGithubToken, EnvBitbucketToken}}
 	}
 	return nil
 }
 
 func readPullRequestFromEnv() (int, error) {
-	url := os.Getenv(EnvGithubPullRequestID)
+	url := os.Getenv(EnvCiCircleCiPullRequestID)
 	if url == "" {
-		logrus.Warnf("env var %s is not set or empty", EnvGithubPullRequestID)
+		logrus.Warnf("env var %s is not set or empty", EnvCiCircleCiPullRequestID)
 		return 0, nil
 	}
 	elements := strings.Split(url, "/")
 	prNumber := elements[len(elements)-1]
 	val, err := strconv.ParseInt(prNumber, 10, 0)
 	if err != nil {
-		logrus.Errorf("Could not parse env %s with value '%v' to int", EnvGithubPullRequestID, url)
+		logrus.Errorf("Could not parse env %s with value '%v' to int", EnvCiCircleCiPullRequestID, url)
 		return 0, err
 	}
 	if val != 0 {
-		logrus.Debugf("Reading env var %s with value '%d'", EnvGithubPullRequestID, val)
+		logrus.Debugf("Reading env var %s with value '%d'", EnvCiCircleCiPullRequestID, val)
 	}
 	return int(val), nil
 }

@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"strconv"
@@ -20,6 +21,8 @@ type testCaseInit struct {
 	inputConfig    NotifierConfig
 	envVars        map[string]string
 	expectedConfig NotifierConfig
+	ci             string
+	vcs            string
 	err            error
 }
 
@@ -55,7 +58,7 @@ func TestNotifierConfig_ReadPullRequestFromEnv(t *testing.T) {
 	}
 
 	for _, c := range testCases {
-		_ = os.Setenv(EnvGithubPullRequestID, c.input)
+		_ = os.Setenv(EnvCiCircleCiPullRequestID, c.input)
 		actual, err := readPullRequestFromEnv()
 		assert.IsType(t, c.err, err)
 		assert.Equal(t, c.expected, actual)
@@ -69,11 +72,13 @@ func TestNotifierConfig_Init(t *testing.T) {
 			inputConfig: NotifierConfig{
 				LogFile: "./cdk.log",
 			},
+			vcs: VcsGithub,
+			ci:  CiCircleCi,
 			envVars: map[string]string{
-				EnvGithubPullRequestID: "23",
-				EnvGithubToken:         "some-token",
-				EnvGithubRepoName:      "Uepsilon",
-				EnvGithubRepoOwner:     "pansenentertainment",
+				EnvCiCircleCiPullRequestID: "23",
+				EnvGithubToken:             "some-token",
+				EnvCiCircleCiRepoName:      "Uepsilon",
+				EnvCiCircleCiRepoOwner:     "pansenentertainment",
 			},
 			expectedConfig: NotifierConfig{
 				LogFile:       "./cdk.log",
@@ -81,6 +86,7 @@ func TestNotifierConfig_Init(t *testing.T) {
 				RepoOwner:     "pansenentertainment",
 				Token:         "some-token",
 				PullRequestID: 23,
+				Ci:            CiCircleCi,
 			},
 			err: nil,
 		},
@@ -91,10 +97,12 @@ func TestNotifierConfig_Init(t *testing.T) {
 				DeleteComment: true,
 			},
 			envVars: map[string]string{
-				EnvGithubPullRequestID: "23",
-				EnvGithubRepoName:      "Uepsilon",
-				EnvGithubRepoOwner:     "pansenentertainment",
+				EnvCiCircleCiPullRequestID: "23",
+				EnvCiCircleCiRepoName:      "Uepsilon",
+				EnvCiCircleCiRepoOwner:     "pansenentertainment",
 			},
+			vcs: VcsGithub,
+			ci:  CiCircleCi,
 			expectedConfig: NotifierConfig{
 				LogFile:       "./cdk.log",
 				DeleteComment: true,
@@ -102,8 +110,9 @@ func TestNotifierConfig_Init(t *testing.T) {
 				RepoOwner:     "pansenentertainment",
 				Token:         "",
 				PullRequestID: 23,
+				Ci:            CiCircleCi,
 			},
-			err: &ValidationError{"token", EnvGithubToken},
+			err: &ValidationError{"token", []string{"TOKEN", EnvGithubToken, EnvBitbucketToken}},
 		},
 		{
 			description: "test misssing pull request id will cause no error",
@@ -112,10 +121,12 @@ func TestNotifierConfig_Init(t *testing.T) {
 				DeleteComment: true,
 			},
 			envVars: map[string]string{
-				EnvGithubRepoName:  "Uepsilon",
-				EnvGithubRepoOwner: "pansenentertainment",
-				EnvGithubToken:     "some-token",
+				EnvCiCircleCiRepoName:  "Uepsilon",
+				EnvCiCircleCiRepoOwner: "pansenentertainment",
+				EnvGithubToken:         "some-token",
 			},
+			vcs: VcsGithub,
+			ci:  CiCircleCi,
 			expectedConfig: NotifierConfig{
 				LogFile:       "./cdk.log",
 				DeleteComment: true,
@@ -123,6 +134,7 @@ func TestNotifierConfig_Init(t *testing.T) {
 				RepoOwner:     "pansenentertainment",
 				Token:         "some-token",
 				PullRequestID: 0,
+				Ci:            CiCircleCi,
 			},
 			err: nil,
 		},
@@ -133,22 +145,53 @@ func TestNotifierConfig_Init(t *testing.T) {
 				RepoName:  "Uepsilon",
 				RepoOwner: "pansenentertainment",
 				Token:     "some-token",
+				Ci:        CiCircleCi,
 			},
 			envVars: map[string]string{
-				EnvGithubPullRequestID: "23as",
+				EnvCiCircleCiPullRequestID: "23as",
 			},
+			vcs: VcsGithub,
+			ci:  CiCircleCi,
 			expectedConfig: NotifierConfig{
 				LogFile:       "./cdk.log",
 				RepoName:      "Uepsilon",
 				RepoOwner:     "pansenentertainment",
 				Token:         "some-token",
 				PullRequestID: 0,
+				Ci:            CiCircleCi,
 			},
 			err: &strconv.NumError{
 				Func: "ParseInt",
 				Num:  "23as",
 				Err:  strconv.ErrSyntax,
 			},
+		},
+		{
+			description: "test bitbucket ci config override",
+			inputConfig: NotifierConfig{
+				LogFile:   "./cdk.log",
+				RepoName:  "Uepsilon",
+				RepoOwner: "pansenentertainment",
+				Token:     "some-token",
+				Ci:        CiCircleCi,
+			},
+			envVars: map[string]string{
+				EnvCiBitbucketRepoOwner: "pansenentertainment",
+				EnvCiBitbucketPrId:      "12",
+				EnvCiBitbucketRepoName:  "Uepsilon",
+				EnvBitbucketToken:       "bitbucket-token",
+			},
+			vcs: VcsGithub,
+			ci:  CiBitbucket,
+			expectedConfig: NotifierConfig{
+				LogFile:       "./cdk.log",
+				RepoName:      "Uepsilon",
+				RepoOwner:     "pansenentertainment",
+				Token:         "bitbucket-token",
+				PullRequestID: 12,
+				Ci:            CiBitbucket,
+			},
+			err: nil,
 		},
 	}
 	for _, c := range testCasesInit {
@@ -157,6 +200,8 @@ func TestNotifierConfig_Init(t *testing.T) {
 			fmt.Printf("set env variable %s: %s\n", k, v)
 			_ = os.Setenv(k, v)
 		}
+		viper.Set("ci_system", c.ci)
+		viper.Set("vcs", c.vcs)
 		err := c.inputConfig.Init()
 		assert.Equal(t, c.err, err, c.description)
 		assert.Equal(t, c.expectedConfig, c.inputConfig, c.description)
