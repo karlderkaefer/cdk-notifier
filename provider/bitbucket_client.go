@@ -88,7 +88,8 @@ type ListCommentOptions struct {
 }
 
 func (proxy BitbucketProxy) RoundTrip(req *http.Request) (res *http.Response, e error) {
-	logrus.Debugf("Sending request to %s/%s\n", req.URL.Host, req.URL.Path)
+	msg := fmt.Sprintf("Sending request to %s/%s", req.URL.Host, req.URL.Path)
+	logrus.Debug(strings.ReplaceAll(msg, "\n", ""))
 	req.SetBasicAuth(proxy.username, proxy.password)
 	req.Header.Add("Accept", "application/json")
 	return proxy.Proxied.RoundTrip(req)
