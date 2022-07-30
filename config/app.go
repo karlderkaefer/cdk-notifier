@@ -110,7 +110,7 @@ func createBindings() map[string]string {
 		bindings[EnvCiCircleCiRepoName] = "REPO_NAME"
 		bindings[EnvCiCircleCiRepoOwner] = "REPO_OWNER"
 	default:
-		logrus.Warnf("Could not detect CI environemnt from '%s'. Skipping override from CI Env vars", ci)
+		logrus.Warnf("Could not detect CI environment from '%s'. Skipping override from CI Env vars", ci)
 	}
 	// mapping token environment vars regardless of environment since no conflicts expected
 	bindings[EnvBitbucketUser] = "TOKEN_USER"
