@@ -1,3 +1,29 @@
+# [2.0.0](https://github.com/karlderkaefer/cdk-notifier/compare/v1.2.12...v2.0.0) (2022-07-30)
+
+
+### Bug Fixes
+
+* **bitbucket:** increase code coverage ([6756a2c](https://github.com/karlderkaefer/cdk-notifier/commit/6756a2c8465fdfc3becd8f5e1c1a56e962a77412))
+* **github:** increase code coverage ([c80a5c4](https://github.com/karlderkaefer/cdk-notifier/commit/c80a5c4c4987ae19a05109182a0de5400f2885c7))
+* increase code coverage ([9afa427](https://github.com/karlderkaefer/cdk-notifier/commit/9afa42766647d871caee1b410fb7e124fc74d826))
+* prepare environment handling for multiple ci and vcs systems ([8228367](https://github.com/karlderkaefer/cdk-notifier/commit/82283671482087eb5148ccc68c85c3e83c681d67))
+* rename github package ([8775b56](https://github.com/karlderkaefer/cdk-notifier/commit/8775b56229995b3f90a6400d6d64fd13538f5b52))
+* **security:** do not print full url with query params in debug mode ([37ce19b](https://github.com/karlderkaefer/cdk-notifier/commit/37ce19bbf03f925755e94882c14fe87304dc0480))
+* **security:** escape new line on debug messages ([5efe98a](https://github.com/karlderkaefer/cdk-notifier/commit/5efe98aca579505dabacf625ab2d9e872365271c))
+* update description of cli args ([4090911](https://github.com/karlderkaefer/cdk-notifier/commit/40909116da538b3aab54c2076eae471e7a39735b))
+
+
+### Features
+
+* add bitbucket support ([f232145](https://github.com/karlderkaefer/cdk-notifier/commit/f2321453de6a5cab76bcf35456ec59b32b5add02))
+* better general naming for cli arguments ([a662a3c](https://github.com/karlderkaefer/cdk-notifier/commit/a662a3cada8254cc778764d9ce151820cd61ad4f))
+* prepare abstraction for multiple VCS ([f640e3d](https://github.com/karlderkaefer/cdk-notifier/commit/f640e3de141b19aca9d9d7ae865845804eee59a6))
+
+
+### BREAKING CHANGES
+
+* rename cli argument short and long names
+
 ## [1.2.12](https://github.com/karlderkaefer/cdk-notifier/compare/v1.2.11...v1.2.12) (2022-06-12)
 
 
