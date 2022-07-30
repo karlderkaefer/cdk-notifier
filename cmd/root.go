@@ -3,23 +3,17 @@ package cmd
 import (
 	"fmt"
 	"github.com/karlderkaefer/cdk-notifier/config"
-	"github.com/karlderkaefer/cdk-notifier/github"
+	"github.com/karlderkaefer/cdk-notifier/provider"
 	"github.com/karlderkaefer/cdk-notifier/transform"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"io"
 	"os"
 )
 
 var (
-	v             string
-	logFile       string
-	repoName      string
-	repoOwner     string
-	githubToken   string
-	tagID         string
-	pullRequestID int
-	deleteComment bool
+	v string
 	// Version cdk-notifier application version
 	Version string
 )
@@ -31,33 +25,27 @@ var rootCmd = &cobra.Command{
 	Long:    "Post CDK diff log to Github Pull Request",
 	Version: Version,
 	Run: func(cmd *cobra.Command, args []string) {
-		appConfig := &config.AppConfig{
-			LogFile:       logFile,
-			TagID:         tagID,
-			RepoName:      repoName,
-			RepoOwner:     repoOwner,
-			PullRequest:   pullRequestID,
-			DeleteComment: deleteComment,
-			GithubToken:   githubToken,
-		}
+		appConfig := &config.NotifierConfig{}
 		err := appConfig.Init()
 		if err != nil {
 			logrus.Fatal(err)
 		}
-		if appConfig.PullRequest == 0 {
-			err = &config.ValidationError{CliArg: "pull-request-id", EnvVar: config.EnvPullRequestID}
+		fmt.Printf("%v\n", appConfig)
+		if appConfig.PullRequestID == 0 {
+			err = &config.ValidationError{CliArg: "pull-request-id", EnvVar: []string{"PR_ID", config.EnvCiCircleCiPullRequestID, config.EnvCiBitbucketPrId}}
 			logrus.Warnf("Skipping... because %s", err)
 			return
 		}
-		logrus.Tracef("got app config: %#v", appConfig)
 
 		transformer := transform.NewLogTransformer(appConfig)
 		transformer.Process()
 
-		gc := github.NewGithubClient(cmd.Context(), appConfig, nil)
-		gc.CommentContent = transformer.LogContent
-		gc.Authenticate()
-		err = gc.PostComment()
+		notifier, err := provider.CreateNotifierService(cmd.Context(), *appConfig)
+		if err != nil {
+			logrus.Fatalln(err)
+		}
+		notifier.SetCommentContent(transformer.LogContent)
+		_, err = notifier.PostComment()
 		if err != nil {
 			logrus.Fatalln(err)
 		}
@@ -79,17 +67,43 @@ func Execute() {
 
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&v, "verbosity", "v", logrus.InfoLevel.String(), "Log level (debug, info, warn, error, fatal, panic)")
-	usageRepo := fmt.Sprintf("Name of github repository without organisation. If not set will lookup for env var '%s'", config.EnvRepoName)
-	usageOwner := fmt.Sprintf("Name of gitub owner. If not set will lookup for env var '%s'", config.EnvRepoOwner)
-	usageToken := fmt.Sprintf("Github token used to post comments to PR. If not set will lookup for env var '%s'", config.EnvGithubToken)
-	usagePr := fmt.Sprintf("Id or URL of github pull request. If not set will lookup for env var '%s'", config.EnvPullRequestID)
-	rootCmd.PersistentFlags().StringVarP(&repoName, "github-repo", "r", "", usageRepo)
-	rootCmd.PersistentFlags().StringVarP(&repoOwner, "github-owner", "o", "", usageOwner)
-	rootCmd.PersistentFlags().StringVar(&githubToken, "github-token", "", usageToken)
-	rootCmd.PersistentFlags().IntVarP(&pullRequestID, "pull-request-id", "p", 0, usagePr)
-	rootCmd.PersistentFlags().StringVarP(&logFile, "log-file", "l", "./cdk.log", "path to cdk log file")
-	rootCmd.PersistentFlags().StringVarP(&tagID, "tag-id", "t", "stack", "unique identifier for stack within pipeline")
-	rootCmd.PersistentFlags().BoolVarP(&deleteComment, "delete", "d", true, "delete comments when no changes are detected for a specific tag id")
+
+	usageRepo := fmt.Sprintf("Name of repository without organisation. If not set will lookup for env var [%s|%s|%s],'", "REPO_NAME", config.EnvCiCircleCiRepoName, config.EnvCiBitbucketRepoName)
+	usageOwner := fmt.Sprintf("Name of owner. If not set will lookup for env var [%s|%s|%s]", "REPO_OWNER", config.EnvCiCircleCiRepoOwner, config.EnvCiBitbucketRepoOwner)
+	usageToken := fmt.Sprintf("Authentication token used to post comments to PR. If not set will lookup for env var [%s|%s|%s]", "TOKEN_USER", config.EnvGithubToken, config.EnvBitbucketToken)
+	usagePr := fmt.Sprintf("Id or URL of pull request. If not set will lookup for env var [%s|%s|%s]", "PR_ID", config.EnvCiCircleCiPullRequestID, config.EnvCiBitbucketPrId)
+
+	rootCmd.Flags().StringP("repo", "r", "", usageRepo)
+	rootCmd.Flags().StringP("owner", "o", "", usageOwner)
+	rootCmd.Flags().String("token", "", usageToken)
+	rootCmd.Flags().StringP("pull-request-id", "p", "", usagePr)
+	rootCmd.Flags().StringP("log-file", "l", "", "path to cdk log file")
+	rootCmd.Flags().StringP("tag-id", "t", "stack", "unique identifier for stack within pipeline")
+	rootCmd.Flags().StringP("delete", "d", "", "delete comments when no changes are detected for a specific tag id")
+	rootCmd.Flags().String("vcs", "github", "Version Control System [github|bitbucket]")
+	rootCmd.Flags().String("ci", "circleci", "CI System used [circleci|bitbucket]")
+	rootCmd.Flags().StringP("user", "u", "", "Optional set username for token (required for bitbucket)")
+
+	// mapping for viper [mapstruct value, flag name]
+	viperMappings := make(map[string]string)
+	viperMappings["REPO_NAME"] = "repo"
+	viperMappings["REPO_OWNER"] = "owner"
+	viperMappings["TOKEN"] = "token"
+	viperMappings["TOKEN_USER"] = "user"
+	viperMappings["PR_ID"] = "pull-request-id"
+	viperMappings["LOG_FILE"] = "log-file"
+	viperMappings["TAG_ID"] = "tag-id"
+	viperMappings["DELETE_COMMENT"] = "delete"
+	viperMappings["VERSION_CONTROL_SYSTEM"] = "vcs"
+	viperMappings["CI_SYSTEM"] = "ci"
+
+	for k, v := range viperMappings {
+		err := viper.BindPFlag(k, rootCmd.Flags().Lookup(v))
+		if err != nil {
+			logrus.Error(err)
+		}
+	}
+
 	if Version == "" {
 		rootCmd.Version = "dev"
 	}

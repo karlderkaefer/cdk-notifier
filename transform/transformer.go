@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"github.com/acarl005/stripansi"
 	"github.com/karlderkaefer/cdk-notifier/config"
-	"github.com/karlderkaefer/cdk-notifier/github"
+	"github.com/karlderkaefer/cdk-notifier/provider"
 	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"regexp"
@@ -34,7 +34,7 @@ type githubTemplate struct {
 }
 
 // NewLogTransformer create new log transfer based on config.AppConfig
-func NewLogTransformer(config *config.AppConfig) *LogTransformer {
+func NewLogTransformer(config *config.NotifierConfig) *LogTransformer {
 	return &LogTransformer{
 		LogContent: "",
 		Logfile:    config.LogFile,
@@ -114,7 +114,7 @@ func (t *LogTransformer) addHeader() {
 		Content:      t.LogContent,
 		Backticks:    "```",
 		JobLink:      "",
-		HeaderPrefix: github.HeaderPrefix,
+		HeaderPrefix: provider.HeaderPrefix,
 	}
 	tmpl, err := template.New("githubTemplate").Parse(templateContent)
 	if err != nil {
