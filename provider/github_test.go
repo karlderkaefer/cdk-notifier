@@ -78,6 +78,17 @@ func defaultTestGithubProvider(comments []*github.IssueComment) *GithubClient {
 	}
 }
 
+func TestNewGithubClient(t *testing.T) {
+	notifierConfig := config.NotifierConfig{
+		Token: "",
+	}
+	client := NewGithubClient(nil, notifierConfig)
+	comment, err := client.PostComment()
+	assert.Error(t, err)
+	assert.IsType(t, &github.ErrorResponse{}, err)
+	assert.Equal(t, comment, API_COMMENT_NOTHING)
+}
+
 func TestUpdateExistingComment(t *testing.T) {
 	initLogger()
 	commentsMock := []*github.IssueComment{
@@ -99,6 +110,40 @@ func TestUpdateExistingComment(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, comments, 1, "expect one comment in databasse after update")
 	assert.Equal(t, API_COMMENT_UPDATED.String(), operation.String(), "Expected Update Operation")
+}
+
+func TestGithubClient_CreateComment(t *testing.T) {
+	initLogger()
+	var commentsMock []*github.IssueComment
+	client := defaultTestGithubProvider(commentsMock)
+	client.SetCommentContent("New Comment")
+	assert.Len(t, commentsMock, 0)
+	comment, err := client.CreateComment()
+	assert.NoError(t, err)
+	assert.NotNil(t, comment)
+	assert.Equal(t, "New Comment", comment.Body)
+	comments, err := client.ListComments()
+	assert.NoError(t, err)
+	assert.Len(t, comments, 1)
+}
+
+func TestGithubClient_DeleteComment(t *testing.T) {
+	initLogger()
+	commentsMock := []*github.IssueComment{
+		{
+			ID:   github.Int64(1),
+			Body: github.String(fmt.Sprintf("%s %s\n%s", HeaderPrefix, defaultTag, "hello-word")),
+		},
+	}
+	client := defaultTestGithubProvider(commentsMock)
+	comments, err := client.ListComments()
+	assert.NoError(t, err)
+	assert.Len(t, comments, 1)
+	err = client.DeleteComment(int64(1))
+	assert.NoError(t, err)
+	comments, err = client.ListComments()
+	assert.NoError(t, err)
+	assert.Len(t, comments, 0)
 }
 
 func TestGithubClient_ListComments(t *testing.T) {

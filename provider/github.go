@@ -24,7 +24,7 @@ type GithubClient struct {
 	CommentContent string
 }
 
-// NewGithubClient create new github client. Can also consume a mocked IssueService
+// NewGithubClient create new GitHub client. Can also consume a mocked IssueService
 func NewGithubClient(ctx context.Context, config config.NotifierConfig) *GithubClient {
 	c := &GithubClient{
 		Config:  config,
