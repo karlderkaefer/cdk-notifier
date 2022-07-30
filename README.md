@@ -8,6 +8,8 @@ lightweight CLI tool to parse a CDK log file and post changes to pull request re
 Can be used to get more confidence on approving pull requests because reviewer will be aware of changes done to your
 environments.
 
+[Medium Article](https://betterprogramming.pub/improve-your-pull-request-experience-for-aws-cdk-projects-1fd5adb08bb3)
+
 ## Install
 
 Install binary with latest release
