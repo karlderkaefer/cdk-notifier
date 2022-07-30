@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/karlderkaefer/cdk-notifier/compare/v2.0.1...v2.0.2) (2022-07-30)
+
+
+### Bug Fixes
+
+* **security:** remove debug output containing token ([b95e186](https://github.com/karlderkaefer/cdk-notifier/commit/b95e186d40cf4a913c2ec6a6747a6b63ad200b3a))
+
 ## [2.0.1](https://github.com/karlderkaefer/cdk-notifier/compare/v2.0.0...v2.0.1) (2022-07-30)
 
 
