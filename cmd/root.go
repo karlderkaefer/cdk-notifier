@@ -30,7 +30,6 @@ var rootCmd = &cobra.Command{
 		if err != nil {
 			logrus.Fatal(err)
 		}
-		fmt.Printf("%v\n", appConfig)
 		if appConfig.PullRequestID == 0 {
 			err = &config.ValidationError{CliArg: "pull-request-id", EnvVar: []string{"PR_ID", config.EnvCiCircleCiPullRequestID, config.EnvCiBitbucketPrId}}
 			logrus.Warnf("Skipping... because %s", err)

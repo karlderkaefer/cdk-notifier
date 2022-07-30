@@ -89,7 +89,6 @@ func (c *NotifierConfig) loadViperConfig() error {
 			return err
 		}
 	}
-
 	err := viper.Unmarshal(c)
 	if err != nil {
 		return err
