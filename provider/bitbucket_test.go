@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/karlderkaefer/cdk-notifier/config"
 	"github.com/stretchr/testify/assert"
@@ -180,4 +181,15 @@ func TestBitbucketProvider_PostComment(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Len(t, comments, o.expectedCommentCount, "expected comments count to be equal for test object with index %d", i)
 	}
+}
+
+func TestNewBitbucketProvider(t *testing.T) {
+	notifierConfig := config.NotifierConfig{
+		Token: "",
+	}
+	client := NewBitbucketProvider(nil, notifierConfig)
+	comment, err := client.PostComment()
+	assert.Error(t, err)
+	assert.Equal(t, errors.New("BitBucket API Error: 401 Unauthorized \n"), err)
+	assert.Equal(t, comment, API_COMMENT_NOTHING)
 }

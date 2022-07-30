@@ -52,14 +52,14 @@ func diffHasChanges(log string) bool {
 }
 
 // CreateNotifierService will create an client instance depending on type of ci parameters
-func CreateNotifierService(ctx context.Context, config config.NotifierConfig) (NotifierService, error) {
-	switch config.Vcs {
-	case "github":
-		return NewGithubClient(ctx, config), nil
-	case "bitbucket":
-		return NewBitbucketProvider(ctx, config), nil
+func CreateNotifierService(ctx context.Context, c config.NotifierConfig) (NotifierService, error) {
+	switch c.Vcs {
+	case config.VcsGithub:
+		return NewGithubClient(ctx, c), nil
+	case config.VcsBitbucket:
+		return NewBitbucketProvider(ctx, c), nil
 	default:
-		return nil, fmt.Errorf("unspported Version Control System: %s", config.Vcs)
+		return nil, fmt.Errorf("unspported Version Control System: %s", c.Vcs)
 	}
 }
 
