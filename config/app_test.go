@@ -2,12 +2,13 @@ package config
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"strconv"
 	"testing"
+
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
 )
 
 type testCase struct {
@@ -217,7 +218,7 @@ func TestNotifierConfig_Init(t *testing.T) {
 				PullRequestID: 23,
 				Ci:            CiCircleCi,
 			},
-			err: &ValidationError{"token", []string{"TOKEN", EnvGithubToken, EnvBitbucketToken}},
+			err: &ValidationError{"token", []string{"TOKEN", EnvGithubToken, EnvBitbucketToken, EnvGitlabToken}},
 		},
 		{
 			description: "test missing parameter repo name",
@@ -241,7 +242,7 @@ func TestNotifierConfig_Init(t *testing.T) {
 				PullRequestID: 23,
 				Ci:            CiCircleCi,
 			},
-			err: &ValidationError{"repo", []string{"REPO_NAME", EnvCiCircleCiRepoName, EnvCiBitbucketRepoName}},
+			err: &ValidationError{"repo", []string{"REPO_NAME", EnvCiCircleCiRepoName, EnvCiBitbucketRepoName, EnvCiGitlabRepoName}},
 		},
 		{
 			description: "test missing parameter repo owner",
@@ -265,7 +266,7 @@ func TestNotifierConfig_Init(t *testing.T) {
 				PullRequestID: 23,
 				Ci:            CiCircleCi,
 			},
-			err: &ValidationError{"owner", []string{"REPO_OWNER", EnvCiCircleCiRepoOwner, EnvCiBitbucketRepoOwner}},
+			err: &ValidationError{"owner", []string{"REPO_OWNER", EnvCiCircleCiRepoOwner, EnvCiBitbucketRepoOwner, EnvCiGitlabRepoOwner}},
 		},
 	}
 	for _, c := range testCasesInit {

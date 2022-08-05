@@ -3,13 +3,14 @@ package provider
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	"sync"
+	"testing"
+
 	"github.com/google/go-github/v37/github"
 	"github.com/karlderkaefer/cdk-notifier/config"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
-	"sync"
-	"testing"
 )
 
 func initLogger() {
@@ -100,7 +101,7 @@ func TestUpdateExistingComment(t *testing.T) {
 	client := defaultTestGithubProvider(commentsMock)
 	comments, err := client.ListComments()
 	assert.NoError(t, err)
-	assert.Len(t, comments, 1, "expect one comment in databasse")
+	assert.Len(t, comments, 1, "expect one comment in database")
 
 	// test update existing comment
 	client.CommentContent = fmt.Sprintf("%s %s\n%s", HeaderPrefix, defaultTag, "there are Policy Changes detected")
@@ -108,7 +109,7 @@ func TestUpdateExistingComment(t *testing.T) {
 	assert.NoError(t, err)
 	comments, err = client.ListComments()
 	assert.NoError(t, err)
-	assert.Len(t, comments, 1, "expect one comment in databasse after update")
+	assert.Len(t, comments, 1, "expect one comment in database after update")
 	assert.Equal(t, API_COMMENT_UPDATED.String(), operation.String(), "Expected Update Operation")
 }
 
