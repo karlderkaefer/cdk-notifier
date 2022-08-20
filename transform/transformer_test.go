@@ -2,6 +2,7 @@ package transform
 
 import (
 	"github.com/stretchr/testify/assert"
+	"os"
 	"testing"
 )
 
@@ -91,4 +92,27 @@ func TestLogTransformer_AddHeader(t *testing.T) {
 		c.transformer.addHeader()
 		assert.Equal(t, c.expected, c.transformer.LogContent)
 	}
+}
+
+func TestLogTransformer_WriteDiffFile(t *testing.T) {
+	file := "../data/cdk-diff1.log"
+	fileDiff := "../data/cdk-diff1.log.diff"
+	transformer := &LogTransformer{
+		LogContent: "+[+] helloworld",
+		Logfile:    file,
+		TagID:      "small",
+		NoPostMode: false,
+	}
+
+	defer os.Remove(fileDiff)
+
+	err := transformer.writeDiffFile()
+	assert.NoError(t, err)
+	assert.NoFileExistsf(t, fileDiff, "Expect diff file not be found when no post mode not activated")
+
+	transformer.NoPostMode = true
+	err = transformer.writeDiffFile()
+	assert.NoError(t, err)
+	assert.FileExistsf(t, fileDiff, "Expect diff file to be found")
+
 }

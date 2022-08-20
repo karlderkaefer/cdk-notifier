@@ -39,6 +39,10 @@ var rootCmd = &cobra.Command{
 		transformer := transform.NewLogTransformer(appConfig)
 		transformer.Process()
 
+		if appConfig.NoPostMode {
+			return
+		}
+
 		notifier, err := provider.CreateNotifierService(cmd.Context(), *appConfig)
 		if err != nil {
 			logrus.Fatalln(err)
@@ -82,6 +86,7 @@ func init() {
 	rootCmd.Flags().String("vcs", "github", "Version Control System [github|bitbucket]")
 	rootCmd.Flags().String("ci", "circleci", "CI System used [circleci|bitbucket]")
 	rootCmd.Flags().StringP("user", "u", "", "Optional set username for token (required for bitbucket)")
+	rootCmd.Flags().Bool("no-post-mode", false, "Optional do not post comment to VCS, instead write additional file and print diff to stdout")
 
 	// mapping for viper [mapstruct value, flag name]
 	viperMappings := make(map[string]string)
@@ -93,6 +98,7 @@ func init() {
 	viperMappings["LOG_FILE"] = "log-file"
 	viperMappings["TAG_ID"] = "tag-id"
 	viperMappings["DELETE_COMMENT"] = "delete"
+	viperMappings["NO_POST_MODE"] = "no-post-mode"
 	viperMappings["VERSION_CONTROL_SYSTEM"] = "vcs"
 	viperMappings["CI_SYSTEM"] = "ci"
 

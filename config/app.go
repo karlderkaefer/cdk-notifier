@@ -60,6 +60,7 @@ type NotifierConfig struct {
 	DeleteComment bool   `mapstructure:"DELETE_COMMENT"`
 	Vcs           string `mapstructure:"VERSION_CONTROL_SYSTEM"`
 	Ci            string `mapstructure:"CI_SYSTEM"`
+	NoPostMode    bool   `mapstructure:"NO_POST_MODE"`
 }
 
 // Init will create default NotifierConfig with following priority
