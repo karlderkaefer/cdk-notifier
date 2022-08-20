@@ -70,7 +70,7 @@ cdk-notifier will then analyze and transform the log by
 
 cdk-notifier will post the processed log of cdk diff to PR if there are changes.
 If a diff comment for tag-id exists and no changes are detected then comment will delete.
-You can control this behavior with `--delete false`.
+You can control this behavior with `--delete=false`.
 
 ```bash
 cdk-notfier --owner some-org --repo some-repo --token 1234 --log-file ./cdk.log --tag-id my-stack --pull-request-id 12 --vcs github --ci circleci
