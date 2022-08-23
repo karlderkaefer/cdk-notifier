@@ -1,3 +1,10 @@
+# [2.2.0](https://github.com/karlderkaefer/cdk-notifier/compare/v2.1.1...v2.2.0) (2022-08-23)
+
+
+### Features
+
+* **gitlab:** add gitlab support ([f8ff3b5](https://github.com/karlderkaefer/cdk-notifier/commit/f8ff3b5f8ecd52be58dd88c65ff253cd5cb8a3fd))
+
 ## [2.1.1](https://github.com/karlderkaefer/cdk-notifier/compare/v2.1.0...v2.1.1) (2022-08-23)
 
 
