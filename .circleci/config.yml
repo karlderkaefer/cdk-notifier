@@ -54,7 +54,10 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - set-version
+      - when:
+          condition: main, << pipeline.git.branch >>
+          steps:
+            - set-version
       - go/load-cache
       - go/mod-download
       - go/save-cache
@@ -108,22 +111,31 @@ jobs:
           command: |
             npx semantic-release
 
-
 workflows:
   build:
     jobs:
       - get-version:
+          filters:
+            branches:
+              only:
+                - main
           context: semantics-release
+      - build:
+          name: build-linux
+          os: linux
+          arch: amd64
       - build:
           matrix:
             parameters:
-              os: [linux, darwin, windows]
-              arch: [amd64, arm64]
+              os: [ linux, darwin, windows ]
+              arch: [ amd64, arm64 ]
           requires:
             - get-version
-      - test:
-          requires:
-            - get-version
+          filters:
+            branches:
+              only:
+                - main
+      - test
       - publish:
           requires:
             - build
@@ -132,5 +144,4 @@ workflows:
           filters:
             branches:
               only:
-                - master
                 - main
