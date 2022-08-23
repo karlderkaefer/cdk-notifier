@@ -2,10 +2,9 @@ package provider
 
 import (
 	"errors"
-	"testing"
-
 	"github.com/karlderkaefer/cdk-notifier/config"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 type testCaseCreateService struct {
@@ -34,12 +33,6 @@ func TestCreateNotifierService(t *testing.T) {
 			expectedType:  &GithubClient{},
 			expectedError: nil,
 			description:   "test github",
-		},
-		{
-			vcs:           config.VcsGitlab,
-			expectedType:  &GitlabClient{},
-			expectedError: nil,
-			description:   "test gitlab",
 		},
 	}
 	for _, c := range testCase {

@@ -2,15 +2,14 @@ package cmd
 
 import (
 	"fmt"
-	"io"
-	"os"
-
 	"github.com/karlderkaefer/cdk-notifier/config"
 	"github.com/karlderkaefer/cdk-notifier/provider"
 	"github.com/karlderkaefer/cdk-notifier/transform"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"io"
+	"os"
 )
 
 var (
@@ -22,8 +21,8 @@ var (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:     "cdk-notifier",
-	Short:   "Post CDK diff log to Pull Request",
-	Long:    "Post CDK diff log to Pull Request",
+	Short:   "Post CDK diff log to Github Pull Request",
+	Long:    "Post CDK diff log to Github Pull Request",
 	Version: Version,
 	Run: func(cmd *cobra.Command, args []string) {
 		appConfig := &config.NotifierConfig{}
@@ -32,7 +31,7 @@ var rootCmd = &cobra.Command{
 			logrus.Fatal(err)
 		}
 		if appConfig.PullRequestID == 0 {
-			err = &config.ValidationError{CliArg: "pull-request-id", EnvVar: []string{"PR_ID", config.EnvCiCircleCiPullRequestID, config.EnvCiBitbucketPrId, config.EnvCiGitlabMrId}}
+			err = &config.ValidationError{CliArg: "pull-request-id", EnvVar: []string{"PR_ID", config.EnvCiCircleCiPullRequestID, config.EnvCiBitbucketPrId}}
 			logrus.Warnf("Skipping... because %s", err)
 			return
 		}
@@ -70,8 +69,8 @@ func init() {
 
 	usageRepo := fmt.Sprintf("Name of repository without organisation. If not set will lookup for env var [%s|%s|%s],'", "REPO_NAME", config.EnvCiCircleCiRepoName, config.EnvCiBitbucketRepoName)
 	usageOwner := fmt.Sprintf("Name of owner. If not set will lookup for env var [%s|%s|%s]", "REPO_OWNER", config.EnvCiCircleCiRepoOwner, config.EnvCiBitbucketRepoOwner)
-	usageToken := fmt.Sprintf("Authentication token used to post comments to PR. If not set will lookup for env var [%s|%s|%s|%s]", "TOKEN_USER", config.EnvGithubToken, config.EnvBitbucketToken, config.EnvGitlabToken)
-	usagePr := fmt.Sprintf("Id or URL of pull request. If not set will lookup for env var [%s|%s|%s|%s]", "PR_ID", config.EnvCiCircleCiPullRequestID, config.EnvCiBitbucketPrId, config.EnvCiGitlabMrId)
+	usageToken := fmt.Sprintf("Authentication token used to post comments to PR. If not set will lookup for env var [%s|%s|%s]", "TOKEN_USER", config.EnvGithubToken, config.EnvBitbucketToken)
+	usagePr := fmt.Sprintf("Id or URL of pull request. If not set will lookup for env var [%s|%s|%s]", "PR_ID", config.EnvCiCircleCiPullRequestID, config.EnvCiBitbucketPrId)
 
 	rootCmd.Flags().StringP("repo", "r", "", usageRepo)
 	rootCmd.Flags().StringP("owner", "o", "", usageOwner)
@@ -80,10 +79,9 @@ func init() {
 	rootCmd.Flags().StringP("log-file", "l", "", "path to cdk log file")
 	rootCmd.Flags().StringP("tag-id", "t", "stack", "unique identifier for stack within pipeline")
 	rootCmd.Flags().StringP("delete", "d", "", "delete comments when no changes are detected for a specific tag id")
-	rootCmd.Flags().String("vcs", "github", "Version Control System [github|bitbucket|gitlab]")
-	rootCmd.Flags().String("ci", "circleci", "CI System used [circleci|bitbucket|gitlab]")
+	rootCmd.Flags().String("vcs", "github", "Version Control System [github|bitbucket]")
+	rootCmd.Flags().String("ci", "circleci", "CI System used [circleci|bitbucket]")
 	rootCmd.Flags().StringP("user", "u", "", "Optional set username for token (required for bitbucket)")
-	rootCmd.Flags().String("gitlab-url", "https://gitlab.com/", "Optional set gitlab url")
 
 	// mapping for viper [mapstruct value, flag name]
 	viperMappings := make(map[string]string)
@@ -97,7 +95,6 @@ func init() {
 	viperMappings["DELETE_COMMENT"] = "delete"
 	viperMappings["VERSION_CONTROL_SYSTEM"] = "vcs"
 	viperMappings["CI_SYSTEM"] = "ci"
-	viperMappings["URL"] = "gitlab-url"
 
 	for k, v := range viperMappings {
 		err := viper.BindPFlag(k, rootCmd.Flags().Lookup(v))
