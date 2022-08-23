@@ -3,10 +3,11 @@ package provider
 import (
 	"context"
 	"fmt"
-	"github.com/karlderkaefer/cdk-notifier/config"
-	"github.com/sirupsen/logrus"
 	"regexp"
 	"strings"
+
+	"github.com/karlderkaefer/cdk-notifier/config"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -58,6 +59,8 @@ func CreateNotifierService(ctx context.Context, c config.NotifierConfig) (Notifi
 		return NewGithubClient(ctx, c), nil
 	case config.VcsBitbucket:
 		return NewBitbucketProvider(ctx, c), nil
+	case config.VcsGitlab:
+		return NewGitlabClient(ctx, c), nil
 	default:
 		return nil, fmt.Errorf("unspported Version Control System: %s", c.Vcs)
 	}

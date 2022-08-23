@@ -2,11 +2,12 @@ package config
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 // ValidationError indicated a missing configuration either CLI argument or environment variable
@@ -24,6 +25,8 @@ const (
 	EnvGithubToken = "GITHUB_TOKEN"
 	// EnvBitbucketToken Name of environment variable for bitbucket token
 	EnvBitbucketToken = "BITBUCKET_TOKEN"
+	// EnvGitlabToken Name of environment variable for Gitlab token
+	EnvGitlabToken = "GITLAB_TOKEN"
 	// EnvBitbucketUser Name of environment variable for bitbucket user
 	EnvBitbucketUser = "BITBUCKET_USER"
 
@@ -41,11 +44,22 @@ const (
 	// EnvCiBitbucketRepoName Bitbucket CI variable for repo name
 	EnvCiBitbucketRepoName = "BITBUCKET_REPO_SLUG"
 
+	// EnvCiGitlabMrId Name of environment variable for Gitlab merge request id
+	EnvCiGitlabMrId = "CI_MERGE_REQUEST_IID"
+	// EnvCiGitlabUrl Name of environment variable for Gitlab Base Url
+	EnvCiGitlabUrl = "GITLAB_BASE_URL"
+	// EnvCiGitlabRepoOwner Gitlab CI variable for repo owner
+	EnvCiGitlabRepoOwner = "CI_PROJECT_NAMESPACE"
+	// EnvCiGitlabRepoName Gitlab CI variable for repo name
+	EnvCiGitlabRepoName = "CI_PROJECT_NAME"
+
 	VcsGithub    = "github"
 	VcsBitbucket = "bitbucket"
+	VcsGitlab    = "gitlab"
 
 	CiCircleCi  = "circleci"
 	CiBitbucket = "bitbucket"
+	CiGitlab    = "gitlab"
 )
 
 // NotifierConfig holds configuration
@@ -60,6 +74,7 @@ type NotifierConfig struct {
 	DeleteComment bool   `mapstructure:"DELETE_COMMENT"`
 	Vcs           string `mapstructure:"VERSION_CONTROL_SYSTEM"`
 	Ci            string `mapstructure:"CI_SYSTEM"`
+	Url           string `mapstructure:"URL"`
 }
 
 // Init will create default NotifierConfig with following priority
@@ -108,6 +123,11 @@ func createBindings() map[string]string {
 	case CiCircleCi:
 		bindings[EnvCiCircleCiRepoName] = "REPO_NAME"
 		bindings[EnvCiCircleCiRepoOwner] = "REPO_OWNER"
+	case CiGitlab:
+		bindings[EnvCiGitlabMrId] = "PR_ID"
+		bindings[EnvCiGitlabRepoName] = "REPO_NAME"
+		bindings[EnvCiGitlabRepoOwner] = "REPO_OWNER"
+		bindings[EnvCiGitlabUrl] = "URL"
 	default:
 		logrus.Warnf("Could not detect CI environment from '%s'. Skipping override from CI Env vars", ci)
 	}
@@ -115,6 +135,7 @@ func createBindings() map[string]string {
 	bindings[EnvBitbucketUser] = "TOKEN_USER"
 	bindings[EnvBitbucketToken] = "TOKEN"
 	bindings[EnvGithubToken] = "TOKEN"
+	bindings[EnvGitlabToken] = "TOKEN"
 	return bindings
 }
 
@@ -128,13 +149,13 @@ func (c *NotifierConfig) validate() error {
 		c.PullRequestID = prNumber
 	}
 	if c.RepoName == "" {
-		return &ValidationError{"repo", []string{"REPO_NAME", EnvCiCircleCiRepoName, EnvCiBitbucketRepoName}}
+		return &ValidationError{"repo", []string{"REPO_NAME", EnvCiCircleCiRepoName, EnvCiBitbucketRepoName, EnvCiGitlabRepoName}}
 	}
 	if c.RepoOwner == "" {
-		return &ValidationError{"owner", []string{"REPO_OWNER", EnvCiCircleCiRepoOwner, EnvCiBitbucketRepoOwner}}
+		return &ValidationError{"owner", []string{"REPO_OWNER", EnvCiCircleCiRepoOwner, EnvCiBitbucketRepoOwner, EnvCiGitlabRepoOwner}}
 	}
 	if c.Token == "" {
-		return &ValidationError{"token", []string{"TOKEN", EnvGithubToken, EnvBitbucketToken}}
+		return &ValidationError{"token", []string{"TOKEN", EnvGithubToken, EnvBitbucketToken, EnvGitlabToken}}
 	}
 	return nil
 }
