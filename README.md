@@ -33,17 +33,17 @@ cdk-notifier --help
 #  cdk-notifier [flags]
 #
 #Flags:
-#      --ci string                CI System used [circleci|bitbucket|gitlab] (default "circleci")
+#      --ci string                CI System used [circleci|bitbucket] (default "circleci")
 #  -d, --delete string            delete comments when no changes are detected for a specific tag id
 #  -h, --help                     help for cdk-notifier
 #  -l, --log-file string          path to cdk log file
-#  -o, --owner string             Name of owner. If not set will lookup for env var [REPO_OWNER|CIRCLE_PROJECT_USERNAME|BITBUCKET_REPO_OWNER|CI_PROJECT_NAMESPACE]
-#  -p, --pull-request-id string   Id or URL of pull request. If not set will lookup for env var [PR_ID|CIRCLE_PULL_REQUEST|BITBUCKET_PR_ID|CI_MERGE_REQUEST_IID]
-#  -r, --repo string              Name of repository without organisation. If not set will lookup for env var [REPO_NAME|CIRCLE_PROJECT_REPONAME|BITBUCKET_REPO_SLUG|CI_PROJECT_NAME],'
+#  -o, --owner string             Name of owner. If not set will lookup for env var [REPO_OWNER|CIRCLE_PROJECT_USERNAME|BITBUCKET_REPO_OWNER]
+#  -p, --pull-request-id string   Id or URL of pull request. If not set will lookup for env var [PR_ID|CIRCLE_PULL_REQUEST|BITBUCKET_PR_ID]
+#  -r, --repo string              Name of repository without organisation. If not set will lookup for env var [REPO_NAME|CIRCLE_PROJECT_REPONAME|BITBUCKET_REPO_SLUG],'
 #  -t, --tag-id string            unique identifier for stack within pipeline (default "stack")
-#      --token string             Authentication token used to post comments to PR. If not set will lookup for env var [TOKEN_USER|GITHUB_TOKEN|BITBUCKET_TOKEN|GITLAB_TOKEN]
+#      --token string             Authentication token used to post comments to PR. If not set will lookup for env var [TOKEN_USER|GITHUB_TOKEN|BITBUCKET_TOKEN]
 #  -u, --user string              Optional set username for token (required for bitbucket)
-#      --vcs string               Version Control System [github|bitbucket|gitlab] (default "github")
+#      --vcs string               Version Control System [github|bitbucket] (default "github")
 #  -v, --verbosity string         Log level (debug, info, warn, error, fatal, panic) (default "info")
 #      --version                  version for cdk-notifier
 
@@ -92,17 +92,15 @@ CDK-Notifier is supporting following Version Control Systems
 
 * github
 * bitbucket
-* gitlab
 
 If you run CDK-Notifier on CI Systems, you may not need to set flag for `owner`, `repo` or `pull-request-id`.
 Those will be read in automatically if not set via cli args. See [priority mapping](#config-priority-mapping).
 Following matrix is showing support for automatic mapping for different CI Systems.
 
-| Version Control System | CirlceCi Support   | Bitbucket CI Support | Github CI Support | Gitlab CI Support  |
-|------------------------|--------------------|----------------------|-------------------|--------------------|
-| github                 | :heavy_check_mark: | :heavy_check_mark:   | :x:               | :x:                |
-| bitbucket              | :heavy_check_mark: | :heavy_check_mark:   | :x:               | :x:                |
-| gitlab                 | :x:                | :x:                  | :x:               | :heavy_check_mark: |
+| Version Control System | CirlceCi Support   | Bitbucket CI Support | Github CI Support |
+|------------------------|--------------------|----------------------|-------------------|
+| github                 | :heavy_check_mark: | :heavy_check_mark:   | :x:               |
+| bitbucket              | :heavy_check_mark: | :heavy_check_mark:   | :x:               |
 
 If you run cdk-notifier on CircleCi you don't need to set owner, repo or token.
 CircleCi will provide default variables which will read in by cdk-notifier when cli arg is not set.
@@ -121,20 +119,12 @@ BITBUCKET_REPO_OWNER
 BITBUCKET_REPO_SLUG
 ```
 
-Example when running on Gitlab CI. See [available build variables](https://docs.gitlab.com/ee/ci/variables/predefined_variables.html)
-```bash
-CI_MERGE_REQUEST_IID
-CI_PROJECT_NAMESPACE
-CI_PROJECT_NAME
-```
-
 Token and usernames will be read in automatically despite on which CI they run. Potentially they override each other in order listed below.
 
 ```bash
 TOKEN
 GITHUB_TOKEN
 BITBUCKET_TOKEN
-GITLAB_TOKEN
 ```
 
 ## Config Priority Mapping
