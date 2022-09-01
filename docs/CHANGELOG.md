@@ -1,3 +1,10 @@
+## [2.2.1](https://github.com/karlderkaefer/cdk-notifier/compare/v2.2.0...v2.2.1) (2022-09-01)
+
+
+### Bug Fixes
+
+* **deps:** update golang.org/x/oauth2 digest to 0ebed06 ([4d35a3f](https://github.com/karlderkaefer/cdk-notifier/commit/4d35a3fc79951a3f03ff50c3a3817b0aef76b5c7))
+
 # [2.2.0](https://github.com/karlderkaefer/cdk-notifier/compare/v2.1.1...v2.2.0) (2022-08-23)
 
 
