@@ -76,7 +76,7 @@ If a diff comment for tag-id exists and no changes are detected then comment wil
 You can control this behavior with `--delete false`.
 
 ```bash
-cdk-notfier --owner some-org --repo some-repo --token 1234 --log-file ./cdk.log --tag-id my-stack --pull-request-id 12 --vcs github --ci circleci
+cdk-notifier --owner some-org --repo some-repo --token 1234 --log-file ./cdk.log --tag-id my-stack --pull-request-id 12 --vcs github --ci circleci
 ```
 
 The `tag-id` has to be unique within one pipeline. It's been used to identify the comment to update or delete.
