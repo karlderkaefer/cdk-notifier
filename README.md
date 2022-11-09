@@ -93,7 +93,7 @@ cdk-notifier -l data/cdk-small.log -t test
 
 CDK-Notifier is supporting following Version Control Systems
 
-* github
+* github | github enterprise
 * bitbucket
 * gitlab
 
