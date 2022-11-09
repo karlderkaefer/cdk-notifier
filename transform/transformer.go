@@ -2,15 +2,16 @@ package transform
 
 import (
 	"bytes"
-	"github.com/acarl005/stripansi"
-	"github.com/karlderkaefer/cdk-notifier/config"
-	"github.com/karlderkaefer/cdk-notifier/provider"
-	"github.com/sirupsen/logrus"
-	"io/ioutil"
+	"os"
 	"regexp"
 	"strings"
 	"text/template"
 	"unicode/utf8"
+
+	"github.com/acarl005/stripansi"
+	"github.com/karlderkaefer/cdk-notifier/config"
+	"github.com/karlderkaefer/cdk-notifier/provider"
+	"github.com/sirupsen/logrus"
 )
 
 // LogTransformer is responsible to process the log file and do following transformation steps
@@ -43,7 +44,7 @@ func NewLogTransformer(config *config.NotifierConfig) *LogTransformer {
 }
 
 func (t *LogTransformer) readFile() error {
-	content, err := ioutil.ReadFile(t.Logfile)
+	content, err := os.ReadFile(t.Logfile)
 	if err != nil {
 		return err
 	}

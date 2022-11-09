@@ -97,7 +97,7 @@ func TestNewGitlabClient(t *testing.T) {
 		Token: "",
 		Url:   "https://gitlab.com/",
 	}
-	client := NewGitlabClient(nil, notifierConfig)
+	client := NewGitlabClient(context.TODO(), notifierConfig)
 	comment, err := client.PostComment()
 	assert.Error(t, err)
 	assert.IsType(t, &gitlab.ErrorResponse{}, err)
