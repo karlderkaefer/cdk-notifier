@@ -36,6 +36,11 @@ func TestNotifierConfig_ReadPullRequestFromEnv(t *testing.T) {
 			err:      nil,
 		},
 		{
+			input:    "https://git.something.company.com/future/project/pull/9",
+			expected: 9,
+			err:      nil,
+		},
+		{
 			input:    "/1361",
 			expected: 1361,
 			err:      nil,
@@ -60,7 +65,9 @@ func TestNotifierConfig_ReadPullRequestFromEnv(t *testing.T) {
 
 	for _, c := range testCases {
 		_ = os.Setenv(EnvCiCircleCiPullRequestID, c.input)
-		actual, err := readPullRequestFromEnv()
+		p := PullRequest{}
+		err := p.LoadFromURL()
+		actual := p.Number
 		assert.IsType(t, c.err, err)
 		assert.Equal(t, c.expected, actual)
 	}
@@ -138,7 +145,7 @@ func TestNotifierConfig_Init(t *testing.T) {
 				Ci:            CiCircleCi,
 			},
 			err: &strconv.NumError{
-				Func: "ParseInt",
+				Func: "Atoi",
 				Num:  "23as",
 				Err:  strconv.ErrSyntax,
 			},

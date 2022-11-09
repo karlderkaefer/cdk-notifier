@@ -80,7 +80,7 @@ func init() {
 	rootCmd.Flags().StringP("log-file", "l", "", "path to cdk log file")
 	rootCmd.Flags().StringP("tag-id", "t", "stack", "unique identifier for stack within pipeline")
 	rootCmd.Flags().StringP("delete", "d", "", "delete comments when no changes are detected for a specific tag id")
-	rootCmd.Flags().String("vcs", "github", "Version Control System [github|bitbucket|gitlab]")
+	rootCmd.Flags().String("vcs", "github", "Version Control System [github|github-enterprise|bitbucket|gitlab]")
 	rootCmd.Flags().String("ci", "circleci", "CI System used [circleci|bitbucket|gitlab]")
 	rootCmd.Flags().StringP("user", "u", "", "Optional set username for token (required for bitbucket)")
 	rootCmd.Flags().String("gitlab-url", "https://gitlab.com/", "Optional set gitlab url")
