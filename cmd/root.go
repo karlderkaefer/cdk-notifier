@@ -31,16 +31,17 @@ var rootCmd = &cobra.Command{
 		if err != nil {
 			logrus.Fatal(err)
 		}
-		if appConfig.PullRequestID == 0 {
-			err = &config.ValidationError{CliArg: "pull-request-id", EnvVar: []string{"PR_ID", config.EnvCiCircleCiPullRequestID, config.EnvCiBitbucketPrId, config.EnvCiGitlabMrId}}
-			logrus.Warnf("Skipping... because %s", err)
-			return
-		}
 
 		transformer := transform.NewLogTransformer(appConfig)
 		transformer.Process()
 
 		if appConfig.NoPostMode {
+			return
+		}
+
+		if appConfig.PullRequestID == 0 {
+			err = &config.ValidationError{CliArg: "pull-request-id", EnvVar: []string{"PR_ID", config.EnvCiCircleCiPullRequestID, config.EnvCiBitbucketPrId, config.EnvCiGitlabMrId}}
+			logrus.Warnf("Skipping... because %s", err)
 			return
 		}
 
