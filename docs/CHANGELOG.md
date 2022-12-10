@@ -1,3 +1,45 @@
+## [2.2.3](https://github.com/karlderkaefer/cdk-notifier/compare/v2.2.2...v2.2.3) (2022-12-01)
+
+
+### Bug Fixes
+
+* **deps:** update golang dependencies ([afdb615](https://github.com/karlderkaefer/cdk-notifier/commit/afdb615339032fcf5b563cb65a561c7f1003d803))
+
+## [2.2.2](https://github.com/karlderkaefer/cdk-notifier/compare/v2.2.1...v2.2.2) (2022-11-01)
+
+
+### Bug Fixes
+
+* **deps:** update golang dependencies ([dda1bc0](https://github.com/karlderkaefer/cdk-notifier/commit/dda1bc066f19f41140549989720a2c74a4cf276e))
+
+## [2.2.1](https://github.com/karlderkaefer/cdk-notifier/compare/v2.2.0...v2.2.1) (2022-09-01)
+
+
+### Bug Fixes
+
+* **deps:** update golang.org/x/oauth2 digest to 0ebed06 ([4d35a3f](https://github.com/karlderkaefer/cdk-notifier/commit/4d35a3fc79951a3f03ff50c3a3817b0aef76b5c7))
+
+# [2.2.0](https://github.com/karlderkaefer/cdk-notifier/compare/v2.1.1...v2.2.0) (2022-08-23)
+
+
+### Features
+
+* **gitlab:** add gitlab support ([f8ff3b5](https://github.com/karlderkaefer/cdk-notifier/commit/f8ff3b5f8ecd52be58dd88c65ff253cd5cb8a3fd))
+
+## [2.1.1](https://github.com/karlderkaefer/cdk-notifier/compare/v2.1.0...v2.1.1) (2022-08-23)
+
+
+### Reverts
+
+* Revert "feat(gitlab): add gitlab support" ([6df3af1](https://github.com/karlderkaefer/cdk-notifier/commit/6df3af138beaeb676833a2fa2ae81c3a4548a2c0))
+
+# [2.1.0](https://github.com/karlderkaefer/cdk-notifier/compare/v2.0.2...v2.1.0) (2022-08-23)
+
+
+### Features
+
+* **gitlab:** add gitlab support ([e889e6e](https://github.com/karlderkaefer/cdk-notifier/commit/e889e6e349803890125a0e95005eebaeb4708595))
+
 ## [2.0.2](https://github.com/karlderkaefer/cdk-notifier/compare/v2.0.1...v2.0.2) (2022-07-30)
 
 

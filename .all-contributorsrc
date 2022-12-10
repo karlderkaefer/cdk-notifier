@@ -1,0 +1,34 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "napalm684",
+      "name": "Shawn Vause",
+      "avatar_url": "https://avatars.githubusercontent.com/u/8197405?v=4",
+      "profile": "https://shawn.vause.us",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "patoroco",
+      "name": "Jorge Maroto",
+      "avatar_url": "https://avatars.githubusercontent.com/u/701909?v=4",
+      "profile": "https://maroto.me",
+      "contributions": [
+        "doc"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "cdk-notifier",
+  "projectOwner": "karlderkaefer",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true,
+  "commitConvention": "angular"
+}
