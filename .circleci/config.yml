@@ -139,6 +139,12 @@ workflows:
       - publish:
           requires:
             - build
+            - build-amd64-linux
+            - build-amd64-darwin
+            - build-amd64-windows
+            - build-arm64-linux
+            - build-arm64-darwin
+            - build-arm64-windows
             - test
           context: semantics-release
           filters:
