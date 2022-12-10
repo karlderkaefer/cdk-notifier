@@ -1,3 +1,10 @@
+## [2.3.1](https://github.com/karlderkaefer/cdk-notifier/compare/v2.3.0...v2.3.1) (2022-12-10)
+
+
+### Bug Fixes
+
+* fix release process ([77796bb](https://github.com/karlderkaefer/cdk-notifier/commit/77796bb6dd6a204d9741d349f37be7e1b1e39cdd))
+
 # [2.3.0](https://github.com/karlderkaefer/cdk-notifier/compare/v2.2.3...v2.3.0) (2022-12-10)
 
 
