@@ -1,3 +1,17 @@
+# [2.3.0](https://github.com/karlderkaefer/cdk-notifier/compare/v2.2.3...v2.3.0) (2022-12-10)
+
+
+### Bug Fixes
+
+* add more test for transformer ([476b438](https://github.com/karlderkaefer/cdk-notifier/commit/476b438e8eae8b8fa4d314673940908cc202d91d))
+* do not validate config when running no post mode ([199524d](https://github.com/karlderkaefer/cdk-notifier/commit/199524d397c6fd0fd49665f2aeae184c7d5228be))
+* use boolean for delete arg ([b74c0ad](https://github.com/karlderkaefer/cdk-notifier/commit/b74c0ad3bbb3a70a19d2512a7816400df4fb1d2d)), closes [#47](https://github.com/karlderkaefer/cdk-notifier/issues/47)
+
+
+### Features
+
+* add no post mode ([dcb416d](https://github.com/karlderkaefer/cdk-notifier/commit/dcb416d32fcfc4213244ae657cb8de74d79f473d)), closes [#46](https://github.com/karlderkaefer/cdk-notifier/issues/46)
+
 ## [2.2.3](https://github.com/karlderkaefer/cdk-notifier/compare/v2.2.2...v2.2.3) (2022-12-01)
 
 
