@@ -268,6 +268,24 @@ func TestNotifierConfig_Init(t *testing.T) {
 			},
 			err: &ValidationError{"owner", []string{"REPO_OWNER", EnvCiCircleCiRepoOwner, EnvCiBitbucketRepoOwner, EnvCiGitlabRepoOwner}},
 		},
+		{
+			description: "test no post mode does not validate",
+			inputConfig: NotifierConfig{
+				LogFile:    "./cdk.log",
+				TagID:      "no-post",
+				NoPostMode: true,
+			},
+			envVars: map[string]string{},
+			vcs:     VcsGithub,
+			ci:      CiCircleCi,
+			expectedConfig: NotifierConfig{
+				LogFile:    "./cdk.log",
+				TagID:      "no-post",
+				NoPostMode: true,
+				Ci:         CiCircleCi,
+			},
+			err: nil,
+		},
 	}
 	for _, c := range testCasesInit {
 		t.Log(c.description)
