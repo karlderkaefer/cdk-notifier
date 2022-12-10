@@ -75,6 +75,7 @@ type NotifierConfig struct {
 	Vcs           string `mapstructure:"VERSION_CONTROL_SYSTEM"`
 	Ci            string `mapstructure:"CI_SYSTEM"`
 	Url           string `mapstructure:"URL"`
+	NoPostMode    bool   `mapstructure:"NO_POST_MODE"`
 }
 
 // Init will create default NotifierConfig with following priority
@@ -140,6 +141,9 @@ func createBindings() map[string]string {
 }
 
 func (c *NotifierConfig) validate() error {
+	if c.NoPostMode {
+		return nil
+	}
 	ci := viper.GetString("ci_system")
 	if c.PullRequestID == 0 && ci == CiCircleCi {
 		prNumber, err := readPullRequestFromEnv()
