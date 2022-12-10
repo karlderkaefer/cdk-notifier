@@ -2,6 +2,7 @@ package transform
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/acarl005/stripansi"
 	"github.com/karlderkaefer/cdk-notifier/config"
 	"github.com/karlderkaefer/cdk-notifier/provider"
@@ -22,6 +23,7 @@ type LogTransformer struct {
 	LogContent string
 	Logfile    string
 	TagID      string
+	NoPostMode bool
 }
 
 // githubTemplate wrapper object to use go templating
@@ -39,6 +41,7 @@ func NewLogTransformer(config *config.NotifierConfig) *LogTransformer {
 		LogContent: "",
 		Logfile:    config.LogFile,
 		TagID:      config.TagID,
+		NoPostMode: config.NoPostMode,
 	}
 }
 
@@ -132,11 +135,27 @@ func (t *LogTransformer) printFile() {
 	logrus.Infof("File contents: %s", t.LogContent)
 }
 
+// writeDiffFile is writing the transformed diff to file and appends .diff to filename.
+// Additionally, the diff is streamed to stdout
+func (t *LogTransformer) writeDiffFile() error {
+	if !t.NoPostMode {
+		return nil
+	}
+	filePath := t.Logfile + ".diff"
+	err := ioutil.WriteFile(filePath, []byte(t.LogContent), 440)
+	if err != nil {
+		return err
+	}
+	fmt.Print(t.LogContent)
+	return nil
+}
+
 // Process log file
 // 1. Clean any ANSI chars and XTERM color created from cdk diff command
 // 2. Transform additions and removals to markdown diff syntax
 // 3. Create unique message header
 // 4. truncate content if message is longer than GitHub API can handle
+// 5. write diff as file and to stdout when no-post-mode is activated
 func (t *LogTransformer) Process() {
 	err := t.readFile()
 	if err != nil {
@@ -146,4 +165,8 @@ func (t *LogTransformer) Process() {
 	t.transformDiff()
 	t.addHeader()
 	t.truncate()
+	err = t.writeDiffFile()
+	if err != nil {
+		logrus.Fatal(err)
+	}
 }
