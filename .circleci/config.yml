@@ -72,7 +72,7 @@ jobs:
             echo "got version ${VERSION}"
             export GOOS=<< parameters.os >>
             export GOARCH=<< parameters.arch >>
-            go build -o "dist/${CIRCLE_PROJECT_REPONAME}_${GOOS}_${GOARCH}" -ldflags "-X github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/cmd.Version=${VERSION}"
+            go build -o "dist/${CIRCLE_PROJECT_REPONAME}_${GOOS}_${GOARCH}${EXTENSION}" -ldflags "-X github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/cmd.Version=${VERSION}"
             if [ "$GOOS" == "linux" ] && [ "$GOARCH" == "amd64" ]; then
                ./dist/${CIRCLE_PROJECT_REPONAME}_${GOOS}_${GOARCH} --version
             fi
