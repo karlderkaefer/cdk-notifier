@@ -159,6 +159,16 @@ The config for CDK-Notifier is mapping in following priority (from low to high)
 3. Default values for CLI args. See `cdk-notifier --help`
 4. Values set by CLI e.g. `--token`
 
+## No Post Mode
+
+In case you only want to do the transformation into markdown diff, as described in [issue#46](https://github.com/karlderkaefer/cdk-notifier/issues/46).
+```bash
+./cdk-notifier -l data/cdk-diff1.log --tag-id small --no-post-mode
+```
+Any validation is skipped, you only need to set `--log-file` and `--tag-id`.
+Enable this option `--no-post-mode` will write the markdown diff to stdout and a logfile.
+The diff output file is using same path of cdk log file, but is appending `.diff` extension.
+
 ## Security
 **Disclaimer**: Consider using on private repositories only.
 
