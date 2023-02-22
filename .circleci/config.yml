@@ -120,10 +120,10 @@ workflows:
   build:
     jobs:
       - get-version:
-          filters:
-            branches:
-              only:
-                - main
+          # filters:
+          #   branches:
+          #     only:
+          #       - main
           context: semantics-release
       - build:
           name: build-linux
