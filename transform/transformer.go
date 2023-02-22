@@ -3,15 +3,16 @@ package transform
 import (
 	"bytes"
 	"fmt"
-	"github.com/acarl005/stripansi"
-	"github.com/karlderkaefer/cdk-notifier/config"
-	"github.com/karlderkaefer/cdk-notifier/provider"
-	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"regexp"
 	"strings"
 	"text/template"
 	"unicode/utf8"
+
+	"github.com/acarl005/stripansi"
+	"github.com/karlderkaefer/cdk-notifier/config"
+	"github.com/karlderkaefer/cdk-notifier/provider"
+	"github.com/sirupsen/logrus"
 )
 
 // LogTransformer is responsible to process the log file and do following transformation steps
@@ -24,6 +25,8 @@ type LogTransformer struct {
 	Logfile    string
 	TagID      string
 	NoPostMode bool
+	Vcs  string
+	DisableCollapse bool
 }
 
 // githubTemplate wrapper object to use go templating
@@ -33,6 +36,7 @@ type githubTemplate struct {
 	JobLink      string
 	Backticks    string
 	HeaderPrefix string
+	Collapsible  bool
 }
 
 // NewLogTransformer create new log transfer based on config.AppConfig
@@ -42,6 +46,8 @@ func NewLogTransformer(config *config.NotifierConfig) *LogTransformer {
 		Logfile:    config.LogFile,
 		TagID:      config.TagID,
 		NoPostMode: config.NoPostMode,
+		Vcs: config.Vcs,
+		DisableCollapse: config.DisableCollapse,
 	}
 }
 
@@ -108,16 +114,34 @@ func (t *LogTransformer) truncate() {
 func (t *LogTransformer) addHeader() {
 	templateContent := `
 {{ .HeaderPrefix }} {{ .TagID }} {{ .JobLink }}
+{{- if .Collapsible }}
+<details>
+<summary>Click to expand</summary>
+{{- end }}
+
 {{ .Backticks }}diff
 {{ .Content }}
 {{ .Backticks }}
+{{- if .Collapsible }}
+</details>
+{{- end }}
 `
+	collapsible := false
+	// only github and gitlab support collapsable sections
+	if t.Vcs == "github" || t.Vcs == "gitlab" {
+		collapsible = true
+	}
+	// can be disable by command line
+	if t.DisableCollapse {
+		collapsible = false
+	}
 	githubTemplate := &githubTemplate{
 		TagID:        t.TagID,
 		Content:      t.LogContent,
 		Backticks:    "```",
 		JobLink:      "",
 		HeaderPrefix: provider.HeaderPrefix,
+		Collapsible:  collapsible,
 	}
 	tmpl, err := template.New("githubTemplate").Parse(templateContent)
 	if err != nil {

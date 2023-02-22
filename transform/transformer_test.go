@@ -83,12 +83,40 @@ type TemplateTest struct {
 
 func TestLogTransformer_AddHeader(t *testing.T) {
 	cases := []TemplateTest{
+		// empty VCS should not have collapsible section
 		{
 			transformer: LogTransformer{
 				LogContent: "+[+] helloworld",
 				TagID:      "some title",
 			},
-			expected: "\n## cdk diff for some title \n```diff\n+[+] helloworld\n```\n",
+			expected: "\n## cdk diff for some title \n\n```diff\n+[+] helloworld\n```\n",
+		},
+		// bitbucket should not have collapisble section
+		{
+			transformer: LogTransformer{
+				LogContent: "+[+] helloworld",
+				TagID:      "some title",
+			},
+			expected: "\n## cdk diff for some title \n\n```diff\n+[+] helloworld\n```\n",
+		},
+		// github should have collapsible section
+		{
+			transformer: LogTransformer{
+				LogContent: "+[+] helloworld",
+				TagID:      "some github diff",
+				Vcs: "github",
+			},
+			expected: "\n## cdk diff for some github diff \n<details>\n<summary>Click to expand</summary>\n\n```diff\n+[+] helloworld\n```\n</details>\n",
+		},
+		// when using vcs github but setting disable-collapse it should have no collapsible section
+		{
+			transformer: LogTransformer{
+				LogContent: "+[+] helloworld",
+				TagID:      "some github diff",
+				Vcs: "github",
+				DisableCollapse: true,
+			},
+			expected: "\n## cdk diff for some github diff \n\n```diff\n+[+] helloworld\n```\n",
 		},
 	}
 	for _, c := range cases {
