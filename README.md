@@ -87,6 +87,9 @@ This is an example how the diff would like on github
 cdk-notifier -l data/cdk-small.log -t test
 ```
 
+Please note: GitLab, Bitbucket or Github tokens needs permission to write comments to PR.
+As an example for GitHub PAT it requires `pull requests: read and write`.
+
 ![](images/diff.png)
 
 ## Support for CI Systems
