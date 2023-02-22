@@ -1,3 +1,10 @@
+# [2.4.0](https://github.com/karlderkaefer/cdk-notifier/compare/v2.3.3...v2.4.0) (2023-02-22)
+
+
+### Features
+
+* add collapse comment ([35a6a1c](https://github.com/karlderkaefer/cdk-notifier/commit/35a6a1c56b28c03f36e99430b9c034f0c8797b91)), closes [#76](https://github.com/karlderkaefer/cdk-notifier/issues/76)
+
 ## [2.3.3](https://github.com/karlderkaefer/cdk-notifier/compare/v2.3.2...v2.3.3) (2023-02-22)
 
 
