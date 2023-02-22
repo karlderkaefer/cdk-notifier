@@ -90,6 +90,7 @@ func init() {
 	rootCmd.Flags().StringP("user", "u", "", "Optional set username for token (required for bitbucket)")
 	rootCmd.Flags().String("gitlab-url", "https://gitlab.com/", "Optional set gitlab url")
 	rootCmd.Flags().Bool("no-post-mode", false, "Optional do not post comment to VCS, instead write additional file and print diff to stdout")
+	rootCmd.Flags().Bool("disable-collapse", false, "Collapsible comments are enabled by default for GitHub and GitLab. When set to true it will not use collapsed sections.")
 
 	// mapping for viper [mapstruct value, flag name]
 	viperMappings := make(map[string]string)
@@ -102,6 +103,7 @@ func init() {
 	viperMappings["TAG_ID"] = "tag-id"
 	viperMappings["DELETE_COMMENT"] = "delete"
 	viperMappings["NO_POST_MODE"] = "no-post-mode"
+	viperMappings["DISABLE_COLLAPSE"] = "disable-collapse"
 	viperMappings["VERSION_CONTROL_SYSTEM"] = "vcs"
 	viperMappings["CI_SYSTEM"] = "ci"
 	viperMappings["URL"] = "gitlab-url"
