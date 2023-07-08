@@ -1,3 +1,10 @@
+## [2.4.6](https://github.com/karlderkaefer/cdk-notifier/compare/v2.4.5...v2.4.6) (2023-07-08)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/google/go-github/v37 to v53 ([cd973cf](https://github.com/karlderkaefer/cdk-notifier/commit/cd973cf266158bfe579a330bc421939ccc066148))
+
 ## [2.4.5](https://github.com/karlderkaefer/cdk-notifier/compare/v2.4.4...v2.4.5) (2023-07-08)
 
 
