@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/karlderkaefer/cdk-notifier/config"
-	"github.com/xanzy/go-gitlab"
+	gitlab "github.com/xanzy/go-gitlab"
 )
 
 // NotesService interface for required Gitlab actions with API
