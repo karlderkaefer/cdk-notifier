@@ -1,3 +1,10 @@
+## [2.4.5](https://github.com/karlderkaefer/cdk-notifier/compare/v2.4.4...v2.4.5) (2023-07-08)
+
+
+### Bug Fixes
+
+* disable cgo ([393d92d](https://github.com/karlderkaefer/cdk-notifier/commit/393d92d5e07d5711dd2d42aed81f46b2efc34925)), closes [#93](https://github.com/karlderkaefer/cdk-notifier/issues/93)
+
 ## [2.4.4](https://github.com/karlderkaefer/cdk-notifier/compare/v2.4.3...v2.4.4) (2023-07-01)
 
 
