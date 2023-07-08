@@ -73,7 +73,7 @@ cdk-notifier will then analyze and transform the log by
 
 cdk-notifier will post the processed log of cdk diff to PR if there are changes.
 If a diff comment for tag-id exists and no changes are detected then comment will delete.
-You can control this behavior with `--delete false`.
+You can control this behavior with `--delete=false`.
 
 ```bash
 cdk-notifier --owner some-org --repo some-repo --token 1234 --log-file ./cdk.log --tag-id my-stack --pull-request-id 12 --vcs github --ci circleci
@@ -86,6 +86,9 @@ This is an example how the diff would like on github
 ```bash
 cdk-notifier -l data/cdk-small.log -t test
 ```
+
+Please note: GitLab, Bitbucket or Github tokens needs permission to write comments to PR.
+As an example for GitHub PAT it requires `pull requests: read and write`.
 
 ![](images/diff.png)
 
@@ -158,6 +161,16 @@ The config for CDK-Notifier is mapping in following priority (from low to high)
 2. CI System specific environment variable mapping. See [support-for-ci-systems](#support-for-ci-systems)
 3. Default values for CLI args. See `cdk-notifier --help`
 4. Values set by CLI e.g. `--token`
+
+## No Post Mode
+
+In case you only want to do the transformation into markdown diff, as described in [issue#46](https://github.com/karlderkaefer/cdk-notifier/issues/46).
+```bash
+./cdk-notifier -l data/cdk-diff1.log --tag-id small --no-post-mode
+```
+Any validation is skipped, you only need to set `--log-file` and `--tag-id`.
+Enable this option `--no-post-mode` will write the markdown diff to stdout and a logfile.
+The diff output file is using same path of cdk log file, but is appending `.diff` extension.
 
 ## Security
 **Disclaimer**: Consider using on private repositories only.

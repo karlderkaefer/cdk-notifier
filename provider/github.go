@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"errors"
 
 	"github.com/google/go-github/v37/github"
 	"github.com/karlderkaefer/cdk-notifier/config"
@@ -75,11 +76,23 @@ func transform(i *github.IssueComment) *Comment {
 
 func (gc *GithubClient) CreateComment() (*Comment, error) {
 	comment, _, err := gc.Issues.CreateComment(gc.Context, gc.Config.RepoOwner, gc.Config.RepoName, gc.Config.PullRequestID, &github.IssueComment{Body: &gc.CommentContent})
+	if err != nil {
+		return nil, err
+	}
+	if comment == nil {
+		return nil, errors.New("Comment is nil. Please check your GitHub token.")
+	}
 	return transform(comment), err
 }
 
 func (gc *GithubClient) UpdateComment(id int64) (*Comment, error) {
 	editedComment, _, err := gc.Issues.EditComment(gc.Context, gc.Config.RepoOwner, gc.Config.RepoName, id, &github.IssueComment{Body: &gc.CommentContent})
+	if err != nil {
+		return nil, err
+	}
+	if editedComment == nil {
+		return nil, errors.New("Comment is nil. Please check your GitHub token.")
+	}
 	return transform(editedComment), err
 }
 

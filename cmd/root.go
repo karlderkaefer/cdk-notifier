@@ -31,14 +31,19 @@ var rootCmd = &cobra.Command{
 		if err != nil {
 			logrus.Fatal(err)
 		}
+
+		transformer := transform.NewLogTransformer(appConfig)
+		transformer.Process()
+
+		if appConfig.NoPostMode {
+			return
+		}
+
 		if appConfig.PullRequestID == 0 {
 			err = &config.ValidationError{CliArg: "pull-request-id", EnvVar: []string{"PR_ID", config.EnvCiCircleCiPullRequestID, config.EnvCiBitbucketPrId, config.EnvCiGitlabMrId}}
 			logrus.Warnf("Skipping... because %s", err)
 			return
 		}
-
-		transformer := transform.NewLogTransformer(appConfig)
-		transformer.Process()
 
 		notifier, err := provider.CreateNotifierService(cmd.Context(), *appConfig)
 		if err != nil {
@@ -79,11 +84,13 @@ func init() {
 	rootCmd.Flags().StringP("pull-request-id", "p", "", usagePr)
 	rootCmd.Flags().StringP("log-file", "l", "", "path to cdk log file")
 	rootCmd.Flags().StringP("tag-id", "t", "stack", "unique identifier for stack within pipeline")
-	rootCmd.Flags().StringP("delete", "d", "", "delete comments when no changes are detected for a specific tag id")
+	rootCmd.Flags().BoolP("delete", "d", true, "delete comments when no changes are detected for a specific tag id")
 	rootCmd.Flags().String("vcs", "github", "Version Control System [github|github-enterprise|bitbucket|gitlab]")
 	rootCmd.Flags().String("ci", "circleci", "CI System used [circleci|bitbucket|gitlab]")
 	rootCmd.Flags().StringP("user", "u", "", "Optional set username for token (required for bitbucket)")
 	rootCmd.Flags().String("gitlab-url", "https://gitlab.com/", "Optional set gitlab url")
+	rootCmd.Flags().Bool("no-post-mode", false, "Optional do not post comment to VCS, instead write additional file and print diff to stdout")
+	rootCmd.Flags().Bool("disable-collapse", false, "Collapsible comments are enabled by default for GitHub and GitLab. When set to true it will not use collapsed sections.")
 
 	// mapping for viper [mapstruct value, flag name]
 	viperMappings := make(map[string]string)
@@ -95,6 +102,8 @@ func init() {
 	viperMappings["LOG_FILE"] = "log-file"
 	viperMappings["TAG_ID"] = "tag-id"
 	viperMappings["DELETE_COMMENT"] = "delete"
+	viperMappings["NO_POST_MODE"] = "no-post-mode"
+	viperMappings["DISABLE_COLLAPSE"] = "disable-collapse"
 	viperMappings["VERSION_CONTROL_SYSTEM"] = "vcs"
 	viperMappings["CI_SYSTEM"] = "ci"
 	viperMappings["URL"] = "gitlab-url"

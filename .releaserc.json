@@ -3,7 +3,7 @@
     "master",
     "main"
   ],
-  "repositoryUrl": "git@github.com:karlderkaefer/cdk-notifier.git",
+  "repositoryUrl": "https://github.com/karlderkaefer/cdk-notifier.git",
   "plugins": [
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
