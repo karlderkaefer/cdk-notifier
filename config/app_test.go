@@ -11,12 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type testCase struct {
-	input    string
-	expected int
-	err      error
-}
-
 type testCaseInit struct {
 	description    string
 	inputConfig    NotifierConfig
