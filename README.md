@@ -1,6 +1,6 @@
 # cdk-notifier
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 [![CircleCI](https://circleci.com/gh/circleci/circleci-docs.svg?style=shield)](https://circleci.com/gh/circleci/circleci-docs)
@@ -232,6 +232,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <tr>
       <td align="center"><a href="https://shawn.vause.us"><img src="https://avatars.githubusercontent.com/u/8197405?v=4?s=100" width="100px;" alt="Shawn Vause"/><br /><sub><b>Shawn Vause</b></sub></a><br /><a href="https://github.com/karlderkaefer/cdk-notifier/commits?author=napalm684" title="Code">💻</a></td>
       <td align="center"><a href="https://maroto.me"><img src="https://avatars.githubusercontent.com/u/701909?v=4?s=100" width="100px;" alt="Jorge Maroto"/><br /><sub><b>Jorge Maroto</b></sub></a><br /><a href="https://github.com/karlderkaefer/cdk-notifier/commits?author=patoroco" title="Documentation">📖</a></td>
+      <td align="center"><a href="https://github.com/mmogylenko"><img src="https://avatars.githubusercontent.com/u/7536624?v=4?s=100" width="100px;" alt="Mykola Mogylenko"/><br /><sub><b>Mykola Mogylenko</b></sub></a><br /><a href="https://github.com/karlderkaefer/cdk-notifier/commits?author=mmogylenko" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
