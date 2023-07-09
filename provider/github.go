@@ -2,11 +2,13 @@ package provider
 
 import (
 	"context"
+	"fmt"
 	"errors"
 
 	"github.com/google/go-github/v37/github"
 	"github.com/karlderkaefer/cdk-notifier/config"
 	"golang.org/x/oauth2"
+	"github.com/sirupsen/logrus"
 )
 
 // GithubIssuesService interface for required GitHub actions with API
@@ -27,24 +29,37 @@ type GithubClient struct {
 }
 
 // NewGithubClient create new GitHub client. Can also consume a mocked IssueService
-func NewGithubClient(ctx context.Context, config config.NotifierConfig) *GithubClient {
+func NewGithubClient(ctx context.Context, cfg config.NotifierConfig) (*GithubClient, error) {
+	var err error
+
 	c := &GithubClient{
-		Config:  config,
+		Config:  cfg,
 		Context: ctx,
 	}
 	if ctx == nil {
 		c.Context = context.Background()
 	}
 	token := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: config.Token},
+		&oauth2.Token{AccessToken: cfg.Token},
 	)
 	tokenClient := oauth2.NewClient(c.Context, token)
-	c.Client = github.NewClient(tokenClient)
+
+	switch cfg.Vcs {
+	case config.VcsGithubEnterprise:
+		c.Client, err = github.NewEnterpriseClient(
+			fmt.Sprintf("https://%s/api/v3", cfg.GithubHost),
+			fmt.Sprintf("https://%s/api/upload", cfg.GithubHost),
+			tokenClient,
+		)
+		logrus.Infof("Using GitHub Enterprise Client: %s", cfg.GithubHost)
+	default:
+		c.Client = github.NewClient(tokenClient)
+	}
 
 	if c.Issues == nil {
 		c.Issues = c.Client.Issues
 	}
-	return c
+	return c, err
 }
 
 func transform(i *github.IssueComment) *Comment {

@@ -3,7 +3,7 @@ package transform
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"regexp"
 	"strings"
 	"text/template"
@@ -21,11 +21,11 @@ import (
 // 3. Create unique message header
 // 4. truncate content if message is longer than GitHub API can handle
 type LogTransformer struct {
-	LogContent string
-	Logfile    string
-	TagID      string
-	NoPostMode bool
-	Vcs  string
+	LogContent      string
+	Logfile         string
+	TagID           string
+	NoPostMode      bool
+	Vcs             string
 	DisableCollapse bool
 }
 
@@ -42,17 +42,17 @@ type githubTemplate struct {
 // NewLogTransformer create new log transfer based on config.AppConfig
 func NewLogTransformer(config *config.NotifierConfig) *LogTransformer {
 	return &LogTransformer{
-		LogContent: "",
-		Logfile:    config.LogFile,
-		TagID:      config.TagID,
-		NoPostMode: config.NoPostMode,
-		Vcs: config.Vcs,
+		LogContent:      "",
+		Logfile:         config.LogFile,
+		TagID:           config.TagID,
+		NoPostMode:      config.NoPostMode,
+		Vcs:             config.Vcs,
 		DisableCollapse: config.DisableCollapse,
 	}
 }
 
 func (t *LogTransformer) readFile() error {
-	content, err := ioutil.ReadFile(t.Logfile)
+	content, err := os.ReadFile(t.Logfile)
 	if err != nil {
 		return err
 	}
@@ -166,7 +166,8 @@ func (t *LogTransformer) writeDiffFile() error {
 		return nil
 	}
 	filePath := t.Logfile + ".diff"
-	err := ioutil.WriteFile(filePath, []byte(t.LogContent), 440)
+	// read/write for the owner, and read-only for the group and others
+	err := os.WriteFile(filePath, []byte(t.LogContent), 0644)
 	if err != nil {
 		return err
 	}
