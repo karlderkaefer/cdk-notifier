@@ -1,3 +1,16 @@
+# [2.5.0](https://github.com/karlderkaefer/cdk-notifier/compare/v2.4.6...v2.5.0) (2023-07-09)
+
+
+### Bug Fixes
+
+* golangci lint fixes ([b459957](https://github.com/karlderkaefer/cdk-notifier/commit/b45995728b8fe125e75205d0221ab8589b2c2e0a))
+
+
+### Features
+
+* Github Enterprise support ([3c3c01f](https://github.com/karlderkaefer/cdk-notifier/commit/3c3c01f7525f376b132bb49894501437af1dcc2a))
+* refactor github enterprise integration ([f46fb80](https://github.com/karlderkaefer/cdk-notifier/commit/f46fb8057d1735b168683fdb4fd2f45daa398316))
+
 ## [2.4.6](https://github.com/karlderkaefer/cdk-notifier/compare/v2.4.5...v2.4.6) (2023-07-08)
 
 
