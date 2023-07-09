@@ -94,48 +94,6 @@ func TestNotifierConfig_ReadPullRequestFromEnv(t *testing.T) {
 			}
 		})
 	}
-	// testCases := []testCase{
-	// 	{
-	// 		input:    "https://github.com/pansenentertainment/uepsilon/pull/1361",
-	// 		expected: 1361,
-	// 		err:      nil,
-	// 	},
-	// 	{
-	// 		input:    "https://git.something.company.com/future/project/pull/9",
-	// 		expected: 9,
-	// 		err:      nil,
-	// 	},
-	// 	{
-	// 		input:    "/1361",
-	// 		expected: 1361,
-	// 		err:      nil,
-	// 	},
-	// 	{
-	// 		input:    "1361",
-	// 		expected: 1361,
-	// 		err:      nil,
-	// 	},
-	// 	{
-	// 		// not setting pull request id should not throw error
-	// 		input:    "",
-	// 		expected: 0,
-	// 		err:      nil,
-	// 	},
-	// 	{
-	// 		input:    "https://github.com/pansenentertainment/uepsilon/pull",
-	// 		expected: 0,
-	// 		err:      &strconv.NumError{},
-	// 	},
-	// }
-
-	// for _, c := range testCases {
-	// 	_ = os.Setenv(EnvCiCircleCiPullRequestID, c.input)
-	// 	p := PullRequest{}
-	// 	err := p.LoadFromURL()
-	// 	actual := p.Number
-	// 	assert.IsType(t, c.err, err)
-	// 	assert.Equal(t, c.expected, actual)
-	// }
 }
 
 func TestNotifierConfig_Init(t *testing.T) {
