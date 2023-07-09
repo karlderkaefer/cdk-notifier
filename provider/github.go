@@ -8,6 +8,7 @@ import (
 	"github.com/google/go-github/v37/github"
 	"github.com/karlderkaefer/cdk-notifier/config"
 	"golang.org/x/oauth2"
+	"github.com/sirupsen/logrus"
 )
 
 // GithubIssuesService interface for required GitHub actions with API
@@ -46,10 +47,11 @@ func NewGithubClient(ctx context.Context, cfg config.NotifierConfig) (*GithubCli
 	switch cfg.Vcs {
 	case config.VcsGithubEnterprise:
 		c.Client, err = github.NewEnterpriseClient(
-			fmt.Sprintf("https://%s/api/v3", cfg.Url),
-			fmt.Sprintf("https://%s/api/upload", cfg.Url),
+			fmt.Sprintf("https://%s/api/v3", cfg.GithubHost),
+			fmt.Sprintf("https://%s/api/upload", cfg.GithubHost),
 			tokenClient,
 		)
+		logrus.Infof("Using GitHub Enterprise Client: %s", cfg.GithubHost)
 	default:
 		c.Client = github.NewClient(tokenClient)
 	}

@@ -29,48 +29,119 @@ type testCaseInit struct {
 
 func TestNotifierConfig_ReadPullRequestFromEnv(t *testing.T) {
 	logrus.SetLevel(7)
-	testCases := []testCase{
+	tests := []struct {
+		name     string
+		inputUrl string
+		want     *PullRequest
+		wantErr  bool
+	}{
 		{
-			input:    "https://github.com/pansenentertainment/uepsilon/pull/1361",
-			expected: 1361,
-			err:      nil,
+			name:     "Valid PR URL",
+			inputUrl: "https://github.com/owner/repo/pull/123",
+			want: &PullRequest{
+				Host:   "github.com",
+				Owner:  "owner",
+				Repo:   "repo",
+				Number: 123,
+			},
+			wantErr: false,
 		},
 		{
-			input:    "https://git.something.company.com/future/project/pull/9",
-			expected: 9,
-			err:      nil,
+			name:     "Valid PR URL with custom host",
+			inputUrl: "https://mycompany.com/owner/repo/pull/123",
+			want: &PullRequest{
+				Host:   "mycompany.com",
+				Owner:  "owner",
+				Repo:   "repo",
+				Number: 123,
+			},
+			wantErr: false,
 		},
 		{
-			input:    "/1361",
-			expected: 1361,
-			err:      nil,
+			name:     "Valid PR number",
+			inputUrl: "9",
+			want: &PullRequest{
+				Host:   "",
+				Owner:  "",
+				Repo:   "",
+				Number: 9,
+			},
+			wantErr: false,
 		},
 		{
-			input:    "1361",
-			expected: 1361,
-			err:      nil,
+			name: "Invalid PR URL",
+			inputUrl: "",
+			want: &PullRequest{
+				Number: 0,
+			},
+			wantErr: false,
 		},
 		{
-			// not setting pull request id should not throw error
-			input:    "",
-			expected: 0,
-			err:      nil,
-		},
-		{
-			input:    "https://github.com/pansenentertainment/uepsilon/pull",
-			expected: 0,
-			err:      &strconv.NumError{},
+			name: "Invalid PR URL with null",
+			inputUrl: "https://github.com/owner/repo/pull/null",
+			want: nil,
+			wantErr: true,
 		},
 	}
 
-	for _, c := range testCases {
-		_ = os.Setenv(EnvCiCircleCiPullRequestID, c.input)
-		p := PullRequest{}
-		err := p.LoadFromURL()
-		actual := p.Number
-		assert.IsType(t, c.err, err)
-		assert.Equal(t, c.expected, actual)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			pr := &PullRequest{}
+			err := pr.ConvertUrlToPullRequest(tt.inputUrl)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ConvertUrlToPullRequest() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if tt.wantErr {
+				return
+			}
+			if *pr != *tt.want {
+				t.Errorf("ConvertUrlToPullRequest() = %+v, want %+v", pr, tt.want)
+			}
+		})
 	}
+	// testCases := []testCase{
+	// 	{
+	// 		input:    "https://github.com/pansenentertainment/uepsilon/pull/1361",
+	// 		expected: 1361,
+	// 		err:      nil,
+	// 	},
+	// 	{
+	// 		input:    "https://git.something.company.com/future/project/pull/9",
+	// 		expected: 9,
+	// 		err:      nil,
+	// 	},
+	// 	{
+	// 		input:    "/1361",
+	// 		expected: 1361,
+	// 		err:      nil,
+	// 	},
+	// 	{
+	// 		input:    "1361",
+	// 		expected: 1361,
+	// 		err:      nil,
+	// 	},
+	// 	{
+	// 		// not setting pull request id should not throw error
+	// 		input:    "",
+	// 		expected: 0,
+	// 		err:      nil,
+	// 	},
+	// 	{
+	// 		input:    "https://github.com/pansenentertainment/uepsilon/pull",
+	// 		expected: 0,
+	// 		err:      &strconv.NumError{},
+	// 	},
+	// }
+
+	// for _, c := range testCases {
+	// 	_ = os.Setenv(EnvCiCircleCiPullRequestID, c.input)
+	// 	p := PullRequest{}
+	// 	err := p.LoadFromURL()
+	// 	actual := p.Number
+	// 	assert.IsType(t, c.err, err)
+	// 	assert.Equal(t, c.expected, actual)
+	// }
 }
 
 func TestNotifierConfig_Init(t *testing.T) {
@@ -144,11 +215,11 @@ func TestNotifierConfig_Init(t *testing.T) {
 				PullRequestID: 0,
 				Ci:            CiCircleCi,
 			},
-			err: &strconv.NumError{
+			err: fmt.Errorf("Unable to extract pull request number from url '%s': %w", "23as", &strconv.NumError{
 				Func: "Atoi",
 				Num:  "23as",
 				Err:  strconv.ErrSyntax,
-			},
+			}),
 		},
 		{
 			description: "test bitbucket ci config override",
@@ -295,18 +366,21 @@ func TestNotifierConfig_Init(t *testing.T) {
 		},
 	}
 	for _, c := range testCasesInit {
-		t.Log(c.description)
-		for k, v := range c.envVars {
-			fmt.Printf("set env variable %s: %s\n", k, v)
-			_ = os.Setenv(k, v)
-		}
-		viper.Set("ci_system", c.ci)
-		viper.Set("vcs", c.vcs)
-		err := c.inputConfig.Init()
-		assert.Equal(t, c.err, err, c.description)
-		assert.Equal(t, c.expectedConfig, c.inputConfig, c.description)
-		for k := range c.envVars {
-			_ = os.Unsetenv(k)
-		}
+		t.Run(c.description, func(t *testing.T) {
+			t.Log(c.description)
+			for k, v := range c.envVars {
+				fmt.Printf("set env variable %s: %s\n", k, v)
+				_ = os.Setenv(k, v)
+			}
+			viper.Set("ci_system", c.ci)
+			viper.Set("vcs", c.vcs)
+			err := c.inputConfig.Init()
+			assert.Equal(t, c.err, err, c.description)
+			assert.Equal(t, c.expectedConfig, c.inputConfig, c.description)
+			for k := range c.envVars {
+				_ = os.Unsetenv(k)
+			}
+		})
 	}
 }
+

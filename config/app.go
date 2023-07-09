@@ -25,23 +25,18 @@ type PullRequest struct {
 	Number int
 }
 
-// LoadFromURL parses Github Pull Request URL
+// ConvertUrlToPullRequest parses Github Pull Request URL
 // into PullRequest object.
-func (p *PullRequest) LoadFromURL() error {
-	var (
-		err error
-	)
-
-	URL := os.Getenv(EnvCiCircleCiPullRequestID)
-
-	if URL == "" {
-		return err
+func (p *PullRequest) ConvertUrlToPullRequest(inputUrl string) error {
+	var err error
+	if inputUrl == "" {
+		logrus.Warnf("env var %s is not set or empty", EnvCiCircleCiPullRequestID)
+		p.Number = 0
+		return nil
 	}
-
-	u, err := url.Parse(URL)
-
+	u, err := url.Parse(inputUrl)
 	if err != nil {
-		return err
+		return fmt.Errorf("Unable to parse URL for pull request '%s': %w", inputUrl, err)
 	}
 
 	p.Host = u.Host
@@ -62,9 +57,13 @@ func (p *PullRequest) LoadFromURL() error {
 		p.Owner = path[1]
 		p.Repo = path[2]
 		p.Number, err = strconv.Atoi(path[4])
+	default:
+		return fmt.Errorf("Unexpected URL structure for pull request '%s'", inputUrl)
 	}
-
-	return err
+	if err != nil {
+		return fmt.Errorf("Unable to extract pull request number from url '%s': %w", inputUrl, err)
+	}
+	return nil
 }
 
 func (e *ValidationError) Error() string {
@@ -127,6 +126,7 @@ type NotifierConfig struct {
 	Vcs             string `mapstructure:"VERSION_CONTROL_SYSTEM"`
 	Ci              string `mapstructure:"CI_SYSTEM"`
 	Url             string `mapstructure:"URL"`
+	GithubHost      string `mapstructure:"GITHUB_ENTERPRISE_HOST"`
 	NoPostMode      bool   `mapstructure:"NO_POST_MODE"`
 	DisableCollapse bool   `mapstructure:"DISABLE_COLLAPSE"`
 }
@@ -197,18 +197,9 @@ func (c *NotifierConfig) validate() error {
 	if c.NoPostMode {
 		return nil
 	}
-	ci := viper.GetString("ci_system")
-	if c.PullRequestID == 0 && ci == CiCircleCi {
-		pr := PullRequest{}
-
-		err := pr.LoadFromURL()
-		if err != nil {
-			return err
-		}
-		c.PullRequestID = pr.Number
-		if c.Vcs == VcsGithubEnterprise {
-			c.Url = pr.Host
-		}
+	err := c.setPullRequestInfo()
+	if err != nil {
+		return err
 	}
 	if c.RepoName == "" {
 		return &ValidationError{"repo", []string{"REPO_NAME", EnvCiCircleCiRepoName, EnvCiBitbucketRepoName, EnvCiGitlabRepoName}}
@@ -218,6 +209,26 @@ func (c *NotifierConfig) validate() error {
 	}
 	if c.Token == "" {
 		return &ValidationError{"token", []string{"TOKEN", EnvGithubToken, EnvBitbucketToken, EnvGitlabToken}}
+	}
+	return nil
+}
+
+func (c *NotifierConfig) setPullRequestInfo() error {
+
+	CirclePullRequest := os.Getenv(EnvCiCircleCiPullRequestID)
+	// assuming that if CirclePullRequest is set, we are running on CircleCI
+	if CirclePullRequest != "" {
+		pr := PullRequest{}
+		err := pr.ConvertUrlToPullRequest(os.Getenv(EnvCiCircleCiPullRequestID))
+		if err != nil {
+			return err
+		}
+		if c.PullRequestID == 0 {
+			c.PullRequestID = pr.Number
+		}
+		if c.GithubHost == "" && c.Vcs == VcsGithubEnterprise {
+			c.GithubHost = pr.Host
+		}
 	}
 	return nil
 }
