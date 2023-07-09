@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -48,7 +49,7 @@ func TestCreateNotifierService(t *testing.T) {
 			Token: "",
 			Vcs:   c.vcs,
 		}
-		svc, err := CreateNotifierService(nil, notifierConfig)
+		svc, err := CreateNotifierService(context.TODO(), notifierConfig)
 		if c.expectedError != nil {
 			assert.Error(t, err)
 		} else {

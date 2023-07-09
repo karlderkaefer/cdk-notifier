@@ -9,15 +9,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/google/go-querystring/query"
-	"github.com/sirupsen/logrus"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"reflect"
 	"strings"
 	"time"
+
+	"github.com/google/go-querystring/query"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -250,13 +250,13 @@ func (c *BitbucketClient) Do(ctx context.Context, req *http.Request, v interface
 		return resp, err
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	decErr := json.Unmarshal(body, v)
 	if decErr != nil {
 		logrus.Warnf("could not parse response to %s", reflect.TypeOf(v))
 	}
 	if resp.StatusCode >= 300 {
-		err = fmt.Errorf("BitBucket API Error: %s %s\n", resp.Status, body)
+		err = fmt.Errorf("BitBucket API Error: %s %s", resp.Status, body)
 	}
 	return resp, err
 }

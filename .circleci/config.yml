@@ -1,9 +1,9 @@
 version: 2.1
 
 orbs:
-  node: circleci/node@5.0.3
-  go: circleci/go@1.7.1
-  codecov: codecov/codecov@3.2.4
+  node: circleci/node@5.1.0
+  go: circleci/go@1.7.3
+  codecov: codecov/codecov@3.2.5
 
 commands:
   set-version:
@@ -44,7 +44,7 @@ jobs:
 
   build:
     docker:
-      - image: 'cimg/go:1.19'
+      - image: 'cimg/go:1.20'
     parameters:
       os:
         type: string
@@ -72,7 +72,12 @@ jobs:
             echo "got version ${VERSION}"
             export GOOS=<< parameters.os >>
             export GOARCH=<< parameters.arch >>
-            go build -o "dist/${CIRCLE_PROJECT_REPONAME}_${GOOS}_${GOARCH}" -ldflags "-X github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/cmd.Version=${VERSION}"
+            EXTENSION=""
+            if [ "$GOOS" == "windows" ]; then
+              echo "detected windows, adding .exe"
+              EXTENSION=".exe"
+            fi
+            CGO_ENABLED=0 go build -o "dist/${CIRCLE_PROJECT_REPONAME}_${GOOS}_${GOARCH}${EXTENSION}" -ldflags "-X github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/cmd.Version=${VERSION}"
             if [ "$GOOS" == "linux" ] && [ "$GOARCH" == "amd64" ]; then
                ./dist/${CIRCLE_PROJECT_REPONAME}_${GOOS}_${GOARCH} --version
             fi
@@ -85,7 +90,7 @@ jobs:
 
   test:
     docker:
-      - image: 'cimg/go:1.19'
+      - image: 'cimg/go:1.20'
     steps:
       - checkout
       - go/load-cache
@@ -139,6 +144,12 @@ workflows:
       - publish:
           requires:
             - build
+            - build-amd64-linux
+            - build-amd64-darwin
+            - build-amd64-windows
+            - build-arm64-linux
+            - build-arm64-darwin
+            - build-arm64-windows
             - test
           context: semantics-release
           filters:

@@ -3,7 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"sync"
 	"testing"
 
@@ -83,7 +83,9 @@ func TestNewGithubClient(t *testing.T) {
 	notifierConfig := config.NotifierConfig{
 		Token: "",
 	}
-	client := NewGithubClient(nil, notifierConfig)
+	client, err := NewGithubClient(context.TODO(), notifierConfig)
+	assert.NoError(t, err)
+
 	comment, err := client.PostComment()
 	assert.Error(t, err)
 	assert.IsType(t, &github.ErrorResponse{}, err)
@@ -195,7 +197,7 @@ func TestClient_hasChanges(t *testing.T) {
 }
 
 func readFile(path string) string {
-	content, err := ioutil.ReadFile(path)
+	content, err := os.ReadFile(path)
 	if err != nil {
 		logrus.Fatal(err)
 	}

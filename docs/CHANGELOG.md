@@ -1,3 +1,74 @@
+## [2.4.6](https://github.com/karlderkaefer/cdk-notifier/compare/v2.4.5...v2.4.6) (2023-07-08)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/google/go-github/v37 to v53 ([cd973cf](https://github.com/karlderkaefer/cdk-notifier/commit/cd973cf266158bfe579a330bc421939ccc066148))
+
+## [2.4.5](https://github.com/karlderkaefer/cdk-notifier/compare/v2.4.4...v2.4.5) (2023-07-08)
+
+
+### Bug Fixes
+
+* disable cgo ([393d92d](https://github.com/karlderkaefer/cdk-notifier/commit/393d92d5e07d5711dd2d42aed81f46b2efc34925)), closes [#93](https://github.com/karlderkaefer/cdk-notifier/issues/93)
+
+## [2.4.4](https://github.com/karlderkaefer/cdk-notifier/compare/v2.4.3...v2.4.4) (2023-07-01)
+
+
+### Bug Fixes
+
+* **deps:** update golang dependencies ([d3b4576](https://github.com/karlderkaefer/cdk-notifier/commit/d3b457681e58954e3c9caaa9d013a6a4a17dd410))
+
+## [2.4.3](https://github.com/karlderkaefer/cdk-notifier/compare/v2.4.2...v2.4.3) (2023-06-01)
+
+
+### Bug Fixes
+
+* **deps:** update golang dependencies ([ce9db78](https://github.com/karlderkaefer/cdk-notifier/commit/ce9db781eab68bab0c8ee8ce4edfe1a2e9655ddd))
+
+## [2.4.2](https://github.com/karlderkaefer/cdk-notifier/compare/v2.4.1...v2.4.2) (2023-04-01)
+
+
+### Bug Fixes
+
+* **deps:** update golang dependencies ([cd151ce](https://github.com/karlderkaefer/cdk-notifier/commit/cd151ce13554a9d461b6e7424836e07d81c194a7))
+
+## [2.4.1](https://github.com/karlderkaefer/cdk-notifier/compare/v2.4.0...v2.4.1) (2023-03-01)
+
+
+### Bug Fixes
+
+* **deps:** update golang dependencies ([5edb511](https://github.com/karlderkaefer/cdk-notifier/commit/5edb511fcb33edeaee8da08323e85c4a12045f0c))
+
+# [2.4.0](https://github.com/karlderkaefer/cdk-notifier/compare/v2.3.3...v2.4.0) (2023-02-22)
+
+
+### Features
+
+* add collapse comment ([35a6a1c](https://github.com/karlderkaefer/cdk-notifier/commit/35a6a1c56b28c03f36e99430b9c034f0c8797b91)), closes [#76](https://github.com/karlderkaefer/cdk-notifier/issues/76)
+
+## [2.3.3](https://github.com/karlderkaefer/cdk-notifier/compare/v2.3.2...v2.3.3) (2023-02-22)
+
+
+### Bug Fixes
+
+* **deps:** update golang dependencies ([b9ed751](https://github.com/karlderkaefer/cdk-notifier/commit/b9ed751e66fc033a5628de38d4cd80b2f62814a1))
+* return error in case of missing privileges for comments ([060a2b8](https://github.com/karlderkaefer/cdk-notifier/commit/060a2b88ef163f9ebe2eecf9b39d909a5240f30e)), closes [#77](https://github.com/karlderkaefer/cdk-notifier/issues/77)
+
+## [2.3.2](https://github.com/karlderkaefer/cdk-notifier/compare/v2.3.1...v2.3.2) (2023-01-01)
+
+
+### Bug Fixes
+
+* **deps:** update golang dependencies ([7db3d6e](https://github.com/karlderkaefer/cdk-notifier/commit/7db3d6e0af8898b5471ccd725b9ca6db7bdb439f))
+
+## [2.3.1](https://github.com/karlderkaefer/cdk-notifier/compare/v2.3.0...v2.3.1) (2022-12-10)
+
+
+### Bug Fixes
+
+* fix release process ([77796bb](https://github.com/karlderkaefer/cdk-notifier/commit/77796bb6dd6a204d9741d349f37be7e1b1e39cdd))
+
 # [2.3.0](https://github.com/karlderkaefer/cdk-notifier/compare/v2.2.3...v2.3.0) (2022-12-10)
 
 

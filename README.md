@@ -30,25 +30,30 @@ cdk-notifier --version
 # 1.0.1
 
 cdk-notifier --help
-#Post CDK diff log to Github Pull Request
-#
-#Usage:
-#  cdk-notifier [flags]
-#
-#Flags:
-#      --ci string                CI System used [circleci|bitbucket|gitlab] (default "circleci")
-#  -d, --delete string            delete comments when no changes are detected for a specific tag id
-#  -h, --help                     help for cdk-notifier
-#  -l, --log-file string          path to cdk log file
-#  -o, --owner string             Name of owner. If not set will lookup for env var [REPO_OWNER|CIRCLE_PROJECT_USERNAME|BITBUCKET_REPO_OWNER|CI_PROJECT_NAMESPACE]
-#  -p, --pull-request-id string   Id or URL of pull request. If not set will lookup for env var [PR_ID|CIRCLE_PULL_REQUEST|BITBUCKET_PR_ID|CI_MERGE_REQUEST_IID]
-#  -r, --repo string              Name of repository without organisation. If not set will lookup for env var [REPO_NAME|CIRCLE_PROJECT_REPONAME|BITBUCKET_REPO_SLUG|CI_PROJECT_NAME],'
-#  -t, --tag-id string            unique identifier for stack within pipeline (default "stack")
-#      --token string             Authentication token used to post comments to PR. If not set will lookup for env var [TOKEN_USER|GITHUB_TOKEN|BITBUCKET_TOKEN|GITLAB_TOKEN]
-#  -u, --user string              Optional set username for token (required for bitbucket)
-#      --vcs string               Version Control System [github|bitbucket|gitlab] (default "github")
-#  -v, --verbosity string         Log level (debug, info, warn, error, fatal, panic) (default "info")
-#      --version                  version for cdk-notifier
+                                                 
+# Post CDK diff log to Pull Request
+
+# Usage:
+#   cdk-notifier [flags]
+
+# Flags:
+#       --ci string                CI System used [circleci|bitbucket|gitlab] (default "circleci")
+#   -d, --delete                   delete comments when no changes are detected for a specific tag id (default true)
+#       --disable-collapse         Collapsible comments are enabled by default for GitHub and GitLab. When set to true it will not use collapsed sections.
+#       --github-host string       Optional set host for GitHub Enterprise
+#       --gitlab-url string        Optional set gitlab url (default "https://gitlab.com/")
+#   -h, --help                     help for cdk-notifier
+#   -l, --log-file string          path to cdk log file
+#       --no-post-mode             Optional do not post comment to VCS, instead write additional file and print diff to stdout
+#   -o, --owner string             Name of owner. If not set will lookup for env var [REPO_OWNER|CIRCLE_PROJECT_USERNAME|BITBUCKET_REPO_OWNER]
+#   -p, --pull-request-id string   Id or URL of pull request. If not set will lookup for env var [PR_ID|CIRCLE_PULL_REQUEST|BITBUCKET_PR_ID|CI_MERGE_REQUEST_IID]
+#   -r, --repo string              Name of repository without organisation. If not set will lookup for env var [REPO_NAME|CIRCLE_PROJECT_REPONAME|BITBUCKET_REPO_SLUG],'
+#   -t, --tag-id string            unique identifier for stack within pipeline (default "stack")
+#       --token string             Authentication token used to post comments to PR. If not set will lookup for env var [TOKEN_USER|GITHUB_TOKEN|BITBUCKET_TOKEN|GITLAB_TOKEN]
+#   -u, --user string              Optional set username for token (required for bitbucket)
+#       --vcs string               Version Control System [github|github-enterprise|bitbucket|gitlab] (default "github")
+#   -v, --verbosity string         Log level (debug, info, warn, error, fatal, panic) (default "info")
+#       --version                  version for cdk-notifier
 
 ```
 
@@ -87,13 +92,28 @@ This is an example how the diff would like on github
 cdk-notifier -l data/cdk-small.log -t test
 ```
 
+Please note: GitLab, Bitbucket or Github tokens needs permission to write comments to PR.
+As an example for GitHub PAT it requires `pull requests: read and write`.
+
 ![](images/diff.png)
+
+### Github Enterprise
+
+To use CDK-Notifier with Github Enterprise you need to set `--vcs github-enterprise` and `--github-host https://github.your-company.com`.
+
+```bash
+cdk-notifier -l data/cdk-diff1.log -t test --vcs github-enterprise --github-host https://github.your-company.com
+```
+
+In case you run a CircleCI Pipeline you can omit `--github-host`. It will detected from environment variable `CIRCLE_PULL_REQUEST` which follows the format `https://github.your-company.com/owner/repo/pull/1`
+
+Thanks to [@mmogylenko](https://github.com/mmogylenko) for providing this feature.
 
 ## Support for CI Systems
 
 CDK-Notifier is supporting following Version Control Systems
 
-* github
+* github | github-enterprise
 * bitbucket
 * gitlab
 

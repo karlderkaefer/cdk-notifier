@@ -55,8 +55,8 @@ func diffHasChanges(log string) bool {
 // CreateNotifierService will create an client instance depending on type of ci parameters
 func CreateNotifierService(ctx context.Context, c config.NotifierConfig) (NotifierService, error) {
 	switch c.Vcs {
-	case config.VcsGithub:
-		return NewGithubClient(ctx, c), nil
+	case config.VcsGithub, config.VcsGithubEnterprise:
+		return NewGithubClient(ctx, c)
 	case config.VcsBitbucket:
 		return NewBitbucketProvider(ctx, c), nil
 	case config.VcsGitlab:

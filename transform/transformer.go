@@ -3,15 +3,16 @@ package transform
 import (
 	"bytes"
 	"fmt"
-	"github.com/acarl005/stripansi"
-	"github.com/karlderkaefer/cdk-notifier/config"
-	"github.com/karlderkaefer/cdk-notifier/provider"
-	"github.com/sirupsen/logrus"
-	"io/ioutil"
+	"os"
 	"regexp"
 	"strings"
 	"text/template"
 	"unicode/utf8"
+
+	"github.com/acarl005/stripansi"
+	"github.com/karlderkaefer/cdk-notifier/config"
+	"github.com/karlderkaefer/cdk-notifier/provider"
+	"github.com/sirupsen/logrus"
 )
 
 // LogTransformer is responsible to process the log file and do following transformation steps
@@ -20,10 +21,12 @@ import (
 // 3. Create unique message header
 // 4. truncate content if message is longer than GitHub API can handle
 type LogTransformer struct {
-	LogContent string
-	Logfile    string
-	TagID      string
-	NoPostMode bool
+	LogContent      string
+	Logfile         string
+	TagID           string
+	NoPostMode      bool
+	Vcs             string
+	DisableCollapse bool
 }
 
 // githubTemplate wrapper object to use go templating
@@ -33,20 +36,23 @@ type githubTemplate struct {
 	JobLink      string
 	Backticks    string
 	HeaderPrefix string
+	Collapsible  bool
 }
 
 // NewLogTransformer create new log transfer based on config.AppConfig
 func NewLogTransformer(config *config.NotifierConfig) *LogTransformer {
 	return &LogTransformer{
-		LogContent: "",
-		Logfile:    config.LogFile,
-		TagID:      config.TagID,
-		NoPostMode: config.NoPostMode,
+		LogContent:      "",
+		Logfile:         config.LogFile,
+		TagID:           config.TagID,
+		NoPostMode:      config.NoPostMode,
+		Vcs:             config.Vcs,
+		DisableCollapse: config.DisableCollapse,
 	}
 }
 
 func (t *LogTransformer) readFile() error {
-	content, err := ioutil.ReadFile(t.Logfile)
+	content, err := os.ReadFile(t.Logfile)
 	if err != nil {
 		return err
 	}
@@ -108,16 +114,34 @@ func (t *LogTransformer) truncate() {
 func (t *LogTransformer) addHeader() {
 	templateContent := `
 {{ .HeaderPrefix }} {{ .TagID }} {{ .JobLink }}
+{{- if .Collapsible }}
+<details>
+<summary>Click to expand</summary>
+{{- end }}
+
 {{ .Backticks }}diff
 {{ .Content }}
 {{ .Backticks }}
+{{- if .Collapsible }}
+</details>
+{{- end }}
 `
+	collapsible := false
+	// only github and gitlab support collapsable sections
+	if t.Vcs == "github" || t.Vcs == "gitlab" {
+		collapsible = true
+	}
+	// can be disable by command line
+	if t.DisableCollapse {
+		collapsible = false
+	}
 	githubTemplate := &githubTemplate{
 		TagID:        t.TagID,
 		Content:      t.LogContent,
 		Backticks:    "```",
 		JobLink:      "",
 		HeaderPrefix: provider.HeaderPrefix,
+		Collapsible:  collapsible,
 	}
 	tmpl, err := template.New("githubTemplate").Parse(templateContent)
 	if err != nil {
@@ -142,7 +166,8 @@ func (t *LogTransformer) writeDiffFile() error {
 		return nil
 	}
 	filePath := t.Logfile + ".diff"
-	err := ioutil.WriteFile(filePath, []byte(t.LogContent), 440)
+	// read/write for the owner, and read-only for the group and others
+	err := os.WriteFile(filePath, []byte(t.LogContent), 0644)
 	if err != nil {
 		return err
 	}

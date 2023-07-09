@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/karlderkaefer/cdk-notifier/config"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"sync"
 	"testing"
+
+	"github.com/karlderkaefer/cdk-notifier/config"
+	"github.com/stretchr/testify/assert"
 )
 
 type MockBitbucketRepositoryService struct {
@@ -187,9 +188,9 @@ func TestNewBitbucketProvider(t *testing.T) {
 	notifierConfig := config.NotifierConfig{
 		Token: "",
 	}
-	client := NewBitbucketProvider(nil, notifierConfig)
+	client := NewBitbucketProvider(context.TODO(), notifierConfig)
 	comment, err := client.PostComment()
 	assert.Error(t, err)
-	assert.Equal(t, errors.New("BitBucket API Error: 401 Unauthorized \n"), err)
+	assert.Equal(t, errors.New("BitBucket API Error: 401 Unauthorized "), err)
 	assert.Equal(t, comment, API_COMMENT_NOTHING)
 }
