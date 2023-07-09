@@ -214,12 +214,11 @@ func (c *NotifierConfig) validate() error {
 }
 
 func (c *NotifierConfig) setPullRequestInfo() error {
-
 	CirclePullRequest := os.Getenv(EnvCiCircleCiPullRequestID)
 	// assuming that if CirclePullRequest is set, we are running on CircleCI
 	if CirclePullRequest != "" {
 		pr := PullRequest{}
-		err := pr.ConvertUrlToPullRequest(os.Getenv(EnvCiCircleCiPullRequestID))
+		err := pr.ConvertUrlToPullRequest(CirclePullRequest)
 		if err != nil {
 			return err
 		}

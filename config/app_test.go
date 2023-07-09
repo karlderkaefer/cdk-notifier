@@ -63,7 +63,7 @@ func TestNotifierConfig_ReadPullRequestFromEnv(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "Invalid PR URL",
+			name:     "Invalid PR URL",
 			inputUrl: "",
 			want: &PullRequest{
 				Number: 0,
@@ -71,10 +71,16 @@ func TestNotifierConfig_ReadPullRequestFromEnv(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "Invalid PR URL with null",
+			name:     "Invalid PR URL with null",
 			inputUrl: "https://github.com/owner/repo/pull/null",
-			want: nil,
-			wantErr: true,
+			want:     nil,
+			wantErr:  true,
+		},
+		{
+			name:     "Invalid URL Scheme",
+			inputUrl: "::::",
+			want:     nil,
+			wantErr:  true,
 		},
 	}
 
@@ -118,6 +124,7 @@ func TestNotifierConfig_Init(t *testing.T) {
 				Token:         "some-token",
 				PullRequestID: 23,
 				Ci:            CiCircleCi,
+				Vcs: 	  VcsGithub,
 			},
 			err: nil,
 		},
@@ -142,6 +149,7 @@ func TestNotifierConfig_Init(t *testing.T) {
 				Token:         "some-token",
 				PullRequestID: 0,
 				Ci:            CiCircleCi,
+				Vcs: 	  VcsGithub,
 			},
 			err: nil,
 		},
@@ -166,6 +174,7 @@ func TestNotifierConfig_Init(t *testing.T) {
 				Token:         "some-token",
 				PullRequestID: 0,
 				Ci:            CiCircleCi,
+				Vcs: 	  VcsGithub,
 			},
 			err: fmt.Errorf("Unable to extract pull request number from url '%s': %w", "23as", &strconv.NumError{
 				Func: "Atoi",
@@ -197,6 +206,7 @@ func TestNotifierConfig_Init(t *testing.T) {
 				Token:         "bitbucket-token",
 				PullRequestID: 12,
 				Ci:            CiBitbucket,
+				Vcs: 	  VcsGithub,
 			},
 			err: nil,
 		},
@@ -223,6 +233,7 @@ func TestNotifierConfig_Init(t *testing.T) {
 				Token:         "bitbucket-token",
 				PullRequestID: 12,
 				Ci:            "",
+				Vcs: 	  VcsGithub,
 			},
 			err: nil,
 		},
@@ -247,6 +258,7 @@ func TestNotifierConfig_Init(t *testing.T) {
 				Token:         "",
 				PullRequestID: 23,
 				Ci:            CiCircleCi,
+				Vcs: 	  VcsGithub,
 			},
 			err: &ValidationError{"token", []string{"TOKEN", EnvGithubToken, EnvBitbucketToken, EnvGitlabToken}},
 		},
@@ -271,6 +283,7 @@ func TestNotifierConfig_Init(t *testing.T) {
 				Token:         "some-token",
 				PullRequestID: 23,
 				Ci:            CiCircleCi,
+				Vcs: 	  VcsGithub,
 			},
 			err: &ValidationError{"repo", []string{"REPO_NAME", EnvCiCircleCiRepoName, EnvCiBitbucketRepoName, EnvCiGitlabRepoName}},
 		},
@@ -295,6 +308,7 @@ func TestNotifierConfig_Init(t *testing.T) {
 				Token:         "some-token",
 				PullRequestID: 23,
 				Ci:            CiCircleCi,
+				Vcs: 	  VcsGithub,
 			},
 			err: &ValidationError{"owner", []string{"REPO_OWNER", EnvCiCircleCiRepoOwner, EnvCiBitbucketRepoOwner, EnvCiGitlabRepoOwner}},
 		},
@@ -313,6 +327,32 @@ func TestNotifierConfig_Init(t *testing.T) {
 				TagID:      "no-post",
 				NoPostMode: true,
 				Ci:         CiCircleCi,
+				Vcs: 	  VcsGithub,
+			},
+			err: nil,
+		},
+		{
+			description: "test github enterprise host is set from circleci env",
+			inputConfig: NotifierConfig{
+				LogFile: "./cdk.log",
+				RepoName:      "repo",
+				RepoOwner:     "owner",
+			},
+			envVars: map[string]string{
+				EnvCiCircleCiPullRequestID: "https://github.your-company.com/owner/repo/pull/1",
+				EnvGithubToken:             "some-token",
+			},
+			ci:  CiCircleCi,
+			vcs: VcsGithubEnterprise,
+			expectedConfig: NotifierConfig{
+				LogFile: "./cdk.log",
+				GithubHost: "github.your-company.com",
+				Ci: CiCircleCi,
+				PullRequestID: 1,
+				Vcs: VcsGithubEnterprise,
+				RepoName:      "repo",
+				RepoOwner:     "owner",
+				Token:         "some-token",
 			},
 			err: nil,
 		},
@@ -325,14 +365,15 @@ func TestNotifierConfig_Init(t *testing.T) {
 				_ = os.Setenv(k, v)
 			}
 			viper.Set("ci_system", c.ci)
-			viper.Set("vcs", c.vcs)
+			viper.Set("version_control_system", c.vcs)
 			err := c.inputConfig.Init()
 			assert.Equal(t, c.err, err, c.description)
 			assert.Equal(t, c.expectedConfig, c.inputConfig, c.description)
-			for k := range c.envVars {
+			defer func() {
+				for k := range c.envVars {
 				_ = os.Unsetenv(k)
-			}
+				}
+			}()
 		})
 	}
 }
-
