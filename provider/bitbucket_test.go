@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"sync"
 	"testing"
 
@@ -193,4 +194,28 @@ func TestNewBitbucketProvider(t *testing.T) {
 	assert.Error(t, err)
 	assert.Equal(t, errors.New("BitBucket API Error: 401 Unauthorized "), err)
 	assert.Equal(t, comment, API_COMMENT_NOTHING)
+}
+
+func TestBitBucketApi(t *testing.T) {
+	initLogger()
+	token := os.Getenv("BITBUCKET_TOKEN")
+	if token == "" {
+		t.Skip("BITBUCKET_TOKEN not set. Skipping test")
+	}
+	notifierConfig := config.NotifierConfig{
+		Token: token,
+		TagID: "notifier-integration-test",
+		RepoName: "cdk-notifier-test",
+		RepoOwner: "roflmoflcopter",
+		PullRequestID: 3,
+		Vcs: "bitbucket",
+	}
+	client := NewBitbucketProvider(context.TODO(), notifierConfig)
+	client.SetCommentContent("testing bitbucket api")
+	comment, err := client.CreateComment()
+	assert.NoError(t, err)
+	assert.Equal(t, comment, API_COMMENT_CREATED)
+
+	defer client.DeleteComment(comment.Id)
+
 }

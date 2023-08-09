@@ -140,7 +140,8 @@ workflows:
             branches:
               only:
                 - main
-      - test
+      - test:
+          context: cdk-notifier-integration-test
       - publish:
           requires:
             - build
