@@ -109,6 +109,14 @@ In case you run a CircleCI Pipeline you can omit `--github-host`. It will detect
 
 Thanks to [@mmogylenko](https://github.com/mmogylenko) for providing this feature.
 
+### Bitbucket
+
+To use cdk-notifier with Bitbucket you need to set `--vcs bitbucket` and `--user <username>`. The username is required and is the name of the user who created the token. Alternatively you can use the environment variable `TOKEN_USER`. This is an example with all options set.
+
+```bash
+cdk-notifier -l data/cdk-diff1.log -t test --vcs bitbucket --token <token> --owner <owner> --repo <repo> --pull-request-id <pr-id>
+```
+
 ## Support for CI Systems
 
 CDK-Notifier is supporting following Version Control Systems
