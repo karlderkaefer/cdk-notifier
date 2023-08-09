@@ -207,6 +207,7 @@ func TestBitBucketApi(t *testing.T) {
 		TagID: "notifier-integration-test",
 		RepoName: "cdk-notifier-test",
 		RepoOwner: "roflmoflcopter",
+		TokenUser: "roflmoflcopter",
 		PullRequestID: 3,
 		Vcs: "bitbucket",
 	}
