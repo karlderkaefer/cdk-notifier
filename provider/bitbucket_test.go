@@ -198,9 +198,9 @@ func TestNewBitbucketProvider(t *testing.T) {
 
 func TestBitBucketApi(t *testing.T) {
 	initLogger()
-	token := os.Getenv("BITBUCKET_TOKEN")
+	token := os.Getenv("BITBUCKET_TOKEN_TEST")
 	if token == "" {
-		t.Skip("BITBUCKET_TOKEN not set. Skipping test")
+		t.Skip("BITBUCKET_TOKEN_TEST not set. Skipping test")
 	}
 	notifierConfig := config.NotifierConfig{
 		Token: token,
