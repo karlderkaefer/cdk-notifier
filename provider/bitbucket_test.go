@@ -215,8 +215,10 @@ func TestBitBucketApi(t *testing.T) {
 	client.SetCommentContent("testing bitbucket api")
 	comment, err := client.CreateComment()
 	assert.NoError(t, err)
-	assert.Equal(t, comment, API_COMMENT_CREATED)
+	assert.Equal(t, comment.Body, "testing bitbucket api")
 
-	defer client.DeleteComment(comment.Id)
+	defer func() {
+		_ = client.DeleteComment(comment.Id)
+	}()
 
 }
