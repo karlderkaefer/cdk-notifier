@@ -1,3 +1,10 @@
+# [2.6.0](https://github.com/karlderkaefer/cdk-notifier/compare/v2.5.3...v2.6.0) (2023-10-20)
+
+
+### Features
+
+* support bitbucket workspace access tokens ([ec271a0](https://github.com/karlderkaefer/cdk-notifier/commit/ec271a0835e7535450046f34b20e58c8c40c1a1c))
+
 ## [2.5.3](https://github.com/karlderkaefer/cdk-notifier/compare/v2.5.2...v2.5.3) (2023-10-01)
 
 
