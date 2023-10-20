@@ -50,7 +50,7 @@ cdk-notifier --help
 #   -r, --repo string              Name of repository without organisation. If not set will lookup for env var [REPO_NAME|CIRCLE_PROJECT_REPONAME|BITBUCKET_REPO_SLUG],'
 #   -t, --tag-id string            unique identifier for stack within pipeline (default "stack")
 #       --token string             Authentication token used to post comments to PR. If not set will lookup for env var [TOKEN_USER|GITHUB_TOKEN|BITBUCKET_TOKEN|GITLAB_TOKEN]
-#   -u, --user string              Optional set username for token (required for bitbucket)
+#   -u, --user string              Optional set username for token (required for bitbucket if not using Workspace Access tokens)
 #       --vcs string               Version Control System [github|github-enterprise|bitbucket|gitlab] (default "github")
 #   -v, --verbosity string         Log level (debug, info, warn, error, fatal, panic) (default "info")
 #       --version                  version for cdk-notifier
@@ -111,11 +111,16 @@ Thanks to [@mmogylenko](https://github.com/mmogylenko) for providing this featur
 
 ### Bitbucket
 
-To use cdk-notifier with Bitbucket you need to set `--vcs bitbucket` and `--user <username>`. The username is required and is the name of the user who created the token. Alternatively you can use the environment variable `TOKEN_USER`. This is an example with all options set.
+To use cdk-notifier with Bitbucket you need to set `--vcs bitbucket` and `--user <username>`.
+The username is required and is the name of the user who created the token.
+Alternatively you can use the environment variable `TOKEN_USER`. This is an example with all options set.
 
 ```bash
 cdk-notifier -l data/cdk-diff1.log -t test --vcs bitbucket --token <token> --owner <owner> --repo <repo> --pull-request-id <pr-id>
 ```
+
+It's also possible to use [Workspace Access tokens](https://support.atlassian.com/bitbucket-cloud/docs/workspace-access-tokens/)
+by just passing the `--token`.
 
 ## Support for CI Systems
 
