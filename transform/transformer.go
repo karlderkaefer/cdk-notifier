@@ -21,22 +21,28 @@ import (
 // 3. Create unique message header
 // 4. truncate content if message is longer than GitHub API can handle
 type LogTransformer struct {
-	LogContent      string
-	Logfile         string
-	TagID           string
-	NoPostMode      bool
-	Vcs             string
-	DisableCollapse bool
+	LogContent                string
+	Logfile                   string
+	TagID                     string
+	NoPostMode                bool
+	Vcs                       string
+	DisableCollapse           bool
+	ShowOverview              bool
+	NumberOfDifferencesString string
+	NumberReplaces            int
 }
 
 // githubTemplate wrapper object to use go templating
 type githubTemplate struct {
-	TagID        string
-	Content      string
-	JobLink      string
-	Backticks    string
-	HeaderPrefix string
-	Collapsible  bool
+	TagID                     string
+	Content                   string
+	JobLink                   string
+	Backticks                 string
+	HeaderPrefix              string
+	Collapsible               bool
+	ShowOverview              bool
+	NumberOfDifferencesString string
+	NumberReplaces            int
 }
 
 // NewLogTransformer create new log transfer based on config.AppConfig
@@ -48,6 +54,7 @@ func NewLogTransformer(config *config.NotifierConfig) *LogTransformer {
 		NoPostMode:      config.NoPostMode,
 		Vcs:             config.Vcs,
 		DisableCollapse: config.DisableCollapse,
+		ShowOverview:    config.ShowOverview,
 	}
 }
 
@@ -72,7 +79,23 @@ func trimFirstRune(s string) string {
 func (t *LogTransformer) transformDiff() {
 	lines := strings.Split(t.LogContent, "\n")
 	var output []string
+	var numberOfDifferencesString string
+	var numberOfReplaces int
 	for _, line := range lines {
+		// https://regex101.com/r/XtxJgT/1
+		regexNumberOfDifferencesString := regexp.MustCompile(`Number of stacks with differences:.*`)
+		matchesNumberOfDifferencesString := regexNumberOfDifferencesString.FindStringSubmatch(line)
+		if matchesNumberOfDifferencesString != nil {
+			numberOfDifferencesString = matchesNumberOfDifferencesString[0]
+		}
+
+		// https://regex101.com/r/0eYw20/1
+		regexNumberOfReplaces := regexp.MustCompile(`\(requires replacement\)|\(may cause replacement\)`)
+		matchesNumberOfReplaces := regexNumberOfReplaces.FindStringSubmatch(line)
+		if len(matchesNumberOfReplaces) > 0 {
+			numberOfReplaces++
+		}
+
 		// https://regex101.com/r/9ORjxP/1
 		regex := regexp.MustCompile(`(?m)(?:(?:\[(?P<resourcesSymbol>[\+-]+)\])|(?:│\s{1}(?P<securitySymbol>[\+-]+)\s{1}│))`)
 		matches := regex.FindStringSubmatch(line)
@@ -98,6 +121,8 @@ func (t *LogTransformer) transformDiff() {
 		}
 		output = append(output, modifiedLine)
 	}
+	t.NumberOfDifferencesString = numberOfDifferencesString
+	t.NumberReplaces = numberOfReplaces
 	t.LogContent = strings.Join(output, "\n")
 }
 
@@ -114,6 +139,12 @@ func (t *LogTransformer) truncate() {
 func (t *LogTransformer) addHeader() {
 	templateContent := `
 {{ .HeaderPrefix }} {{ .TagID }} {{ .JobLink }}
+{{- if .ShowOverview }}
+{{ .NumberOfDifferencesString }}
+{{- if .NumberReplaces }}
+⚠️ Number of resources that require replacement: {{ .NumberReplaces }}
+{{- end }}
+{{- end }}
 {{- if .Collapsible }}
 <details>
 <summary>Click to expand</summary>
@@ -127,6 +158,7 @@ func (t *LogTransformer) addHeader() {
 {{- end }}
 `
 	collapsible := false
+	showOverview := false
 	// only github and gitlab support collapsable sections
 	if t.Vcs == "github" || t.Vcs == "gitlab" {
 		collapsible = true
@@ -135,13 +167,20 @@ func (t *LogTransformer) addHeader() {
 	if t.DisableCollapse {
 		collapsible = false
 	}
+	// can be activated by command line
+	if t.ShowOverview {
+		showOverview = true
+	}
 	githubTemplate := &githubTemplate{
-		TagID:        t.TagID,
-		Content:      t.LogContent,
-		Backticks:    "```",
-		JobLink:      "",
-		HeaderPrefix: provider.HeaderPrefix,
-		Collapsible:  collapsible,
+		TagID:                     t.TagID,
+		NumberOfDifferencesString: t.NumberOfDifferencesString,
+		NumberReplaces:            t.NumberReplaces,
+		Content:                   t.LogContent,
+		Backticks:                 "```",
+		JobLink:                   "",
+		HeaderPrefix:              provider.HeaderPrefix,
+		Collapsible:               collapsible,
+		ShowOverview:              showOverview,
 	}
 	tmpl, err := template.New("githubTemplate").Parse(templateContent)
 	if err != nil {

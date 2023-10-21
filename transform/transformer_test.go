@@ -1,12 +1,13 @@
 package transform
 
 import (
-	"github.com/karlderkaefer/cdk-notifier/config"
-	"github.com/stretchr/testify/assert"
 	"math/rand"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/karlderkaefer/cdk-notifier/config"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestLogTransformer_ReadFile(t *testing.T) {
@@ -79,6 +80,7 @@ func TestLogTransformer_TransformDiff(t *testing.T) {
 type TemplateTest struct {
 	transformer LogTransformer
 	expected    string
+	contains    string
 }
 
 func TestLogTransformer_AddHeader(t *testing.T) {
@@ -104,16 +106,16 @@ func TestLogTransformer_AddHeader(t *testing.T) {
 			transformer: LogTransformer{
 				LogContent: "+[+] helloworld",
 				TagID:      "some github diff",
-				Vcs: "github",
+				Vcs:        "github",
 			},
 			expected: "\n## cdk diff for some github diff \n<details>\n<summary>Click to expand</summary>\n\n```diff\n+[+] helloworld\n```\n</details>\n",
 		},
 		// when using vcs github but setting disable-collapse it should have no collapsible section
 		{
 			transformer: LogTransformer{
-				LogContent: "+[+] helloworld",
-				TagID:      "some github diff",
-				Vcs: "github",
+				LogContent:      "+[+] helloworld",
+				TagID:           "some github diff",
+				Vcs:             "github",
 				DisableCollapse: true,
 			},
 			expected: "\n## cdk diff for some github diff \n\n```diff\n+[+] helloworld\n```\n",
@@ -122,6 +124,27 @@ func TestLogTransformer_AddHeader(t *testing.T) {
 	for _, c := range cases {
 		c.transformer.addHeader()
 		assert.Equal(t, c.expected, c.transformer.LogContent)
+	}
+}
+
+func TestLogTransformer_TransformDiffAddHeader(t *testing.T) {
+	cases := []TemplateTest{
+		//when displaying overview for number of replaces
+		{
+			transformer: LogTransformer{
+				LogContent:      "[~] AWS::DynamoDB::Table ddb-table ddbtable7F3F6F3F replace\n └─ [~] TableName (requires replacement)\n-    ├─ [-] ddb-second-table\n+    └─ [+] ddb-second-table2",
+				TagID:           "some github diff",
+				Vcs:             "github",
+				DisableCollapse: true,
+				ShowOverview:    true,
+			},
+			contains: "⚠️ Number of resources that require replacement: 1",
+		},
+	}
+	for _, c := range cases {
+		c.transformer.transformDiff()
+		c.transformer.addHeader()
+		assert.Contains(t, c.transformer.LogContent, c.contains)
 	}
 }
 
@@ -223,5 +246,23 @@ func TestNewLogTransformer(t *testing.T) {
 
 	transformer.Process()
 	assert.Contains(t, transformer.LogContent, "Stack SuiteRedisStack\nThere were no differences")
+
+}
+func TestOverviewSection(t *testing.T) {
+	c := &config.NotifierConfig{
+		LogFile:      "../data/cdk-diff-number-diff-replace.log",
+		TagID:        "small",
+		NoPostMode:   false,
+		ShowOverview: true,
+	}
+	transformer := NewLogTransformer(c)
+	assert.NotNil(t, transformer)
+	assert.Equal(t, transformer.LogContent, "")
+	assert.Equal(t, transformer.TagID, "small")
+	assert.Equal(t, transformer.ShowOverview, true)
+
+	transformer.Process()
+	assert.Contains(t, transformer.NumberOfDifferencesString, "Number of stacks with differences: 1")
+	assert.Equal(t, transformer.NumberReplaces, 5)
 
 }
