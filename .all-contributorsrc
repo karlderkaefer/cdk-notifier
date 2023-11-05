@@ -40,6 +40,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "JohannesKonings",
+      "name": "Johannes Konings",
+      "avatar_url": "https://avatars.githubusercontent.com/u/14806640?v=4",
+      "profile": "https://johanneskonings.dev/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
