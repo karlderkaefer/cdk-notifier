@@ -129,6 +129,7 @@ type NotifierConfig struct {
 	GithubHost      string `mapstructure:"GITHUB_ENTERPRISE_HOST"`
 	NoPostMode      bool   `mapstructure:"NO_POST_MODE"`
 	DisableCollapse bool   `mapstructure:"DISABLE_COLLAPSE"`
+	ShowOverview    bool   `mapstructure:"SHOW_OVERVIEW"`
 }
 
 // Init will create default NotifierConfig with following priority

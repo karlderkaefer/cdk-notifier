@@ -1,0 +1,34 @@
+Stack db-stack
+Resources
+[~] AWS::DynamoDB::Table ddb-table ddbtable7G3B6F3F replace
+ └─ [~] TableName (requires replacement)
+     ├─ [-] ddb-table
+     └─ [+] ddb-table2
+[~] AWS::DynamoDB::Table ddb-second-table ddbsecondtableKF4C69DA replace
+ └─ [~] TableName (requires replacement)
+     ├─ [-] ddb-second-table
+     └─ [+] ddb-second-table2
+[~] AWS::RDS::DBParameterGroup SpmArchive/ParameterGroup SpmArchiveParameterGroupA3C62C14 replace
+ ├─ [~] Description (requires replacement)
+ │   ├─ [-] Parameter group for mysql5.7
+ │   └─ [+] Parameter group for mysql8.0
+ ├─ [~] Family (requires replacement)
+ │   ├─ [-] mysql5.7
+ │   └─ [+] mysql8.0
+ └─ [~] Parameters
+     ├─ [-] Removed: .query_cache_size
+     ├─ [-] Removed: .query_cache_type
+     └─ [~] .sql_mode:
+         ├─ [-] only_full_group_by,strict_trans_tables,error_for_division_by_zero,no_auto_create_user,no_engine_substitution
+         └─ [+] only_full_group_by,strict_trans_tables,error_for_division_by_zero,no_engine_substitution
+[~] AWS::RDS::DBInstance SpmArchive/Primary SpmArchivePrimary8D438481 may be replaced
+ ├─ [~] DBParameterGroupName (may cause replacement)
+ │   └─ [~] .Ref:
+ │       ├─ [-] SpmArchiveParameterGroupA3C62C14
+ │       └─ [+] SpmArchiveParameterGroupA3C62C14 (replaced)
+ └─ [~] EngineVersion
+     ├─ [-] 5.7.38
+     └─ [+] 8.0.34
+
+
+✨  Number of stacks with differences: 1
