@@ -1,3 +1,10 @@
+# [2.7.0](https://github.com/karlderkaefer/cdk-notifier/compare/v2.6.1...v2.7.0) (2023-11-05)
+
+
+### Features
+
+* add overview section ([f3e0234](https://github.com/karlderkaefer/cdk-notifier/commit/f3e0234ebf922738d905b4b087400aec53b460f2))
+
 ## [2.6.1](https://github.com/karlderkaefer/cdk-notifier/compare/v2.6.0...v2.6.1) (2023-11-01)
 
 
