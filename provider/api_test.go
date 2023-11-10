@@ -59,3 +59,11 @@ func TestCreateNotifierService(t *testing.T) {
 	}
 
 }
+
+func Test_DiffOutputChanges(t *testing.T) {
+	assert.True(t, diffHasChanges(`
+Stack OutputStack
+Outputs
+[+] Output output output: {"Value":"","Export":{"Name":"output"}}
+`))
+}
