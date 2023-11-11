@@ -1,3 +1,10 @@
+# [2.8.0](https://github.com/karlderkaefer/cdk-notifier/compare/v2.7.0...v2.8.0) (2023-11-11)
+
+
+### Features
+
+* generate diff for Outputs ([d16aa89](https://github.com/karlderkaefer/cdk-notifier/commit/d16aa89678943877345bb603e2098385bf581f3d))
+
 # [2.7.0](https://github.com/karlderkaefer/cdk-notifier/compare/v2.6.1...v2.7.0) (2023-11-05)
 
 
