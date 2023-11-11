@@ -48,7 +48,7 @@ func getHeaderTagID(c config.NotifierConfig) string {
 }
 
 func diffHasChanges(log string) bool {
-	regex := regexp.MustCompile(`(?m)(Policy Changes|Resources\n|Statement Changes)`)
+	regex := regexp.MustCompile(`(?m)(Policy Changes|Resources\n|Statement Changes|Outputs\n)`)
 	return regex.MatchString(log)
 }
 
