@@ -6,7 +6,6 @@ import (
 	"os"
 	"regexp"
 	"strings"
-	"text/template"
 	"unicode/utf8"
 
 	"github.com/acarl005/stripansi"
@@ -30,19 +29,8 @@ type LogTransformer struct {
 	ShowOverview              bool
 	NumberOfDifferencesString string
 	NumberReplaces            int
-}
-
-// githubTemplate wrapper object to use go templating
-type githubTemplate struct {
-	TagID                     string
-	Content                   string
-	JobLink                   string
-	Backticks                 string
-	HeaderPrefix              string
-	Collapsible               bool
-	ShowOverview              bool
-	NumberOfDifferencesString string
-	NumberReplaces            int
+	Template                  string
+	CustomTemplate            string
 }
 
 // NewLogTransformer create new log transfer based on config.AppConfig
@@ -55,6 +43,8 @@ func NewLogTransformer(config *config.NotifierConfig) *LogTransformer {
 		Vcs:             config.Vcs,
 		DisableCollapse: config.DisableCollapse,
 		ShowOverview:    config.ShowOverview,
+		Template:        config.Template,
+		CustomTemplate:  config.CustomTemplate,
 	}
 }
 
@@ -137,26 +127,6 @@ func (t *LogTransformer) truncate() {
 }
 
 func (t *LogTransformer) addHeader() {
-	templateContent := `
-{{ .HeaderPrefix }} {{ .TagID }} {{ .JobLink }}
-{{- if .ShowOverview }}
-{{ .NumberOfDifferencesString }}
-{{- if .NumberReplaces }}
-⚠️ Number of resources that require replacement: {{ .NumberReplaces }}
-{{- end }}
-{{- end }}
-{{- if .Collapsible }}
-<details>
-<summary>Click to expand</summary>
-{{- end }}
-
-{{ .Backticks }}diff
-{{ .Content }}
-{{ .Backticks }}
-{{- if .Collapsible }}
-</details>
-{{- end }}
-`
 	collapsible := false
 	showOverview := false
 	// only github and gitlab support collapsable sections
@@ -171,7 +141,7 @@ func (t *LogTransformer) addHeader() {
 	if t.ShowOverview {
 		showOverview = true
 	}
-	githubTemplate := &githubTemplate{
+	template := &commentTemplate{
 		TagID:                     t.TagID,
 		NumberOfDifferencesString: t.NumberOfDifferencesString,
 		NumberReplaces:            t.NumberReplaces,
@@ -181,17 +151,10 @@ func (t *LogTransformer) addHeader() {
 		HeaderPrefix:              provider.HeaderPrefix,
 		Collapsible:               collapsible,
 		ShowOverview:              showOverview,
+		Template:                  t.Template,
+		customTemplate:            t.CustomTemplate,
 	}
-	tmpl, err := template.New("githubTemplate").Parse(templateContent)
-	if err != nil {
-		logrus.Fatal(err)
-	}
-	stringWriter := bytes.NewBufferString("")
-	err = tmpl.Execute(stringWriter, githubTemplate)
-	if err != nil {
-		logrus.Fatal(err)
-	}
-	t.LogContent = stringWriter.String()
+	t.LogContent = template.render()
 }
 
 func (t *LogTransformer) printFile() {

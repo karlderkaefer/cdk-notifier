@@ -356,6 +356,32 @@ func TestNotifierConfig_Init(t *testing.T) {
 			},
 			err: nil,
 		},
+		{
+			description: "test set template",
+			inputConfig: NotifierConfig{
+				LogFile: "./cdk.log",
+				Template: "some template",
+			},
+			vcs: VcsGithub,
+			ci:  CiCircleCi,
+			envVars: map[string]string{
+				EnvCiCircleCiPullRequestID: "23",
+				EnvGithubToken:             "some-token",
+				EnvCiCircleCiRepoName:      "Uepsilon",
+				EnvCiCircleCiRepoOwner:     "pansenentertainment",
+			},
+			expectedConfig: NotifierConfig{
+				LogFile:       "./cdk.log",
+				RepoName:      "Uepsilon",
+				RepoOwner:     "pansenentertainment",
+				Token:         "some-token",
+				Template: "some template",
+				PullRequestID: 23,
+				Ci:            CiCircleCi,
+				Vcs: 	  VcsGithub,
+			},
+			err: nil,
+		},
 	}
 	for _, c := range testCasesInit {
 		t.Run(c.description, func(t *testing.T) {

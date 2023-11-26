@@ -92,7 +92,9 @@ func init() {
 	rootCmd.Flags().String("github-host", "", "Optional set host for GitHub Enterprise")
 	rootCmd.Flags().Bool("no-post-mode", false, "Optional do not post comment to VCS, instead write additional file and print diff to stdout")
 	rootCmd.Flags().Bool("disable-collapse", false, "Collapsible comments are enabled by default for GitHub and GitLab. When set to true it will not use collapsed sections.")
-	rootCmd.Flags().Bool("show-overview", false, "Show Overview are disabled by default. When set to true it will show the number of cdk stacks with diff and  the number of replaced resources in the overview section.")
+	rootCmd.Flags().Bool("show-overview", false, "[Deprected: use template extended instead] Show Overview are disabled by default. When set to true it will show the number of cdk stacks with diff and  the number of replaced resources in the overview section.")
+	rootCmd.Flags().String("template", "default", "Template to use for comment [default|extended]")
+	rootCmd.Flags().String("custom-template", "", "File path or string input to custom template. When set it will override the template flag.")
 
 	// mapping for viper [mapstruct value, flag name]
 	viperMappings := make(map[string]string)
@@ -106,7 +108,10 @@ func init() {
 	viperMappings["DELETE_COMMENT"] = "delete"
 	viperMappings["NO_POST_MODE"] = "no-post-mode"
 	viperMappings["DISABLE_COLLAPSE"] = "disable-collapse"
+	// TODO show overview deprecated
 	viperMappings["SHOW_OVERVIEW"] = "show-overview"
+	viperMappings["NOTIFIER_TEMPLATE"] = "template"
+	viperMappings["CUSTOM_TEMPLATE"] = "custom-template"
 	viperMappings["VERSION_CONTROL_SYSTEM"] = "vcs"
 	viperMappings["CI_SYSTEM"] = "ci"
 	viperMappings["URL"] = "gitlab-url"
