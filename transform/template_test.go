@@ -2,53 +2,11 @@ package transform
 
 import (
 	"os"
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
-
-func TestCommentTemplateChooseTemplate(t *testing.T) {
-	tests := []struct {
-		name         string
-		template     string
-		showOverview bool
-		want         TemplateStrategy
-	}{
-		{
-			name:     "default template",
-			template: "default",
-
-			want: DefaultTemplate{},
-		},
-		{
-			name:     "extended template",
-			template: "extended",
-			want:     ExtendedTemplate{},
-		},
-		{
-			name:     "non-existing template",
-			template: "non-existing",
-			want:     DefaultTemplate{},
-		},
-		{
-			name:         "extended template with activated overview",
-			template:     "default",
-			showOverview: true,
-			want:         ExtendedTemplate{},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			ct := &commentTemplate{
-				Template:     tt.template,
-				ShowOverview: tt.showOverview,
-			}
-			got := ct.ChooseTemplate()
-			assert.IsType(t, tt.want, got)
-		})
-	}
-}
 
 func TestGetCustomTemplate(t *testing.T) {
 	tmpfile, err := os.CreateTemp("", "template")
@@ -89,4 +47,112 @@ func TestGetCustomTemplate(t *testing.T) {
 	}
 	assert.Equal(t, ct.customTemplate, got)
 
+	// Change Tempfile to an unreadable file
+	// we expect an error
+	err = os.Chmod(tmpfile.Name(), 0000)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ct = &commentTemplate{
+		customTemplate: tmpfile.Name(),
+	}
+	_, err = ct.getCustomTemplate()
+	assert.Error(t, err)
+}
+
+func TestCommentTemplateChooseTemplate(t *testing.T) {
+	tests := []struct {
+		name           string
+		template       string
+		customTemplate string
+		showOverview   bool
+		expectedType   reflect.Type
+	}{
+		{
+			name:           "WithCustomTemplate",
+			customTemplate: "This is a custom template",
+			expectedType:   reflect.TypeOf(CustomTemplate{}),
+		},
+		{
+			name:         "WithDefaultTemplate",
+			template:     "default",
+			expectedType: reflect.TypeOf(DefaultTemplate{}),
+		},
+		{
+			name:         "WithExtendedTemplate",
+			template:     "extended",
+			expectedType: reflect.TypeOf(ExtendedTemplate{}),
+		},
+		{
+			name:         "WithNonExistingTemplate",
+			template:     "non-existing",
+			expectedType: reflect.TypeOf(DefaultTemplate{}),
+		},
+		{
+			name:         "WithShowOverview",
+			template:     "default",
+			showOverview: true,
+			expectedType: reflect.TypeOf(ExtendedTemplate{}),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ct := &commentTemplate{
+				Template:       tt.template,
+				customTemplate: tt.customTemplate,
+				ShowOverview:   tt.showOverview,
+			}
+
+			got := ct.ChooseTemplate()
+			assert.IsType(t, tt.expectedType, reflect.TypeOf(got))
+		})
+	}
+}
+
+func TestRender(t *testing.T) {
+	tests := []struct {
+		name      string
+		template  commentTemplate
+		expected  string
+		expectError bool
+	}{
+		{
+			name: "WithValidTemplate",
+			template: commentTemplate{
+				customTemplate: "cdk diff {{.TagID}}!",
+				TagID:          "small",
+			},
+			expected:  "cdk diff small!",
+			expectError: false,
+		},
+		{
+			name: "WithValidTemplateButEmptyTagID",
+			template: commentTemplate{
+				customTemplate: "cdk diff {{.TagID}}!",
+			},
+			expected:  "cdk diff !",
+		},
+		{
+			name: "WithInvalidTemplate",
+			template: commentTemplate{
+				customTemplate: "cdk diff {{.TagID}!",
+				TagID:          "small",
+			},
+			expected:  "",
+			expectError: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.template.render()
+			assert.Equal(t, tt.expected, got)
+			if tt.expectError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
 }

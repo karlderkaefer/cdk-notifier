@@ -124,17 +124,17 @@ func (ct *commentTemplate) getCustomTemplate() (string, error) {
 	return ct.customTemplate, nil
 }
 
-func (t *commentTemplate) render() string {
+func (t *commentTemplate) render() (string, error) {
 	templateContent := t.ChooseTemplate().getTemplateContent()
 	logrus.Debugf("Using template content %s", templateContent)
 	tmpl, err := template.New("commentTemplate").Parse(templateContent)
 	if err != nil {
-		logrus.Fatal(err)
+		return "", err
 	}
 	stringWriter := bytes.NewBufferString("")
 	err = tmpl.Execute(stringWriter, t)
 	if err != nil {
-		logrus.Fatal(err)
+		return "", err
 	}
-	return stringWriter.String()
+	return stringWriter.String(), nil
 }

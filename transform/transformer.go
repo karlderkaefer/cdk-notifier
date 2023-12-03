@@ -212,7 +212,11 @@ func (t *LogTransformer) addHeader() {
 		Template:                  t.Template,
 		customTemplate:            t.CustomTemplate,
 	}
-	t.LogContent = template.render()
+	content, err := template.render()
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	t.LogContent = content
 }
 
 func (t *LogTransformer) printFile() {
