@@ -42,6 +42,31 @@ var extendedTemplate = `
 {{- end }}
 `
 
+var extendedWithResourcesTemplate = `
+{{ .HeaderPrefix }} {{ .TagID }} {{ .JobLink }}
+{{ .NumberOfDifferencesString }}
+{{- if .NumberReplaces }}
+⚠️ Number of resources that require replacement: {{ .NumberReplaces }}
+{{- end }}
+{{- if .ChangedBaseResource }}
+### Resources that are subject of change
+{{- range $key, $value := .ChangedBaseResource }}
+{{ $key }}: {{ $value.Count }}{{ if $value.Replaced }} (required replacement){{ end }}
+{{- end }}
+{{- end }}
+{{- if .Collapsible }}
+<details>
+<summary>Click to expand</summary>
+{{- end }}
+
+{{ .Backticks }}diff
+{{ .Content }}
+{{ .Backticks }}
+{{- if .Collapsible }}
+</details>
+{{- end }}
+`
+
 // commentTemplate wrapper object to use go templating
 type commentTemplate struct {
 	TagID                     string
@@ -53,6 +78,7 @@ type commentTemplate struct {
 	ShowOverview              bool
 	NumberOfDifferencesString string
 	NumberReplaces            int
+	ChangedBaseResource       map[string]ResourceMetric
 	Template                  string // template type
 	customTemplate            string // template file or string
 }
@@ -71,6 +97,12 @@ type ExtendedTemplate struct{}
 
 func (e ExtendedTemplate) getTemplateContent() string {
 	return extendedTemplate
+}
+
+type ExtendedWithResourcesTemplate struct{}
+
+func (e ExtendedWithResourcesTemplate) getTemplateContent() string {
+	return extendedWithResourcesTemplate
 }
 
 type CustomTemplate struct {
@@ -101,6 +133,8 @@ func (t *commentTemplate) ChooseTemplate() TemplateStrategy {
 		return DefaultTemplate{}
 	case "extended":
 		return ExtendedTemplate{}
+	case "extendedWithResources":
+		return ExtendedWithResourcesTemplate{}
 	default:
 		logrus.Warnf("Template %s not found, using default template", t.Template)
 		return DefaultTemplate{}

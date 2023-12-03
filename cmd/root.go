@@ -93,7 +93,7 @@ func init() {
 	rootCmd.Flags().Bool("no-post-mode", false, "Optional do not post comment to VCS, instead write additional file and print diff to stdout")
 	rootCmd.Flags().Bool("disable-collapse", false, "Collapsible comments are enabled by default for GitHub and GitLab. When set to true it will not use collapsed sections.")
 	rootCmd.Flags().Bool("show-overview", false, "[Deprected: use template extended instead] Show Overview are disabled by default. When set to true it will show the number of cdk stacks with diff and  the number of replaced resources in the overview section.")
-	rootCmd.Flags().String("template", "default", "Template to use for comment [default|extended]")
+	rootCmd.Flags().String("template", "default", "Template to use for comment [default|extended|extendedWithResources]")
 	rootCmd.Flags().String("custom-template", "", "File path or string input to custom template. When set it will override the template flag.")
 
 	// mapping for viper [mapstruct value, flag name]

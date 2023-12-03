@@ -1,0 +1,38 @@
+Stack fargate
+Resources
+[~] AWS::ECS::TaskDefinition DetailFargateService/TaskDef detailFargateServiceTaskDef795131A3 replace
+ └─ [~] ContainerDefinitions (requires replacement)
+     └─ @@ -81,7 +81,7 @@
+        [ ] ],
+        [ ] "Essential": true,
+        [ ] "Image": {
+-       [-]   "Fn::Sub": "123456789012.dkr.ecr.eu-central-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456789012-eu-central-1:88f53e8e790ee348fe371bd2dd7365d2cc15be096da0c12d4b0d8bf47aff35d3"
++       [+]   "Fn::Sub": "123456789012.dkr.ecr.eu-central-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456789012-eu-central-1:64137e051d225c2e197f36cf1156f21c0ec449c2902fa5c8d685e0fbbe822e2d"
+        [ ] },
+        [ ] "LogConfiguration": {
+        [ ]   "LogDriver": "awslogs",
+[~] AWS::ECS::TaskDefinition ListFargateService/TaskDef listFargateServiceTaskDef795531A3 replace
+ └─ [~] ContainerDefinitions (requires replacement)
+     └─ @@ -81,7 +81,7 @@
+        [ ] ],
+        [ ] "Essential": true,
+        [ ] "Image": {
+-       [-]   "Fn::Sub": "123456789012.dkr.ecr.eu-central-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456789012-eu-central-1:88f53e8e790ee348fe371bgt2dd7365d2cc15be096da0c12d4b0d8bf47aff35d3"
++       [+]   "Fn::Sub": "123456789012.dkr.ecr.eu-central-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456789012-eu-central-1:64137e051d225c2e197f36cf11456f21c0ec449c2902fa5c8d685e0fbbe822e2d"
+        [ ] },
+        [ ] "LogConfiguration": {
+        [ ]   "LogDriver": "awslogs",
+Stack lambda
+Resources
+[~] AWS::Lambda::Function listHandler/Lambda/lambda listHandlerLambdalambdaC875E395 
+ ├─ [~] Code
+ │   └─ [~] .S3Key:
+-│       ├─ [-] 6a8fb4fcc5f635e40d135b1038a814ab0aca7be1e0d85eabb319af0d323a699b.zip
++│       └─ [+] 57a04aad6ab772d1d155746c5b7f3fad7ec005480af335a673aadc88b1005919.zip
+ └─ [~] Metadata
+     └─ [~] .aws:asset:path:
+-        ├─ [-] asset.6a8fb4fcc5f635e40d135b1038a814ab0aca7be1e0d85eabb319af0d323a699b
++        └─ [+] asset.57a04aad6ab772d1d155746c5b7f3fad7ec005480af335a673aadc88b1005919
+
+
+✨  Number of stacks with differences: 2

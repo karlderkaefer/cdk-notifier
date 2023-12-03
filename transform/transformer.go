@@ -29,9 +29,15 @@ type LogTransformer struct {
 	ShowOverview              bool
 	NumberOfDifferencesString string
 	NumberReplaces            int
+	ChangedBaseResource       map[string]ResourceMetric
 	Template                  string
 	CustomTemplate            string
 	ProcessorsChain           LineProcessor
+}
+
+type ResourceMetric struct {
+	Count    int
+	Replaced bool
 }
 
 // A LineProcessor is responsible to process a single line.
@@ -75,10 +81,13 @@ func NewLogTransformer(config *config.NotifierConfig) *LogTransformer {
 }
 
 func (t *LogTransformer) initProcessorsChain() {
+	t.ChangedBaseResource = make(map[string]ResourceMetric)
 	stackDiffProcessor := &StackDiffProcessor{}
 	numberReplacesProcessor := &NumberReplacesProcessor{}
 	diffSymbolProcessor := &DiffSymbolProcessor{}
-	stackDiffProcessor.SetNext(numberReplacesProcessor)
+	resourceDiffExtractorProcessor := &ResourceDiffExtractorProcessor{}
+	stackDiffProcessor.SetNext(resourceDiffExtractorProcessor)
+	resourceDiffExtractorProcessor.SetNext(numberReplacesProcessor)
 	numberReplacesProcessor.SetNext(diffSymbolProcessor)
 	t.ProcessorsChain = stackDiffProcessor
 }
@@ -127,6 +136,34 @@ func (p *NumberReplacesProcessor) ProcessLine(line string, lt *LogTransformer) s
 	matchesNumberOfReplaces := regexNumberOfReplaces.FindStringSubmatch(line)
 	if len(matchesNumberOfReplaces) > 0 {
 		lt.NumberReplaces++
+	}
+	return p.BaseProcessor.ProcessLine(line, lt)
+}
+
+// Collect number of AWS base type changes
+type ResourceDiffExtractorProcessor struct {
+	BaseProcessor
+}
+
+func (p *ResourceDiffExtractorProcessor) ProcessLine(line string, lt *LogTransformer) string {
+	// https://regex101.com/r/rBmjEp/2
+	regex := regexp.MustCompile(`\s*\[(-|\+|~)] (AWS::\w+::\w+).*?(?P<replace>(replace|replaced)?$)`)
+	matches := regex.FindStringSubmatch(line)
+	if len(matches) > 0 {
+		awsBaseResource := matches[2]
+		replaced := matches[3] != ""
+		resource, exists := lt.ChangedBaseResource[awsBaseResource]
+		if exists {
+			resource.Count++
+			// if replace was already detected, keep it
+			resource.Replaced = resource.Replaced || replaced
+		} else {
+			resource = ResourceMetric{
+				Count:    1,
+				Replaced: replaced,
+			}
+		}
+		lt.ChangedBaseResource[awsBaseResource] = resource
 	}
 	return p.BaseProcessor.ProcessLine(line, lt)
 }
@@ -203,6 +240,7 @@ func (t *LogTransformer) addHeader() {
 		TagID:                     t.TagID,
 		NumberOfDifferencesString: t.NumberOfDifferencesString,
 		NumberReplaces:            t.NumberReplaces,
+		ChangedBaseResource:       t.ChangedBaseResource,
 		Content:                   t.LogContent,
 		Backticks:                 "```",
 		JobLink:                   "",

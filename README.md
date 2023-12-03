@@ -51,7 +51,7 @@ cdk-notifier --help
 #   -r, --repo string              Name of repository without organisation. If not set will lookup for env var [REPO_NAME|CIRCLE_PROJECT_REPONAME|BITBUCKET_REPO_SLUG],'
 #       --show-overview            [Deprected: use template extended instead] Show Overview are disabled by default. When set to true it will show the number of cdk stacks with diff and  the number of replaced resources in the overview section.
 #   -t, --tag-id string            unique identifier for stack within pipeline (default "stack")
-#       --template string          Template to use for comment [default|extended] (default "default")
+#       --template string          Template to use for comment [default|extended|extendedWithResources] (default "default")
 #       --token string             Authentication token used to post comments to PR. If not set will lookup for env var [TOKEN_USER|GITHUB_TOKEN|BITBUCKET_TOKEN|GITLAB_TOKEN]
 #   -u, --user string              Optional set username for token (required for bitbucket)
 #       --vcs string               Version Control System [github|github-enterprise|bitbucket|gitlab] (default "github")
