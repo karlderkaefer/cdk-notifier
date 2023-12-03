@@ -199,7 +199,7 @@ my custom template
 {{ .Content }}
 {{ .Backticks }}
 "
-
+```
 
 ## Config Priority Mapping
 The config for CDK-Notifier is mapping in following priority (from low to high)
