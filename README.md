@@ -187,8 +187,6 @@ cdk-notifier --template extendedWithResources
 
 ![example template extended](images/template-extended-with-resources.png)
 
-```bash
-
 Optionally you can full customize the message by setting the flag `--custom-template` that points to a file with desired template.
 You can use the [default template](./transform/template.go) as an reference.
 As alernative you can also set a multiline environment variable `CUSTOM_TEMPLATE`.
