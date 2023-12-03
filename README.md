@@ -38,6 +38,7 @@ cdk-notifier --help
 
 # Flags:
 #       --ci string                CI System used [circleci|bitbucket|gitlab] (default "circleci")
+#       --custom-template string   File path or string input to custom template. When set it will override the template flag.
 #   -d, --delete                   delete comments when no changes are detected for a specific tag id (default true)
 #       --disable-collapse         Collapsible comments are enabled by default for GitHub and GitLab. When set to true it will not use collapsed sections.
 #       --github-host string       Optional set host for GitHub Enterprise
@@ -48,9 +49,11 @@ cdk-notifier --help
 #   -o, --owner string             Name of owner. If not set will lookup for env var [REPO_OWNER|CIRCLE_PROJECT_USERNAME|BITBUCKET_REPO_OWNER]
 #   -p, --pull-request-id string   Id or URL of pull request. If not set will lookup for env var [PR_ID|CIRCLE_PULL_REQUEST|BITBUCKET_PR_ID|CI_MERGE_REQUEST_IID]
 #   -r, --repo string              Name of repository without organisation. If not set will lookup for env var [REPO_NAME|CIRCLE_PROJECT_REPONAME|BITBUCKET_REPO_SLUG],'
+#       --show-overview            [Deprected: use template extended instead] Show Overview are disabled by default. When set to true it will show the number of cdk stacks with diff and  the number of replaced resources in the overview section.
 #   -t, --tag-id string            unique identifier for stack within pipeline (default "stack")
+#       --template string          Template to use for comment [default|extended|extendedWithResources] (default "default")
 #       --token string             Authentication token used to post comments to PR. If not set will lookup for env var [TOKEN_USER|GITHUB_TOKEN|BITBUCKET_TOKEN|GITLAB_TOKEN]
-#   -u, --user string              Optional set username for token (required for bitbucket if not using Workspace Access tokens)
+#   -u, --user string              Optional set username for token (required for bitbucket)
 #       --vcs string               Version Control System [github|github-enterprise|bitbucket|gitlab] (default "github")
 #   -v, --verbosity string         Log level (debug, info, warn, error, fatal, panic) (default "info")
 #       --version                  version for cdk-notifier
@@ -172,6 +175,33 @@ GITHUB_TOKEN
 BITBUCKET_TOKEN
 GITLAB_TOKEN
 ```
+
+### Custom Comment Template
+
+You can choose the comment template by using the `--template` flag. Possible values are `default`, `extended` or `extendedWithResources`.
+
+```bash
+# show overview stats like number of resources replaced and number of changed stacks
+cdk-notifier --template extendedWithResources
+```
+
+![example template extended](images/template-extended-with-resources.png)
+
+```bash
+
+Optionally you can full customize the message by setting the flag `--custom-template` that points to a file with desired template.
+You can use the [default template](./transform/template.go) as an reference.
+As alernative you can also set a multiline environment variable `CUSTOM_TEMPLATE`.
+
+```bash
+export CUSTOM_TEMPLATE="
+{{ .HeaderPrefix }} {{ .TagID }} {{ .JobLink }}
+my custom template
+{{ .Backticks }}diff
+{{ .Content }}
+{{ .Backticks }}
+"
+
 
 ## Config Priority Mapping
 The config for CDK-Notifier is mapping in following priority (from low to high)

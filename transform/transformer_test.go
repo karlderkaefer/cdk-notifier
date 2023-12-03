@@ -3,6 +3,7 @@ package transform
 import (
 	"math/rand"
 	"os"
+	"reflect"
 	"testing"
 	"time"
 
@@ -69,9 +70,8 @@ func TestLogTransformer_TransformDiff(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		logTransformer := &LogTransformer{
-			LogContent: c.input,
-		}
+		logTransformer := NewLogTransformer(&config.NotifierConfig{})
+		logTransformer.LogContent = c.input
 		logTransformer.transformDiff()
 		assert.Equal(t, c.expected, logTransformer.LogContent)
 	}
@@ -142,6 +142,7 @@ func TestLogTransformer_TransformDiffAddHeader(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
+		c.transformer.initProcessorsChain()
 		c.transformer.transformDiff()
 		c.transformer.addHeader()
 		assert.Contains(t, c.transformer.LogContent, c.contains)
@@ -265,4 +266,73 @@ func TestOverviewSection(t *testing.T) {
 	assert.Contains(t, transformer.NumberOfDifferencesString, "Number of stacks with differences: 1")
 	assert.Equal(t, transformer.NumberReplaces, 5)
 
+	// test resource diff extractor
+	res := transformer.ChangedBaseResource
+	assert.Equal(t, 2, res["AWS::DynamoDB::Table"].Count)
+	assert.Equal(t, true, res["AWS::DynamoDB::Table"].Replaced)
+	assert.Equal(t, 1, res["AWS::RDS::DBInstance"].Count)
+	assert.Equal(t, true, res["AWS::RDS::DBInstance"].Replaced)
+	assert.Equal(t, 1, res["AWS::RDS::DBInstance"].Count)
+	assert.Equal(t, true, res["AWS::RDS::DBInstance"].Replaced)
+	assert.Equal(t, 1, res["AWS::RDS::DBParameterGroup"].Count)
+	assert.Equal(t, true, res["AWS::RDS::DBParameterGroup"].Replaced)
+}
+
+func TestResourceDiffExtractorProcessor_ProcessLine(t *testing.T) {
+	tests := []struct {
+		name          string
+		line          string
+		expected      map[string]ResourceMetric
+		baseProcessor BaseProcessor
+	}{
+		{
+			name: "WithAddition",
+			line: "   [+] AWS::S3::Bucket MyBucket",
+			expected: map[string]ResourceMetric{
+				"AWS::S3::Bucket": {
+					Count:    1,
+					Replaced: false,
+				},
+			},
+			baseProcessor: BaseProcessor{},
+		},
+		{
+			name: "WithDeletion",
+			line: "   [-] AWS::S3::Bucket MyBucket",
+			expected: map[string]ResourceMetric{
+				"AWS::S3::Bucket": {
+					Count:    1,
+					Replaced: false,
+				},
+			},
+			baseProcessor: BaseProcessor{},
+		},
+		{
+			name: "WithModification",
+			line: "   [~] AWS::S3::Bucket MyBucket replaced",
+			expected: map[string]ResourceMetric{
+				"AWS::S3::Bucket": {
+					Count:    1,
+					Replaced: true,
+				},
+			},
+			baseProcessor: BaseProcessor{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			lt := &LogTransformer{
+				ChangedBaseResource: make(map[string]ResourceMetric),
+			}
+			p := &ResourceDiffExtractorProcessor{
+				BaseProcessor: tt.baseProcessor,
+			}
+
+			p.ProcessLine(tt.line, lt)
+			if !reflect.DeepEqual(lt.ChangedBaseResource, tt.expected) {
+				t.Errorf("ChangedBaseResource = %v, want %v", lt.ChangedBaseResource, tt.expected)
+			}
+		})
+	}
 }

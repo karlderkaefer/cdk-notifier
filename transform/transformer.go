@@ -6,7 +6,6 @@ import (
 	"os"
 	"regexp"
 	"strings"
-	"text/template"
 	"unicode/utf8"
 
 	"github.com/acarl005/stripansi"
@@ -30,24 +29,43 @@ type LogTransformer struct {
 	ShowOverview              bool
 	NumberOfDifferencesString string
 	NumberReplaces            int
+	ChangedBaseResource       map[string]ResourceMetric
+	Template                  string
+	CustomTemplate            string
+	ProcessorsChain           LineProcessor
 }
 
-// githubTemplate wrapper object to use go templating
-type githubTemplate struct {
-	TagID                     string
-	Content                   string
-	JobLink                   string
-	Backticks                 string
-	HeaderPrefix              string
-	Collapsible               bool
-	ShowOverview              bool
-	NumberOfDifferencesString string
-	NumberReplaces            int
+type ResourceMetric struct {
+	Count    int
+	Replaced bool
+}
+
+// A LineProcessor is responsible to process a single line.
+// It can either just extract information from the line or modify it.
+type LineProcessor interface {
+	// Return the modified line
+	ProcessLine(line string, lt *LogTransformer) string
+	SetNext(processor LineProcessor)
+}
+
+type BaseProcessor struct {
+	next LineProcessor
+}
+
+func (p *BaseProcessor) SetNext(next LineProcessor) {
+	p.next = next
+}
+
+func (p *BaseProcessor) ProcessLine(line string, lt *LogTransformer) string {
+	if p.next != nil {
+		return p.next.ProcessLine(line, lt)
+	}
+	return line
 }
 
 // NewLogTransformer create new log transfer based on config.AppConfig
 func NewLogTransformer(config *config.NotifierConfig) *LogTransformer {
-	return &LogTransformer{
+	lt := &LogTransformer{
 		LogContent:      "",
 		Logfile:         config.LogFile,
 		TagID:           config.TagID,
@@ -55,7 +73,23 @@ func NewLogTransformer(config *config.NotifierConfig) *LogTransformer {
 		Vcs:             config.Vcs,
 		DisableCollapse: config.DisableCollapse,
 		ShowOverview:    config.ShowOverview,
+		Template:        config.Template,
+		CustomTemplate:  config.CustomTemplate,
 	}
+	lt.initProcessorsChain()
+	return lt
+}
+
+func (t *LogTransformer) initProcessorsChain() {
+	t.ChangedBaseResource = make(map[string]ResourceMetric)
+	stackDiffProcessor := &StackDiffProcessor{}
+	numberReplacesProcessor := &NumberReplacesProcessor{}
+	diffSymbolProcessor := &DiffSymbolProcessor{}
+	resourceDiffExtractorProcessor := &ResourceDiffExtractorProcessor{}
+	stackDiffProcessor.SetNext(resourceDiffExtractorProcessor)
+	resourceDiffExtractorProcessor.SetNext(numberReplacesProcessor)
+	numberReplacesProcessor.SetNext(diffSymbolProcessor)
+	t.ProcessorsChain = stackDiffProcessor
 }
 
 func (t *LogTransformer) readFile() error {
@@ -76,54 +110,105 @@ func trimFirstRune(s string) string {
 	return s[i:]
 }
 
+// Get the number of changed stacks
+type StackDiffProcessor struct {
+	BaseProcessor
+}
+
+func (p *StackDiffProcessor) ProcessLine(line string, lt *LogTransformer) string {
+	// https://regex101.com/r/9ORjxP/1
+	regexNumberOfDifferencesString := regexp.MustCompile(`Number of stacks with differences:.*`)
+	matchesNumberOfDifferencesString := regexNumberOfDifferencesString.FindStringSubmatch(line)
+	if matchesNumberOfDifferencesString != nil {
+		lt.NumberOfDifferencesString = matchesNumberOfDifferencesString[0]
+	}
+	return p.BaseProcessor.ProcessLine(line, lt)
+}
+
+// Get the count of replaced resources
+type NumberReplacesProcessor struct {
+	BaseProcessor
+}
+
+func (p *NumberReplacesProcessor) ProcessLine(line string, lt *LogTransformer) string {
+	// https://regex101.com/r/0eYw20/1
+	regexNumberOfReplaces := regexp.MustCompile(`\(requires replacement\)|\(may cause replacement\)`)
+	matchesNumberOfReplaces := regexNumberOfReplaces.FindStringSubmatch(line)
+	if len(matchesNumberOfReplaces) > 0 {
+		lt.NumberReplaces++
+	}
+	return p.BaseProcessor.ProcessLine(line, lt)
+}
+
+// Collect number of AWS base type changes
+type ResourceDiffExtractorProcessor struct {
+	BaseProcessor
+}
+
+func (p *ResourceDiffExtractorProcessor) ProcessLine(line string, lt *LogTransformer) string {
+	// https://regex101.com/r/rBmjEp/2
+	regex := regexp.MustCompile(`\s*\[(-|\+|~)] (AWS::\w+::\w+).*?(?P<replace>(replace|replaced)?$)`)
+	matches := regex.FindStringSubmatch(line)
+	if len(matches) > 0 {
+		awsBaseResource := matches[2]
+		replaced := matches[3] != ""
+		resource, exists := lt.ChangedBaseResource[awsBaseResource]
+		if exists {
+			resource.Count++
+			// if replace was already detected, keep it
+			resource.Replaced = resource.Replaced || replaced
+		} else {
+			resource = ResourceMetric{
+				Count:    1,
+				Replaced: replaced,
+			}
+		}
+		lt.ChangedBaseResource[awsBaseResource] = resource
+	}
+	return p.BaseProcessor.ProcessLine(line, lt)
+}
+
+// Transform additions and removals to markdown diff syntax
+type DiffSymbolProcessor struct {
+	BaseProcessor
+}
+
+func (p *DiffSymbolProcessor) ProcessLine(line string, lt *LogTransformer) string {
+	// https://regex101.com/r/9ORjxP/1
+	regex := regexp.MustCompile(`(?m)(?:(?:\[(?P<resourcesSymbol>[\+-]+)\])|(?:│\s{1}(?P<securitySymbol>[\+-]+)\s{1}│))`)
+	matches := regex.FindStringSubmatch(line)
+	var foundSymbol string
+	for i, m := range matches {
+		// we got two possible matches
+		// 1. [+] or [-] (group resourceSymbol)
+		// 2. | + | or | - | (group securitySymbol)
+		// if we hit one of those conditions we capture symbol
+		if i != 0 && m != "" {
+			foundSymbol = m
+			logrus.Tracef("Detected change for symbol %s for line %s", foundSymbol, line)
+		}
+	}
+	// replace first character of line with the diff symbol
+	modifiedLine := line
+	if foundSymbol != "" {
+		// keep first character for resource elements
+		if !strings.HasPrefix(line, "[") {
+			modifiedLine = trimFirstRune(line)
+		}
+		modifiedLine = foundSymbol + modifiedLine
+	}
+	return p.BaseProcessor.ProcessLine(modifiedLine, lt)
+}
+
 func (t *LogTransformer) transformDiff() {
 	lines := strings.Split(t.LogContent, "\n")
-	var output []string
-	var numberOfDifferencesString string
-	var numberOfReplaces int
+	var transformedLines []string
+
 	for _, line := range lines {
-		// https://regex101.com/r/XtxJgT/1
-		regexNumberOfDifferencesString := regexp.MustCompile(`Number of stacks with differences:.*`)
-		matchesNumberOfDifferencesString := regexNumberOfDifferencesString.FindStringSubmatch(line)
-		if matchesNumberOfDifferencesString != nil {
-			numberOfDifferencesString = matchesNumberOfDifferencesString[0]
-		}
-
-		// https://regex101.com/r/0eYw20/1
-		regexNumberOfReplaces := regexp.MustCompile(`\(requires replacement\)|\(may cause replacement\)`)
-		matchesNumberOfReplaces := regexNumberOfReplaces.FindStringSubmatch(line)
-		if len(matchesNumberOfReplaces) > 0 {
-			numberOfReplaces++
-		}
-
-		// https://regex101.com/r/9ORjxP/1
-		regex := regexp.MustCompile(`(?m)(?:(?:\[(?P<resourcesSymbol>[\+-]+)\])|(?:│\s{1}(?P<securitySymbol>[\+-]+)\s{1}│))`)
-		matches := regex.FindStringSubmatch(line)
-		var foundSymbol string
-		for i, m := range matches {
-			// we got two possible matches
-			// 1. [+] or [-] (group resourceSymbol)
-			// 2. | + | or | - | (group securitySymbol)
-			// if we hit one of those conditions we capture symbol
-			if i != 0 && m != "" {
-				foundSymbol = m
-				logrus.Tracef("Detected change for symbol %s for line %s", foundSymbol, line)
-			}
-		}
-		// replace first character of line with the diff symbol
-		modifiedLine := line
-		if foundSymbol != "" {
-			// keep first character for resource elements
-			if !strings.HasPrefix(line, "[") {
-				modifiedLine = trimFirstRune(line)
-			}
-			modifiedLine = foundSymbol + modifiedLine
-		}
-		output = append(output, modifiedLine)
+		processedLine := t.ProcessorsChain.ProcessLine(line, t)
+		transformedLines = append(transformedLines, processedLine)
 	}
-	t.NumberOfDifferencesString = numberOfDifferencesString
-	t.NumberReplaces = numberOfReplaces
-	t.LogContent = strings.Join(output, "\n")
+	t.LogContent = strings.Join(transformedLines, "\n")
 }
 
 // truncate to avoid Message:Body is too long (maximum is 65536 characters)
@@ -137,26 +222,6 @@ func (t *LogTransformer) truncate() {
 }
 
 func (t *LogTransformer) addHeader() {
-	templateContent := `
-{{ .HeaderPrefix }} {{ .TagID }} {{ .JobLink }}
-{{- if .ShowOverview }}
-{{ .NumberOfDifferencesString }}
-{{- if .NumberReplaces }}
-⚠️ Number of resources that require replacement: {{ .NumberReplaces }}
-{{- end }}
-{{- end }}
-{{- if .Collapsible }}
-<details>
-<summary>Click to expand</summary>
-{{- end }}
-
-{{ .Backticks }}diff
-{{ .Content }}
-{{ .Backticks }}
-{{- if .Collapsible }}
-</details>
-{{- end }}
-`
 	collapsible := false
 	showOverview := false
 	// only github and gitlab support collapsable sections
@@ -171,27 +236,25 @@ func (t *LogTransformer) addHeader() {
 	if t.ShowOverview {
 		showOverview = true
 	}
-	githubTemplate := &githubTemplate{
+	template := &commentTemplate{
 		TagID:                     t.TagID,
 		NumberOfDifferencesString: t.NumberOfDifferencesString,
 		NumberReplaces:            t.NumberReplaces,
+		ChangedBaseResource:       t.ChangedBaseResource,
 		Content:                   t.LogContent,
 		Backticks:                 "```",
 		JobLink:                   "",
 		HeaderPrefix:              provider.HeaderPrefix,
 		Collapsible:               collapsible,
 		ShowOverview:              showOverview,
+		Template:                  t.Template,
+		customTemplate:            t.CustomTemplate,
 	}
-	tmpl, err := template.New("githubTemplate").Parse(templateContent)
+	content, err := template.render()
 	if err != nil {
 		logrus.Fatal(err)
 	}
-	stringWriter := bytes.NewBufferString("")
-	err = tmpl.Execute(stringWriter, githubTemplate)
-	if err != nil {
-		logrus.Fatal(err)
-	}
-	t.LogContent = stringWriter.String()
+	t.LogContent = content
 }
 
 func (t *LogTransformer) printFile() {
