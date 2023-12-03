@@ -1,3 +1,11 @@
+# [2.9.0](https://github.com/karlderkaefer/cdk-notifier/compare/v2.8.1...v2.9.0) (2023-12-03)
+
+
+### Features
+
+* add report template ([b50ced1](https://github.com/karlderkaefer/cdk-notifier/commit/b50ced1a40a54c9b54daf0367db241463f6cf05c))
+* add resource modification overview ([a603f5f](https://github.com/karlderkaefer/cdk-notifier/commit/a603f5f655c4dc4dff1560cc6a985c96025ddfaa)), closes [#126](https://github.com/karlderkaefer/cdk-notifier/issues/126)
+
 ## [2.8.1](https://github.com/karlderkaefer/cdk-notifier/compare/v2.8.0...v2.8.1) (2023-12-01)
 
 
