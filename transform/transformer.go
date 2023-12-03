@@ -31,11 +31,35 @@ type LogTransformer struct {
 	NumberReplaces            int
 	Template                  string
 	CustomTemplate            string
+	ProcessorsChain           LineProcessor
+}
+
+// A LineProcessor is responsible to process a single line.
+// It can either just extract information from the line or modify it.
+type LineProcessor interface {
+	// Return the modified line
+	ProcessLine(line string, lt *LogTransformer) string
+	SetNext(processor LineProcessor)
+}
+
+type BaseProcessor struct {
+	next LineProcessor
+}
+
+func (p *BaseProcessor) SetNext(next LineProcessor) {
+	p.next = next
+}
+
+func (p *BaseProcessor) ProcessLine(line string, lt *LogTransformer) string {
+	if p.next != nil {
+		return p.next.ProcessLine(line, lt)
+	}
+	return line
 }
 
 // NewLogTransformer create new log transfer based on config.AppConfig
 func NewLogTransformer(config *config.NotifierConfig) *LogTransformer {
-	return &LogTransformer{
+	lt := &LogTransformer{
 		LogContent:      "",
 		Logfile:         config.LogFile,
 		TagID:           config.TagID,
@@ -46,6 +70,17 @@ func NewLogTransformer(config *config.NotifierConfig) *LogTransformer {
 		Template:        config.Template,
 		CustomTemplate:  config.CustomTemplate,
 	}
+	lt.initProcessorsChain()
+	return lt
+}
+
+func (t *LogTransformer) initProcessorsChain() {
+	stackDiffProcessor := &StackDiffProcessor{}
+	numberReplacesProcessor := &NumberReplacesProcessor{}
+	diffSymbolProcessor := &DiffSymbolProcessor{}
+	stackDiffProcessor.SetNext(numberReplacesProcessor)
+	numberReplacesProcessor.SetNext(diffSymbolProcessor)
+	t.ProcessorsChain = stackDiffProcessor
 }
 
 func (t *LogTransformer) readFile() error {
@@ -66,54 +101,77 @@ func trimFirstRune(s string) string {
 	return s[i:]
 }
 
+// Get the number of changed stacks
+type StackDiffProcessor struct {
+	BaseProcessor
+}
+
+func (p *StackDiffProcessor) ProcessLine(line string, lt *LogTransformer) string {
+	// https://regex101.com/r/9ORjxP/1
+	regexNumberOfDifferencesString := regexp.MustCompile(`Number of stacks with differences:.*`)
+	matchesNumberOfDifferencesString := regexNumberOfDifferencesString.FindStringSubmatch(line)
+	if matchesNumberOfDifferencesString != nil {
+		lt.NumberOfDifferencesString = matchesNumberOfDifferencesString[0]
+	}
+	return p.BaseProcessor.ProcessLine(line, lt)
+}
+
+// Get the count of replaced resources
+type NumberReplacesProcessor struct {
+	BaseProcessor
+}
+
+func (p *NumberReplacesProcessor) ProcessLine(line string, lt *LogTransformer) string {
+	// https://regex101.com/r/0eYw20/1
+	regexNumberOfReplaces := regexp.MustCompile(`\(requires replacement\)|\(may cause replacement\)`)
+	matchesNumberOfReplaces := regexNumberOfReplaces.FindStringSubmatch(line)
+	if len(matchesNumberOfReplaces) > 0 {
+		lt.NumberReplaces++
+	}
+	return p.BaseProcessor.ProcessLine(line, lt)
+}
+
+// Transform additions and removals to markdown diff syntax
+type DiffSymbolProcessor struct {
+	BaseProcessor
+}
+
+func (p *DiffSymbolProcessor) ProcessLine(line string, lt *LogTransformer) string {
+	// https://regex101.com/r/9ORjxP/1
+	regex := regexp.MustCompile(`(?m)(?:(?:\[(?P<resourcesSymbol>[\+-]+)\])|(?:│\s{1}(?P<securitySymbol>[\+-]+)\s{1}│))`)
+	matches := regex.FindStringSubmatch(line)
+	var foundSymbol string
+	for i, m := range matches {
+		// we got two possible matches
+		// 1. [+] or [-] (group resourceSymbol)
+		// 2. | + | or | - | (group securitySymbol)
+		// if we hit one of those conditions we capture symbol
+		if i != 0 && m != "" {
+			foundSymbol = m
+			logrus.Tracef("Detected change for symbol %s for line %s", foundSymbol, line)
+		}
+	}
+	// replace first character of line with the diff symbol
+	modifiedLine := line
+	if foundSymbol != "" {
+		// keep first character for resource elements
+		if !strings.HasPrefix(line, "[") {
+			modifiedLine = trimFirstRune(line)
+		}
+		modifiedLine = foundSymbol + modifiedLine
+	}
+	return p.BaseProcessor.ProcessLine(modifiedLine, lt)
+}
+
 func (t *LogTransformer) transformDiff() {
 	lines := strings.Split(t.LogContent, "\n")
-	var output []string
-	var numberOfDifferencesString string
-	var numberOfReplaces int
+	var transformedLines []string
+
 	for _, line := range lines {
-		// https://regex101.com/r/XtxJgT/1
-		regexNumberOfDifferencesString := regexp.MustCompile(`Number of stacks with differences:.*`)
-		matchesNumberOfDifferencesString := regexNumberOfDifferencesString.FindStringSubmatch(line)
-		if matchesNumberOfDifferencesString != nil {
-			numberOfDifferencesString = matchesNumberOfDifferencesString[0]
-		}
-
-		// https://regex101.com/r/0eYw20/1
-		regexNumberOfReplaces := regexp.MustCompile(`\(requires replacement\)|\(may cause replacement\)`)
-		matchesNumberOfReplaces := regexNumberOfReplaces.FindStringSubmatch(line)
-		if len(matchesNumberOfReplaces) > 0 {
-			numberOfReplaces++
-		}
-
-		// https://regex101.com/r/9ORjxP/1
-		regex := regexp.MustCompile(`(?m)(?:(?:\[(?P<resourcesSymbol>[\+-]+)\])|(?:│\s{1}(?P<securitySymbol>[\+-]+)\s{1}│))`)
-		matches := regex.FindStringSubmatch(line)
-		var foundSymbol string
-		for i, m := range matches {
-			// we got two possible matches
-			// 1. [+] or [-] (group resourceSymbol)
-			// 2. | + | or | - | (group securitySymbol)
-			// if we hit one of those conditions we capture symbol
-			if i != 0 && m != "" {
-				foundSymbol = m
-				logrus.Tracef("Detected change for symbol %s for line %s", foundSymbol, line)
-			}
-		}
-		// replace first character of line with the diff symbol
-		modifiedLine := line
-		if foundSymbol != "" {
-			// keep first character for resource elements
-			if !strings.HasPrefix(line, "[") {
-				modifiedLine = trimFirstRune(line)
-			}
-			modifiedLine = foundSymbol + modifiedLine
-		}
-		output = append(output, modifiedLine)
+		processedLine := t.ProcessorsChain.ProcessLine(line, t)
+		transformedLines = append(transformedLines, processedLine)
 	}
-	t.NumberOfDifferencesString = numberOfDifferencesString
-	t.NumberReplaces = numberOfReplaces
-	t.LogContent = strings.Join(output, "\n")
+	t.LogContent = strings.Join(transformedLines, "\n")
 }
 
 // truncate to avoid Message:Body is too long (maximum is 65536 characters)

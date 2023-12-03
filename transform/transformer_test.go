@@ -69,9 +69,8 @@ func TestLogTransformer_TransformDiff(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		logTransformer := &LogTransformer{
-			LogContent: c.input,
-		}
+		logTransformer := NewLogTransformer(&config.NotifierConfig{})
+		logTransformer.LogContent = c.input
 		logTransformer.transformDiff()
 		assert.Equal(t, c.expected, logTransformer.LogContent)
 	}
@@ -142,6 +141,7 @@ func TestLogTransformer_TransformDiffAddHeader(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
+		c.transformer.initProcessorsChain()
 		c.transformer.transformDiff()
 		c.transformer.addHeader()
 		assert.Contains(t, c.transformer.LogContent, c.contains)
