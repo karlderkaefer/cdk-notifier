@@ -178,12 +178,16 @@ GITLAB_TOKEN
 
 ### Custom Comment Template
 
-You can choose the comment template by using the `--template` flag. Possible values are `default` and `extended`.
+You can choose the comment template by using the `--template` flag. Possible values are `default`, `extended` or `extendedWithResources`.
 
 ```bash
 # show overview stats like number of resources replaced and number of changed stacks
-cdk-notifier --template extended
+cdk-notifier --template extendedWithResources
 ```
+
+![example template extended](images/template-extended-with-resources.png)
+
+```bash
 
 Optionally you can full customize the message by setting the flag `--custom-template` that points to a file with desired template.
 You can use the [default template](./transform/template.go) as an reference.
