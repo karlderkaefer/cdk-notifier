@@ -1,3 +1,10 @@
+## [2.9.1](https://github.com/karlderkaefer/cdk-notifier/compare/v2.9.0...v2.9.1) (2024-01-01)
+
+
+### Bug Fixes
+
+* **deps:** update golang dependencies ([f3dab6a](https://github.com/karlderkaefer/cdk-notifier/commit/f3dab6ac814839ada7ad959d9f540bffeae06f6a))
+
 # [2.9.0](https://github.com/karlderkaefer/cdk-notifier/compare/v2.8.1...v2.9.0) (2023-12-03)
 
 
