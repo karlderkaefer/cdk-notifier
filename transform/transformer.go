@@ -225,7 +225,7 @@ func (t *LogTransformer) addHeader() {
 	collapsible := false
 	showOverview := false
 	// only github and gitlab support collapsable sections
-	if t.Vcs == "github" || t.Vcs == "gitlab" {
+	if t.Vcs == "github" || t.Vcs == "github-enterprise" || t.Vcs == "gitlab" {
 		collapsible = true
 	}
 	// can be disable by command line
