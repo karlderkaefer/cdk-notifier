@@ -1,6 +1,6 @@
 # cdk-notifier
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-5-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-6-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 [![CircleCI](https://circleci.com/gh/circleci/circleci-docs.svg?style=shield)](https://circleci.com/gh/circleci/circleci-docs)
@@ -276,6 +276,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/mmogylenko"><img src="https://avatars.githubusercontent.com/u/7536624?v=4?s=100" width="100px;" alt="Mykola Mogylenko"/><br /><sub><b>Mykola Mogylenko</b></sub></a><br /><a href="https://github.com/karlderkaefer/cdk-notifier/commits?author=mmogylenko" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/peter-svensson"><img src="https://avatars.githubusercontent.com/u/378483?v=4?s=100" width="100px;" alt="Peter Svensson"/><br /><sub><b>Peter Svensson</b></sub></a><br /><a href="https://github.com/karlderkaefer/cdk-notifier/commits?author=peter-svensson" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://johanneskonings.dev/"><img src="https://avatars.githubusercontent.com/u/14806640?v=4?s=100" width="100px;" alt="Johannes Konings"/><br /><sub><b>Johannes Konings</b></sub></a><br /><a href="https://github.com/karlderkaefer/cdk-notifier/commits?author=JohannesKonings" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/joshmyers"><img src="https://avatars.githubusercontent.com/u/3025844?v=4?s=100" width="100px;" alt="Josh Myers"/><br /><sub><b>Josh Myers</b></sub></a><br /><a href="https://github.com/karlderkaefer/cdk-notifier/commits?author=joshmyers" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
