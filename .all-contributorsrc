@@ -49,6 +49,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "joshmyers",
+      "name": "Josh Myers",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3025844?v=4",
+      "profile": "https://github.com/joshmyers",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
