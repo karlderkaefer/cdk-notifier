@@ -1,3 +1,10 @@
+## [2.9.3](https://github.com/karlderkaefer/cdk-notifier/compare/v2.9.2...v2.9.3) (2024-02-16)
+
+
+### Bug Fixes
+
+* Allow collapsible comments when using GHE ([244538f](https://github.com/karlderkaefer/cdk-notifier/commit/244538f6623f1d346768c7ef7e98c2651c8edbcb))
+
 ## [2.9.2](https://github.com/karlderkaefer/cdk-notifier/compare/v2.9.1...v2.9.2) (2024-02-01)
 
 
