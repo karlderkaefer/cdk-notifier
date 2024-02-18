@@ -2,14 +2,18 @@ package provider
 
 import (
 	"context"
-	"fmt"
 	"errors"
+	"fmt"
 
 	"github.com/google/go-github/v53/github"
 	"github.com/karlderkaefer/cdk-notifier/config"
-	"golang.org/x/oauth2"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/oauth2"
 )
+
+// maxCommentLength is the maximum number of chars allowed in a single comment
+// by GitHub.
+const GithubMaxCommentLength = 65536
 
 // GithubIssuesService interface for required GitHub actions with API
 type GithubIssuesService interface {
@@ -76,19 +80,25 @@ func transform(i *github.IssueComment) *Comment {
 	return comment
 }
 
-func (gc *GithubClient) CreateComment() (*Comment, error) {
-	comment, _, err := gc.Issues.CreateComment(gc.Context, gc.Config.RepoOwner, gc.Config.RepoName, gc.Config.PullRequestID, &github.IssueComment{Body: &gc.CommentContent})
-	if err != nil {
-		return nil, err
+func (gc *GithubClient) CreateComment(headerTagID string) ([]*Comment, error) {
+	comments := SplitComment(gc.CommentContent, GithubMaxCommentLength, sepFooter, sepHeaderId(headerTagID))
+	var results []*Comment
+	for i := range comments {
+		result, _, err := gc.Issues.CreateComment(gc.Context, gc.Config.RepoOwner, gc.Config.RepoName, gc.Config.PullRequestID, &github.IssueComment{Body: &comments[i]})
+		if err != nil {
+			return nil, err
+		}
+		if result == nil {
+			return nil, errors.New("Comment is nil. Please check your GitHub token.")
+		}
+		results = append(results, transform(result))
 	}
-	if comment == nil {
-		return nil, errors.New("Comment is nil. Please check your GitHub token.")
-	}
-	return transform(comment), err
+	return results, nil
 }
 
-func (gc *GithubClient) UpdateComment(id int64) (*Comment, error) {
-	editedComment, _, err := gc.Issues.EditComment(gc.Context, gc.Config.RepoOwner, gc.Config.RepoName, id, &github.IssueComment{Body: &gc.CommentContent})
+func (gc *GithubClient) UpdateComment(id int64, index int, headerTagID string) (*Comment, error) {
+	comments := SplitComment(gc.CommentContent, GithubMaxCommentLength, sepFooter, sepHeaderId(headerTagID))
+	editedComment, _, err := gc.Issues.EditComment(gc.Context, gc.Config.RepoOwner, gc.Config.RepoName, id, &github.IssueComment{Body: &comments[index]})
 	if err != nil {
 		return nil, err
 	}

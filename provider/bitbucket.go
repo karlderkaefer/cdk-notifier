@@ -3,9 +3,14 @@ package provider
 import (
 	"context"
 	"errors"
+
 	"github.com/karlderkaefer/cdk-notifier/config"
 	"github.com/sirupsen/logrus"
 )
+
+// maxCommentLength is the maximum number of chars allowed by Bitbucket in a
+// single comment.
+const bitbucketMaxCommentLength = 32768
 
 var (
 	errContentEmpty = errors.New("comment content should not be empty")
@@ -49,31 +54,39 @@ func (c *BitbucketComment) transform() *Comment {
 	return comment
 }
 
-func (b *BitbucketProvider) CreateComment() (*Comment, error) {
+func (b *BitbucketProvider) CreateComment(headerTagID string) ([]*Comment, error) {
 	if b.CommentContent == "" {
 		return nil, errContentEmpty
 	}
-	comment, _, err := b.Service.CreateComment(
-		b.Context,
-		b.Config.RepoOwner,
-		b.Config.RepoName,
-		int64(b.Config.PullRequestID),
-		NewBitbucketComment(b.CommentContent),
-	)
-	if err != nil {
-		return nil, err
+	comments := SplitComment(b.CommentContent, bitbucketMaxCommentLength, sepFooter, sepHeaderId(headerTagID))
+	var results []*Comment
+
+	for i := range comments {
+		result, _, err := b.Service.CreateComment(
+			b.Context,
+			b.Config.RepoOwner,
+			b.Config.RepoName,
+			int64(b.Config.PullRequestID),
+			NewBitbucketComment(comments[i]),
+		)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, result.transform())
 	}
-	return comment.transform(), nil
+
+	return results, nil
 }
 
-func (b *BitbucketProvider) UpdateComment(id int64) (*Comment, error) {
+func (b *BitbucketProvider) UpdateComment(id int64, index int, headerTagID string) (*Comment, error) {
+	comments := SplitComment(b.CommentContent, GithubMaxCommentLength, sepFooter, sepHeaderId(headerTagID))
 	comment, _, err := b.Service.EditComment(
 		b.Context,
 		b.Config.RepoOwner,
 		b.Config.RepoName,
 		int64(b.Config.PullRequestID),
 		id,
-		NewBitbucketComment(b.CommentContent),
+		NewBitbucketComment(comments[index]),
 	)
 	if err != nil {
 		return nil, err

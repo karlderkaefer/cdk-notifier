@@ -8,6 +8,10 @@ import (
 	gitlab "github.com/xanzy/go-gitlab"
 )
 
+// gitlabMaxCommentLength is the maximum number of chars allowed by Gitlab in a
+// single comment.
+const gitlabMaxCommentLength = 1000000
+
 // NotesService interface for required Gitlab actions with API
 type GitlabNotesService interface {
 	ListMergeRequestNotes(pid interface{}, mergeRequest int, opt *gitlab.ListMergeRequestNotesOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Note, *gitlab.Response, error)
@@ -81,21 +85,30 @@ func (gc *GitlabClient) GetProjectId() (string, error) {
 	return gc.ProjectId, nil
 }
 
-func (gc *GitlabClient) CreateComment() (*Comment, error) {
+func (gc *GitlabClient) CreateComment(headerTagID string) ([]*Comment, error) {
 	projectId, err := gc.GetProjectId()
 	if err != nil {
 		return nil, err
 	}
-	note, _, err := gc.Notes.CreateMergeRequestNote(projectId, gc.Config.PullRequestID, &gitlab.CreateMergeRequestNoteOptions{Body: &gc.NoteContent})
-	return convert(note), err
+	comments := SplitComment(gc.NoteContent, gitlabMaxCommentLength, sepFooter, sepHeaderId(headerTagID))
+	var results []*Comment
+	for i := range comments {
+		note, _, err := gc.Notes.CreateMergeRequestNote(projectId, gc.Config.PullRequestID, &gitlab.CreateMergeRequestNoteOptions{Body: &comments[i]})
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, convert(note))
+	}
+	return results, err
 }
 
-func (gc *GitlabClient) UpdateComment(id int64) (*Comment, error) {
+func (gc *GitlabClient) UpdateComment(id int64, index int, headerTagID string) (*Comment, error) {
+	comments := SplitComment(gc.NoteContent, GithubMaxCommentLength, sepFooter, sepHeaderId(headerTagID))
 	projectId, err := gc.GetProjectId()
 	if err != nil {
 		return nil, err
 	}
-	editedNote, _, err := gc.Notes.UpdateMergeRequestNote(projectId, gc.Config.PullRequestID, int(id), &gitlab.UpdateMergeRequestNoteOptions{Body: &gc.NoteContent})
+	editedNote, _, err := gc.Notes.UpdateMergeRequestNote(projectId, gc.Config.PullRequestID, int(id), &gitlab.UpdateMergeRequestNoteOptions{Body: &comments[index]})
 	return convert(editedNote), err
 }
 
@@ -126,6 +139,8 @@ func (gc *GitlabClient) ListComments() ([]Comment, error) {
 		return nil, err
 	}
 	opt := &gitlab.ListMergeRequestNotesOptions{
+		Sort:        gitlab.String("asc"),
+		OrderBy:     gitlab.String("created_at"),
 		ListOptions: gitlab.ListOptions{PerPage: 100},
 	}
 	notes, _, err := gc.Notes.ListMergeRequestNotes(projectId, gc.Config.PullRequestID, opt)

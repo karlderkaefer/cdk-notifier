@@ -1,7 +1,6 @@
 package transform
 
 import (
-	"bytes"
 	"fmt"
 	"os"
 	"regexp"
@@ -18,7 +17,6 @@ import (
 // 1. Clean any ANSI chars and XTERM color created from cdk diff command
 // 2. Transform additions and removals to markdown diff syntax
 // 3. Create unique message header
-// 4. truncate content if message is longer than GitHub API can handle
 type LogTransformer struct {
 	LogContent                string
 	Logfile                   string
@@ -211,16 +209,6 @@ func (t *LogTransformer) transformDiff() {
 	t.LogContent = strings.Join(transformedLines, "\n")
 }
 
-// truncate to avoid Message:Body is too long (maximum is 65536 characters)
-func (t *LogTransformer) truncate() {
-	runes := bytes.Runes([]byte(t.LogContent))
-	if len(runes) > 65000 {
-		truncated := string(runes[:65000])
-		truncated += "\n...truncated"
-		t.LogContent = truncated
-	}
-}
-
 func (t *LogTransformer) addHeader() {
 	collapsible := false
 	showOverview := false
@@ -281,8 +269,7 @@ func (t *LogTransformer) writeDiffFile() error {
 // 1. Clean any ANSI chars and XTERM color created from cdk diff command
 // 2. Transform additions and removals to markdown diff syntax
 // 3. Create unique message header
-// 4. truncate content if message is longer than GitHub API can handle
-// 5. write diff as file and to stdout when no-post-mode is activated
+// 4. write diff as file and to stdout when no-post-mode is activated
 func (t *LogTransformer) Process() {
 	err := t.readFile()
 	if err != nil {
@@ -291,7 +278,6 @@ func (t *LogTransformer) Process() {
 	t.removeAnsiCode()
 	t.transformDiff()
 	t.addHeader()
-	t.truncate()
 	err = t.writeDiffFile()
 	if err != nil {
 		logrus.Fatal(err)
