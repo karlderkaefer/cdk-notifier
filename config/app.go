@@ -130,9 +130,10 @@ type NotifierConfig struct {
 	NoPostMode      bool   `mapstructure:"NO_POST_MODE"`
 	DisableCollapse bool   `mapstructure:"DISABLE_COLLAPSE"`
 	// TODO deprecated
-	ShowOverview    bool   `mapstructure:"SHOW_OVERVIEW"`
-	Template        string	`mapstructure:"NOTIFIER_TEMPLATE"`
-	CustomTemplate  string `mapstructure:"CUSTOM_TEMPLATE"`
+	ShowOverview        bool   `mapstructure:"SHOW_OVERVIEW"`
+	Template            string `mapstructure:"NOTIFIER_TEMPLATE"`
+	CustomTemplate      string `mapstructure:"CUSTOM_TEMPLATE"`
+	SuppressHashChanges bool   `mapstructure:"SUPPRESS_HASH_CHANGES"`
 }
 
 // Init will create default NotifierConfig with following priority

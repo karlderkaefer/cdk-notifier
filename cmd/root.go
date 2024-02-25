@@ -35,6 +35,14 @@ var rootCmd = &cobra.Command{
 		transformer := transform.NewLogTransformer(appConfig)
 		transformer.Process()
 
+		if appConfig.SuppressHashChanges {
+			logrus.Warnf("Suppressing hash changes detected %d hash changes and %d total changes", transformer.HashChanges, transformer.TotalChanges)
+			if transformer.TotalChanges == transformer.HashChanges {
+				logrus.Warnf("Skipping... because suppress-hash-changes is set and only hash changes detected")
+				return
+			}
+		}
+
 		if appConfig.NoPostMode {
 			return
 		}
@@ -95,6 +103,7 @@ func init() {
 	rootCmd.Flags().Bool("show-overview", false, "[Deprected: use template extended instead] Show Overview are disabled by default. When set to true it will show the number of cdk stacks with diff and  the number of replaced resources in the overview section.")
 	rootCmd.Flags().String("template", "default", "Template to use for comment [default|extended|extendedWithResources]")
 	rootCmd.Flags().String("custom-template", "", "File path or string input to custom template. When set it will override the template flag.")
+	rootCmd.Flags().Bool("suppress-hash-changes", false, "EXPERIMENTAL: when set to true it will ignore changes in hash values")
 
 	// mapping for viper [mapstruct value, flag name]
 	viperMappings := make(map[string]string)
@@ -116,6 +125,7 @@ func init() {
 	viperMappings["CI_SYSTEM"] = "ci"
 	viperMappings["URL"] = "gitlab-url"
 	viperMappings["GITHUB_ENTERPRISE_HOST"] = "github-host"
+	viperMappings["SUPPRESS_HASH_CHANGES"] = "suppress-hash-changes"
 
 	for k, v := range viperMappings {
 		err := viper.BindPFlag(k, rootCmd.Flags().Lookup(v))

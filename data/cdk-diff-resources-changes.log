@@ -17,7 +17,7 @@ Resources
         [ ] ],
         [ ] "Essential": true,
         [ ] "Image": {
--       [-]   "Fn::Sub": "123456789012.dkr.ecr.eu-central-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456789012-eu-central-1:88f53e8e790ee348fe371bgt2dd7365d2cc15be096da0c12d4b0d8bf47aff35d3"
+-       [-]   "Fn::Sub": "123456789012.dkr.ecr.eu-central-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456789012-eu-central-1:88f53e8e790ee348fe371bfe2dd7365d2cc15be096da0c12d4b0d8bf47aff35d3"
 +       [+]   "Fn::Sub": "123456789012.dkr.ecr.eu-central-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456789012-eu-central-1:64137e051d225c2e197f36cf11456f21c0ec449c2902fa5c8d685e0fbbe822e2d"
         [ ] },
         [ ] "LogConfiguration": {

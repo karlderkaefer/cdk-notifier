@@ -409,3 +409,68 @@ func TestGetJobLink(t *testing.T) {
         })
     }
 }
+func TestIgnoreHashesProcessor_ProcessLine(t *testing.T) {
+	cases := []struct {
+		line           string
+		expectedTotal  int
+		expectedHashes int
+	}{
+		{
+			line:           "+ some line",
+			expectedTotal:  1,
+			expectedHashes: 0,
+		},
+		{
+			line:           "- some line",
+			expectedTotal:  1,
+			expectedHashes: 0,
+		},
+		{
+			line:           "+ some line with hash abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+			expectedTotal:  1,
+			expectedHashes: 1,
+		},
+		{
+			line:           "- some line with hash abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+			expectedTotal:  1,
+			expectedHashes: 1,
+		},
+		{
+			line:           "+ some line with invalid hash",
+			expectedTotal:  1,
+			expectedHashes: 0,
+		},
+		{
+			line:           "- some line with invalid hash",
+			expectedTotal:  1,
+			expectedHashes: 0,
+		},
+		{
+			line:           "some other line",
+			expectedTotal:  0,
+			expectedHashes: 0,
+		},
+		{
+			line: "-       [-]   \"Fn::Sub\": \"123456789012.dkr.ecr.eu-central-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456789012-eu-central-1:88f53e8e790ee348fe371bfe2dd7365d2cc15be096da0c12d4b0d8bf47aff35d3",
+			expectedTotal:  1,
+			expectedHashes: 1,
+		},
+	}
+
+	processor := &IgnoreHashesProcessor{
+		BaseProcessor: BaseProcessor{},
+	}
+
+	lt := &LogTransformer{
+		TotalChanges:  0,
+		HashChanges:   0,
+	}
+
+	for _, c := range cases {
+		lt.TotalChanges = 0
+		lt.HashChanges = 0
+		processor.ProcessLine(c.line, lt)
+		assert.Equal(t, c.expectedTotal, lt.TotalChanges)
+		assert.Equal(t, c.expectedHashes, lt.HashChanges)
+	}
+}
