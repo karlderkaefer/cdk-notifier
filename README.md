@@ -230,6 +230,12 @@ Any validation is skipped, you only need to set `--log-file` and `--tag-id`.
 Enable this option `--no-post-mode` will write the markdown diff to stdout and a logfile.
 The diff output file is using same path of cdk log file, but is appending `.diff` extension.
 
+## Suppress Hash Changes
+
+See github issue [issue#125](https://github.com/karlderkaefer/cdk-notifier/issues/125).
+In case you want to suppress any hash changes in the diff, you can use the flag `--suppress-hash-changes`.
+For example this would not post a diff for any changes in the hash of the resources [see example](./data/cdk-diff-resources-changes.log).
+
 ## Security
 **Disclaimer**: Consider using on private repositories only.
 
