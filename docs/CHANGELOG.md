@@ -1,3 +1,10 @@
+# [2.10.0](https://github.com/karlderkaefer/cdk-notifier/compare/v2.9.3...v2.10.0) (2024-02-25)
+
+
+### Features
+
+* add job link header ([8592aa9](https://github.com/karlderkaefer/cdk-notifier/commit/8592aa954a5e5514ef7f64cfc94a5eb689446838))
+
 ## [2.9.3](https://github.com/karlderkaefer/cdk-notifier/compare/v2.9.2...v2.9.3) (2024-02-16)
 
 
