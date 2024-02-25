@@ -84,6 +84,11 @@ type TemplateTest struct {
 }
 
 func TestLogTransformer_AddHeader(t *testing.T) {
+
+	// do not add job link
+	os.Setenv("CDK_NOTIFIER_DEACTIVATE_JOB_LINK", "true")
+	defer os.Unsetenv("CDK_NOTIFIER_DEACTIVATE_JOB_LINK")
+
 	cases := []TemplateTest{
 		// empty VCS should not have collapsible section
 		{
@@ -335,4 +340,72 @@ func TestResourceDiffExtractorProcessor_ProcessLine(t *testing.T) {
 			}
 		})
 	}
+}
+func TestGetJobLink(t *testing.T) {
+	// Set up test cases
+	os.Setenv("CDK_NOTIFIER_DEACTIVATE_JOB_LINK", "false")
+	os.Setenv("CIRCLECI", "false")
+	cases := []struct {
+		name string
+		envVars  map[string]string
+		expected string
+	}{
+		{
+			name: "cirlceci job link",
+			envVars: map[string]string{
+				"CIRCLECI":        "true",
+				"CIRCLE_BUILD_URL": "https://circleci.com/build/456",
+			},
+			expected: "https://circleci.com/build/456",
+		},
+		{
+			name: "gitlab job link",
+			envVars: map[string]string{
+				"GITLAB_CI":   "true",
+				"CI_JOB_URL": "https://gitlab.com/job/123",
+			},
+			expected: "https://gitlab.com/job/123",
+		},
+		{
+			name: "bitbucket job link",
+			envVars: map[string]string{
+				"BITBUCKET_BUILD_NUMBER": "789",
+				"BITBUCKET_WORKSPACE":    "workspace",
+				"BITBUCKET_REPO_SLUG":    "repo",
+			},
+			expected: "https://bitbucket.org/workspace/repo/pipelines/results/789",
+		},
+		{
+			name: "github job link",
+			envVars: map[string]string{
+				"GITHUB_ACTIONS":    "true",
+				"GITHUB_SERVER_URL": "https://github.com",
+				"GITHUB_REPOSITORY": "owner/repo",
+				"GITHUB_RUN_ID":     "12345",
+			},
+			expected: "https://github.com/owner/repo/actions/runs/12345",
+		},
+	}
+
+    for _, tt := range cases {
+        t.Run(tt.name, func(t *testing.T) {
+            // Save the current environment
+            oldEnv := make(map[string]string)
+            for k, v := range tt.envVars {
+                oldEnv[k] = os.Getenv(k)
+                os.Setenv(k, v)
+            }
+
+            // Reset the environment after the test
+            t.Cleanup(func() {
+                for k, v := range oldEnv {
+                    os.Setenv(k, v)
+                }
+            })
+
+            if got := getJobLink(); got != tt.expected {
+                t.Errorf("getJobLink() = %v, want %v", got, tt.expected)
+            }
+        })
+    }
 }

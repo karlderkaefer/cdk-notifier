@@ -236,6 +236,11 @@ func (t *LogTransformer) addHeader() {
 	if t.ShowOverview {
 		showOverview = true
 	}
+	var jobLink string
+	jobUrl := getJobLink()
+	if jobUrl != "" {
+		jobLink = fmt.Sprintf("[Job Link](%s)", getJobLink())
+	}
 	template := &commentTemplate{
 		TagID:                     t.TagID,
 		NumberOfDifferencesString: t.NumberOfDifferencesString,
@@ -243,7 +248,7 @@ func (t *LogTransformer) addHeader() {
 		ChangedBaseResource:       t.ChangedBaseResource,
 		Content:                   t.LogContent,
 		Backticks:                 "```",
-		JobLink:                   "",
+		JobLink:                   jobLink,
 		HeaderPrefix:              provider.HeaderPrefix,
 		Collapsible:               collapsible,
 		ShowOverview:              showOverview,
@@ -255,6 +260,34 @@ func (t *LogTransformer) addHeader() {
 		logrus.Fatal(err)
 	}
 	t.LogContent = content
+}
+
+func getJobLink() string {
+	var jobLink string
+	// deactivate job link for some tests
+	if os.Getenv("CDK_NOTIFIER_DEACTIVATE_JOB_LINK") == "true" {
+		return ""
+	}
+	if os.Getenv("GITLAB_CI") == "true" {
+		jobLink = os.Getenv("CI_JOB_URL")
+	}
+	if os.Getenv("CIRCLECI") == "true" {
+		jobLink = os.Getenv("CIRCLE_BUILD_URL")
+	}
+	if os.Getenv("BITBUCKET_BUILD_NUMBER") != "" {
+        workspace := os.Getenv("BITBUCKET_WORKSPACE")
+        repoSlug := os.Getenv("BITBUCKET_REPO_SLUG")
+        buildNumber := os.Getenv("BITBUCKET_BUILD_NUMBER")
+        jobLink = fmt.Sprintf("https://bitbucket.org/%s/%s/pipelines/results/%s", workspace, repoSlug, buildNumber)
+	}
+	if os.Getenv("GITHUB_ACTIONS") != "" {
+		server := os.Getenv("GITHUB_SERVER_URL")
+		repo := os.Getenv("GITHUB_REPOSITORY")
+		runID := os.Getenv("GITHUB_RUN_ID")
+		jobLink = fmt.Sprintf("%s/%s/actions/runs/%s", server, repo, runID)
+	}
+	logrus.Debugf("Found Job link: %s", jobLink)
+	return jobLink
 }
 
 func (t *LogTransformer) printFile() {
