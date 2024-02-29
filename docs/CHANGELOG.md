@@ -1,3 +1,10 @@
+# [2.11.0](https://github.com/karlderkaefer/cdk-notifier/compare/v2.10.0...v2.11.0) (2024-02-29)
+
+
+### Features
+
+* add suppress hash changes ([e7499d7](https://github.com/karlderkaefer/cdk-notifier/commit/e7499d70f85c493b9556764fc599288d35e9e310))
+
 # [2.10.0](https://github.com/karlderkaefer/cdk-notifier/compare/v2.9.3...v2.10.0) (2024-02-25)
 
 
