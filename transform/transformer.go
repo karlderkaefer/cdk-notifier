@@ -33,6 +33,8 @@ type LogTransformer struct {
 	Template                  string
 	CustomTemplate            string
 	ProcessorsChain           LineProcessor
+	TotalChanges              int
+	HashChanges               int
 }
 
 type ResourceMetric struct {
@@ -66,15 +68,15 @@ func (p *BaseProcessor) ProcessLine(line string, lt *LogTransformer) string {
 // NewLogTransformer create new log transfer based on config.AppConfig
 func NewLogTransformer(config *config.NotifierConfig) *LogTransformer {
 	lt := &LogTransformer{
-		LogContent:      "",
-		Logfile:         config.LogFile,
-		TagID:           config.TagID,
-		NoPostMode:      config.NoPostMode,
-		Vcs:             config.Vcs,
-		DisableCollapse: config.DisableCollapse,
-		ShowOverview:    config.ShowOverview,
-		Template:        config.Template,
-		CustomTemplate:  config.CustomTemplate,
+		LogContent:          "",
+		Logfile:             config.LogFile,
+		TagID:               config.TagID,
+		NoPostMode:          config.NoPostMode,
+		Vcs:                 config.Vcs,
+		DisableCollapse:     config.DisableCollapse,
+		ShowOverview:        config.ShowOverview,
+		Template:            config.Template,
+		CustomTemplate:      config.CustomTemplate,
 	}
 	lt.initProcessorsChain()
 	return lt
@@ -86,9 +88,11 @@ func (t *LogTransformer) initProcessorsChain() {
 	numberReplacesProcessor := &NumberReplacesProcessor{}
 	diffSymbolProcessor := &DiffSymbolProcessor{}
 	resourceDiffExtractorProcessor := &ResourceDiffExtractorProcessor{}
+	ignoreHashesProcessor := &IgnoreHashesProcessor{}
 	stackDiffProcessor.SetNext(resourceDiffExtractorProcessor)
 	resourceDiffExtractorProcessor.SetNext(numberReplacesProcessor)
 	numberReplacesProcessor.SetNext(diffSymbolProcessor)
+	diffSymbolProcessor.SetNext(ignoreHashesProcessor)
 	t.ProcessorsChain = stackDiffProcessor
 }
 
@@ -200,6 +204,24 @@ func (p *DiffSymbolProcessor) ProcessLine(line string, lt *LogTransformer) strin
 	return p.BaseProcessor.ProcessLine(modifiedLine, lt)
 }
 
+// Ignore hashes in the diff
+type IgnoreHashesProcessor struct {
+	BaseProcessor
+}
+
+func (p *IgnoreHashesProcessor) ProcessLine(line string, lt *LogTransformer) string {
+	regex := regexp.MustCompile(`^[+-](.*)`)
+	if regex.MatchString(line) {
+		lt.TotalChanges++
+		// https://regex101.com/r/WbUrKv/1
+		regexHash := regexp.MustCompile(`^[+-].*?[a-fA-F0-9]{64,65}`)
+		if regexHash.MatchString(line) {
+			lt.HashChanges++
+		}
+	}
+	return p.BaseProcessor.ProcessLine(line, lt)
+}
+
 func (t *LogTransformer) transformDiff() {
 	lines := strings.Split(t.LogContent, "\n")
 	var transformedLines []string
@@ -275,10 +297,10 @@ func getJobLink() string {
 		jobLink = os.Getenv("CIRCLE_BUILD_URL")
 	}
 	if os.Getenv("BITBUCKET_BUILD_NUMBER") != "" {
-        workspace := os.Getenv("BITBUCKET_WORKSPACE")
-        repoSlug := os.Getenv("BITBUCKET_REPO_SLUG")
-        buildNumber := os.Getenv("BITBUCKET_BUILD_NUMBER")
-        jobLink = fmt.Sprintf("https://bitbucket.org/%s/%s/pipelines/results/%s", workspace, repoSlug, buildNumber)
+		workspace := os.Getenv("BITBUCKET_WORKSPACE")
+		repoSlug := os.Getenv("BITBUCKET_REPO_SLUG")
+		buildNumber := os.Getenv("BITBUCKET_BUILD_NUMBER")
+		jobLink = fmt.Sprintf("https://bitbucket.org/%s/%s/pipelines/results/%s", workspace, repoSlug, buildNumber)
 	}
 	if os.Getenv("GITHUB_ACTIONS") != "" {
 		server := os.Getenv("GITHUB_SERVER_URL")
