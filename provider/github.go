@@ -2,14 +2,18 @@ package provider
 
 import (
 	"context"
-	"fmt"
 	"errors"
+	"fmt"
 
 	"github.com/google/go-github/v53/github"
 	"github.com/karlderkaefer/cdk-notifier/config"
-	"golang.org/x/oauth2"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/oauth2"
 )
+
+// maxCommentLength is the maximum number of chars allowed in a single comment
+// by GitHub.
+const GithubMaxCommentLength = 65536
 
 // GithubIssuesService interface for required GitHub actions with API
 type GithubIssuesService interface {

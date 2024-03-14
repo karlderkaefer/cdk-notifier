@@ -3,9 +3,14 @@ package provider
 import (
 	"context"
 	"errors"
+
 	"github.com/karlderkaefer/cdk-notifier/config"
 	"github.com/sirupsen/logrus"
 )
+
+// maxCommentLength is the maximum number of chars allowed by Bitbucket in a
+// single comment.
+const BitbucketMaxCommentLength = 32768
 
 var (
 	errContentEmpty = errors.New("comment content should not be empty")

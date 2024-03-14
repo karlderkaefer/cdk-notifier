@@ -184,6 +184,7 @@ type TruncateTest struct {
 	runeCount      int
 	expectedLength int
 	exceeds        bool
+	provider       string
 }
 
 func randomStringRunes(n int) string {
@@ -201,39 +202,109 @@ func TestLogTransform_Truncate(t *testing.T) {
 		{
 			runeCount:      0,
 			expectedLength: 0,
+			provider:       config.VcsGithub,
 			exceeds:        false,
 		},
 		{
 			runeCount:      100,
 			expectedLength: 100,
+			provider:       config.VcsGithub,
 			exceeds:        false,
 		},
 		{
 			runeCount:      65000,
 			expectedLength: 65000,
+			provider:       config.VcsGithub,
 			exceeds:        false,
 		},
 		{
 			runeCount:      78999,
-			expectedLength: 65000,
+			expectedLength: 65536,
+			provider:       config.VcsGithub,
 			exceeds:        true,
 		},
 		{
 			runeCount:      878999,
+			expectedLength: 65536,
+			provider:       config.VcsGithub,
+			exceeds:        true,
+		},
+		{
+			runeCount:      0,
+			expectedLength: 0,
+			provider:       config.VcsGitlab,
+			exceeds:        false,
+		},
+		{
+			runeCount:      100,
+			expectedLength: 100,
+			provider:       config.VcsGitlab,
+			exceeds:        false,
+		},
+		{
+			runeCount:      65000,
 			expectedLength: 65000,
+			provider:       config.VcsGitlab,
+			exceeds:        false,
+		},
+		{
+			runeCount:      78999,
+			expectedLength: 78999,
+			provider:       config.VcsGitlab,
+			exceeds:        false,
+		},
+		{
+			runeCount:      878999,
+			expectedLength: 878999,
+			provider:       config.VcsGitlab,
+			exceeds:        false,
+		},
+		{
+			runeCount:      1000001,
+			expectedLength: 1000000,
+			provider:       config.VcsGitlab,
+			exceeds:        true,
+		},
+		{
+			runeCount:      423428,
+			expectedLength: 32768,
+			provider:       config.VcsBitbucket,
+			exceeds:        true,
+		},
+		{
+			runeCount:      100,
+			expectedLength: 100,
+			provider:       config.VcsBitbucket,
+			exceeds:        false,
+		},
+		{
+			runeCount:      32769,
+			expectedLength: 32768,
+			provider:       config.VcsBitbucket,
+			exceeds:        true,
+		},
+		{
+			runeCount:      80001,
+			expectedLength: 80000,
+			provider:       config.VcsGithubEnterprise,
 			exceeds:        true,
 		},
 	}
-	transformer := &LogTransformer{}
 
 	for _, c := range testCases {
-		truncatedLog := "\n...truncated"
+		transformer := &LogTransformer{
+			Vcs: c.provider,
+		}
+		if c.provider == config.VcsGithubEnterprise {
+			transformer.GithubMaxCommentLength = 80000
+		}
 		transformer.LogContent = randomStringRunes(c.runeCount)
 		transformer.truncate()
+		assert.Equal(t, c.expectedLength, len(transformer.LogContent))
 		if c.exceeds {
-			assert.Equal(t, c.expectedLength+len(truncatedLog), len(transformer.LogContent))
+			assert.Contains(t, transformer.LogContent, "**Warning**")
 		} else {
-			assert.Equal(t, c.expectedLength, len(transformer.LogContent))
+			assert.NotContains(t, transformer.LogContent, "**Warning**")
 		}
 	}
 }
@@ -243,6 +314,7 @@ func TestNewLogTransformer(t *testing.T) {
 		LogFile:    "../data/cdk-nochanges.log",
 		TagID:      "small",
 		NoPostMode: false,
+		Vcs:        config.VcsGithub,
 	}
 	transformer := NewLogTransformer(c)
 	assert.NotNil(t, transformer)
@@ -260,6 +332,7 @@ func TestOverviewSection(t *testing.T) {
 		TagID:        "small",
 		NoPostMode:   false,
 		ShowOverview: true,
+		Vcs:          config.VcsGithub,
 	}
 	transformer := NewLogTransformer(c)
 	assert.NotNil(t, transformer)
@@ -346,14 +419,14 @@ func TestGetJobLink(t *testing.T) {
 	os.Setenv("CDK_NOTIFIER_DEACTIVATE_JOB_LINK", "false")
 	os.Setenv("CIRCLECI", "false")
 	cases := []struct {
-		name string
+		name     string
 		envVars  map[string]string
 		expected string
 	}{
 		{
 			name: "cirlceci job link",
 			envVars: map[string]string{
-				"CIRCLECI":        "true",
+				"CIRCLECI":         "true",
 				"CIRCLE_BUILD_URL": "https://circleci.com/build/456",
 			},
 			expected: "https://circleci.com/build/456",
@@ -361,7 +434,7 @@ func TestGetJobLink(t *testing.T) {
 		{
 			name: "gitlab job link",
 			envVars: map[string]string{
-				"GITLAB_CI":   "true",
+				"GITLAB_CI":  "true",
 				"CI_JOB_URL": "https://gitlab.com/job/123",
 			},
 			expected: "https://gitlab.com/job/123",
@@ -387,27 +460,27 @@ func TestGetJobLink(t *testing.T) {
 		},
 	}
 
-    for _, tt := range cases {
-        t.Run(tt.name, func(t *testing.T) {
-            // Save the current environment
-            oldEnv := make(map[string]string)
-            for k, v := range tt.envVars {
-                oldEnv[k] = os.Getenv(k)
-                os.Setenv(k, v)
-            }
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			// Save the current environment
+			oldEnv := make(map[string]string)
+			for k, v := range tt.envVars {
+				oldEnv[k] = os.Getenv(k)
+				os.Setenv(k, v)
+			}
 
-            // Reset the environment after the test
-            t.Cleanup(func() {
-                for k, v := range oldEnv {
-                    os.Setenv(k, v)
-                }
-            })
+			// Reset the environment after the test
+			t.Cleanup(func() {
+				for k, v := range oldEnv {
+					os.Setenv(k, v)
+				}
+			})
 
-            if got := getJobLink(); got != tt.expected {
-                t.Errorf("getJobLink() = %v, want %v", got, tt.expected)
-            }
-        })
-    }
+			if got := getJobLink(); got != tt.expected {
+				t.Errorf("getJobLink() = %v, want %v", got, tt.expected)
+			}
+		})
+	}
 }
 func TestIgnoreHashesProcessor_ProcessLine(t *testing.T) {
 	cases := []struct {
@@ -451,7 +524,7 @@ func TestIgnoreHashesProcessor_ProcessLine(t *testing.T) {
 			expectedHashes: 0,
 		},
 		{
-			line: "-       [-]   \"Fn::Sub\": \"123456789012.dkr.ecr.eu-central-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456789012-eu-central-1:88f53e8e790ee348fe371bfe2dd7365d2cc15be096da0c12d4b0d8bf47aff35d3",
+			line:           "-       [-]   \"Fn::Sub\": \"123456789012.dkr.ecr.eu-central-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456789012-eu-central-1:88f53e8e790ee348fe371bfe2dd7365d2cc15be096da0c12d4b0d8bf47aff35d3",
 			expectedTotal:  1,
 			expectedHashes: 1,
 		},
@@ -462,8 +535,8 @@ func TestIgnoreHashesProcessor_ProcessLine(t *testing.T) {
 	}
 
 	lt := &LogTransformer{
-		TotalChanges:  0,
-		HashChanges:   0,
+		TotalChanges: 0,
+		HashChanges:  0,
 	}
 
 	for _, c := range cases {

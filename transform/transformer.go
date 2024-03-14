@@ -32,6 +32,7 @@ type LogTransformer struct {
 	ChangedBaseResource       map[string]ResourceMetric
 	Template                  string
 	CustomTemplate            string
+	GithubMaxCommentLength    int
 	ProcessorsChain           LineProcessor
 	TotalChanges              int
 	HashChanges               int
@@ -68,15 +69,16 @@ func (p *BaseProcessor) ProcessLine(line string, lt *LogTransformer) string {
 // NewLogTransformer create new log transfer based on config.AppConfig
 func NewLogTransformer(config *config.NotifierConfig) *LogTransformer {
 	lt := &LogTransformer{
-		LogContent:          "",
-		Logfile:             config.LogFile,
-		TagID:               config.TagID,
-		NoPostMode:          config.NoPostMode,
-		Vcs:                 config.Vcs,
-		DisableCollapse:     config.DisableCollapse,
-		ShowOverview:        config.ShowOverview,
-		Template:            config.Template,
-		CustomTemplate:      config.CustomTemplate,
+		LogContent:             "",
+		Logfile:                config.LogFile,
+		TagID:                  config.TagID,
+		NoPostMode:             config.NoPostMode,
+		Vcs:                    config.Vcs,
+		DisableCollapse:        config.DisableCollapse,
+		ShowOverview:           config.ShowOverview,
+		Template:               config.Template,
+		CustomTemplate:         config.CustomTemplate,
+		GithubMaxCommentLength: config.GithubMaxCommentLength,
 	}
 	lt.initProcessorsChain()
 	return lt
@@ -233,12 +235,24 @@ func (t *LogTransformer) transformDiff() {
 	t.LogContent = strings.Join(transformedLines, "\n")
 }
 
-// truncate to avoid Message:Body is too long (maximum is 65536 characters)
+// truncate to avoid Message:Body is too long (maximum is set per VCS)
 func (t *LogTransformer) truncate() {
+	var maxCommentLength int
+	if t.Vcs == config.VcsGithubEnterprise && t.GithubMaxCommentLength != 0 {
+		maxCommentLength = t.GithubMaxCommentLength
+	} else if t.Vcs == config.VcsGithub || t.Vcs == config.VcsGithubEnterprise {
+		maxCommentLength = provider.GithubMaxCommentLength
+	} else if t.Vcs == config.VcsBitbucket {
+		maxCommentLength = provider.BitbucketMaxCommentLength
+	} else if t.Vcs == config.VcsGitlab {
+		maxCommentLength = provider.GitlabMaxCommentLength
+	}
+	truncatedCommentSuffix := "\n```\n</details>\n<br>\n\n**Warning**: Truncated output as length greater than max comment size."
+	maxCommentLength = maxCommentLength - len([]rune(truncatedCommentSuffix))
 	runes := bytes.Runes([]byte(t.LogContent))
-	if len(runes) > 65000 {
-		truncated := string(runes[:65000])
-		truncated += "\n...truncated"
+	if len(runes) > maxCommentLength {
+		truncated := string(runes[:maxCommentLength])
+		truncated += truncatedCommentSuffix
 		t.LogContent = truncated
 	}
 }
