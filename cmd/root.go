@@ -98,6 +98,7 @@ func init() {
 	rootCmd.Flags().StringP("user", "u", "", "Optional set username for token (required for bitbucket)")
 	rootCmd.Flags().String("gitlab-url", "https://gitlab.com/", "Optional set gitlab url")
 	rootCmd.Flags().String("github-host", "", "Optional set host for GitHub Enterprise")
+	rootCmd.Flags().Int("github-max-comment-length", 0, "Optional set max comment length for GitHub Enterprise")
 	rootCmd.Flags().Bool("no-post-mode", false, "Optional do not post comment to VCS, instead write additional file and print diff to stdout")
 	rootCmd.Flags().Bool("disable-collapse", false, "Collapsible comments are enabled by default for GitHub and GitLab. When set to true it will not use collapsed sections.")
 	rootCmd.Flags().Bool("show-overview", false, "[Deprected: use template extended instead] Show Overview are disabled by default. When set to true it will show the number of cdk stacks with diff and  the number of replaced resources in the overview section.")
@@ -125,6 +126,7 @@ func init() {
 	viperMappings["CI_SYSTEM"] = "ci"
 	viperMappings["URL"] = "gitlab-url"
 	viperMappings["GITHUB_ENTERPRISE_HOST"] = "github-host"
+	viperMappings["GITHUB_ENTERPRISE_MAX_COMMENT_LENGTH"] = "github-max-comment-length"
 	viperMappings["SUPPRESS_HASH_CHANGES"] = "suppress-hash-changes"
 
 	for k, v := range viperMappings {

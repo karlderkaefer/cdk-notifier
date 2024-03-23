@@ -8,6 +8,10 @@ import (
 	gitlab "github.com/xanzy/go-gitlab"
 )
 
+// gitlabMaxCommentLength is the maximum number of chars allowed by Gitlab in a
+// single comment.
+const GitlabMaxCommentLength = 1000000
+
 // NotesService interface for required Gitlab actions with API
 type GitlabNotesService interface {
 	ListMergeRequestNotes(pid interface{}, mergeRequest int, opt *gitlab.ListMergeRequestNotesOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Note, *gitlab.Response, error)

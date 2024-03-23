@@ -115,20 +115,21 @@ const (
 
 // NotifierConfig holds configuration
 type NotifierConfig struct {
-	LogFile         string `mapstructure:"LOG_FILE"`
-	TagID           string `mapstructure:"TAG_ID"`
-	RepoName        string `mapstructure:"REPO_NAME"`
-	RepoOwner       string `mapstructure:"REPO_OWNER"`
-	Token           string `mapstructure:"TOKEN"`
-	TokenUser       string `mapstructure:"TOKEN_USER"`
-	PullRequestID   int    `mapstructure:"PR_ID"`
-	DeleteComment   bool   `mapstructure:"DELETE_COMMENT"`
-	Vcs             string `mapstructure:"VERSION_CONTROL_SYSTEM"`
-	Ci              string `mapstructure:"CI_SYSTEM"`
-	Url             string `mapstructure:"URL"`
-	GithubHost      string `mapstructure:"GITHUB_ENTERPRISE_HOST"`
-	NoPostMode      bool   `mapstructure:"NO_POST_MODE"`
-	DisableCollapse bool   `mapstructure:"DISABLE_COLLAPSE"`
+	LogFile                string `mapstructure:"LOG_FILE"`
+	TagID                  string `mapstructure:"TAG_ID"`
+	RepoName               string `mapstructure:"REPO_NAME"`
+	RepoOwner              string `mapstructure:"REPO_OWNER"`
+	Token                  string `mapstructure:"TOKEN"`
+	TokenUser              string `mapstructure:"TOKEN_USER"`
+	PullRequestID          int    `mapstructure:"PR_ID"`
+	DeleteComment          bool   `mapstructure:"DELETE_COMMENT"`
+	Vcs                    string `mapstructure:"VERSION_CONTROL_SYSTEM"`
+	Ci                     string `mapstructure:"CI_SYSTEM"`
+	Url                    string `mapstructure:"URL"`
+	GithubHost             string `mapstructure:"GITHUB_ENTERPRISE_HOST"`
+	GithubMaxCommentLength int    `mapstructure:"GITHUB_ENTERPRISE_MAX_COMMENT_LENGTH"`
+	NoPostMode             bool   `mapstructure:"NO_POST_MODE"`
+	DisableCollapse        bool   `mapstructure:"DISABLE_COLLAPSE"`
 	// TODO deprecated
 	ShowOverview        bool   `mapstructure:"SHOW_OVERVIEW"`
 	Template            string `mapstructure:"NOTIFIER_TEMPLATE"`
