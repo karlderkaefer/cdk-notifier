@@ -1,159 +1,159 @@
-version: 2.1
+# version: 2.1
 
-orbs:
-  node: circleci/node@5.2.0
-  go: circleci/go@1.11.0
-  codecov: codecov/codecov@3.3.0
+# orbs:
+#   node: circleci/node@5.2.0
+#   go: circleci/go@1.11.0
+#   codecov: codecov/codecov@3.3.0
 
-commands:
-  set-version:
-    steps:
-      - run:
-          name: read version file and export to APP_VERISON
-          command: |
-            export APP_VERSION=$(cat .version)
-            echo "export APP_VERSION=${APP_VERSION}" >> $BASH_ENV
-            echo "read in version ${APP_VERSION}"
+# commands:
+#   set-version:
+#     steps:
+#       - run:
+#           name: read version file and export to APP_VERISON
+#           command: |
+#             export APP_VERSION=$(cat .version)
+#             echo "export APP_VERSION=${APP_VERSION}" >> $BASH_ENV
+#             echo "read in version ${APP_VERSION}"
 
-jobs:
-  get-version:
-    executor: node/default
-    steps:
-      - checkout
-      - node/install-packages
-      - run:
-          name: export version variable
-          command: |
-            npx semantic-release --dry-run
-            export NPX_STATUS="$?"
-            if [ ${NPX_STATUS} -ne 0 ]; then
-              echo "failed to run semantic release"
-              exit ${NPX_STATUS}
-            fi
-            export APP_VERSION="$(npx semantic-release --dry-run | grep -i 'The next release version is' | sed -E 's/.* ([[:digit:].]+)$/\1/')"
-            if [ -z "${APP_VERSION}" ]; then
-              echo "no new version detected"
-            else
-              echo "found next Version ${APP_VERSION}"
-            fi
-            echo "${APP_VERSION}" > .version
-      - persist_to_workspace:
-          root: .
-          paths:
-            - .version
+# jobs:
+#   get-version:
+#     executor: node/default
+#     steps:
+#       - checkout
+#       - node/install-packages
+#       - run:
+#           name: export version variable
+#           command: |
+#             npx semantic-release --dry-run
+#             export NPX_STATUS="$?"
+#             if [ ${NPX_STATUS} -ne 0 ]; then
+#               echo "failed to run semantic release"
+#               exit ${NPX_STATUS}
+#             fi
+#             export APP_VERSION="$(npx semantic-release --dry-run | grep -i 'The next release version is' | sed -E 's/.* ([[:digit:].]+)$/\1/')"
+#             if [ -z "${APP_VERSION}" ]; then
+#               echo "no new version detected"
+#             else
+#               echo "found next Version ${APP_VERSION}"
+#             fi
+#             echo "${APP_VERSION}" > .version
+#       - persist_to_workspace:
+#           root: .
+#           paths:
+#             - .version
 
-  build:
-    docker:
-      - image: 'cimg/go:1.22'
-    parameters:
-      os:
-        type: string
-      arch:
-        type: string
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - when:
-          condition: main, << pipeline.git.branch >>
-          steps:
-            - set-version
-      - go/load-cache
-      - go/mod-download
-      - go/save-cache
-      - run:
-          name: cross compile
-          command: |
-            if [ -z "${APP_VERSION}" ]; then
-              export VERSION="${CIRCLE_BRANCH}-${CIRCLE_SHA1}"
-            else
-              export VERSION="${APP_VERSION}"
-            fi
-            echo "got version ${VERSION}"
-            export GOOS=<< parameters.os >>
-            export GOARCH=<< parameters.arch >>
-            EXTENSION=""
-            if [ "$GOOS" == "windows" ]; then
-              echo "detected windows, adding .exe"
-              EXTENSION=".exe"
-            fi
-            CGO_ENABLED=0 go build -o "dist/${CIRCLE_PROJECT_REPONAME}_${GOOS}_${GOARCH}${EXTENSION}" -ldflags "-X github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/cmd.Version=${VERSION}"
-            if [ "$GOOS" == "linux" ] && [ "$GOARCH" == "amd64" ]; then
-               ./dist/${CIRCLE_PROJECT_REPONAME}_${GOOS}_${GOARCH} --version
-            fi
-            cd dist/ && gzip *
-      - persist_to_workspace:
-          name: save distributions
-          root: .
-          paths:
-            - ./dist
+#   build:
+#     docker:
+#       - image: 'cimg/go:1.22'
+#     parameters:
+#       os:
+#         type: string
+#       arch:
+#         type: string
+#     steps:
+#       - checkout
+#       - attach_workspace:
+#           at: .
+#       - when:
+#           condition: main, << pipeline.git.branch >>
+#           steps:
+#             - set-version
+#       - go/load-cache
+#       - go/mod-download
+#       - go/save-cache
+#       - run:
+#           name: cross compile
+#           command: |
+#             if [ -z "${APP_VERSION}" ]; then
+#               export VERSION="${CIRCLE_BRANCH}-${CIRCLE_SHA1}"
+#             else
+#               export VERSION="${APP_VERSION}"
+#             fi
+#             echo "got version ${VERSION}"
+#             export GOOS=<< parameters.os >>
+#             export GOARCH=<< parameters.arch >>
+#             EXTENSION=""
+#             if [ "$GOOS" == "windows" ]; then
+#               echo "detected windows, adding .exe"
+#               EXTENSION=".exe"
+#             fi
+#             CGO_ENABLED=0 go build -o "dist/${CIRCLE_PROJECT_REPONAME}_${GOOS}_${GOARCH}${EXTENSION}" -ldflags "-X github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/cmd.Version=${VERSION}"
+#             if [ "$GOOS" == "linux" ] && [ "$GOARCH" == "amd64" ]; then
+#                ./dist/${CIRCLE_PROJECT_REPONAME}_${GOOS}_${GOARCH} --version
+#             fi
+#             cd dist/ && gzip *
+#       - persist_to_workspace:
+#           name: save distributions
+#           root: .
+#           paths:
+#             - ./dist
 
-  test:
-    docker:
-      - image: 'cimg/go:1.22'
-    steps:
-      - checkout
-      - go/load-cache
-      - go/mod-download
-      - go/save-cache
-      - run:
-          name: test
-          command: |
-            go test -short ./... -v -race -coverprofile=coverage.txt -covermode=atomic
-      - codecov/upload
+#   test:
+#     docker:
+#       - image: 'cimg/go:1.22'
+#     steps:
+#       - checkout
+#       - go/load-cache
+#       - go/mod-download
+#       - go/save-cache
+#       - run:
+#           name: test
+#           command: |
+#             go test -short ./... -v -race -coverprofile=coverage.txt -covermode=atomic
+#       - codecov/upload
 
-  publish:
-    executor: node/default
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          command: |
-            npm install
-      - run:
-          name: release
-          command: |
-            npx semantic-release
+#   publish:
+#     executor: node/default
+#     steps:
+#       - checkout
+#       - attach_workspace:
+#           at: .
+#       - run:
+#           command: |
+#             npm install
+#       - run:
+#           name: release
+#           command: |
+#             npx semantic-release
 
-workflows:
-  build:
-    jobs:
-      - get-version:
-          filters:
-            branches:
-              only:
-                - main
-          context: semantics-release
-      - build:
-          name: build-linux
-          os: linux
-          arch: amd64
-      - build:
-          matrix:
-            parameters:
-              os: [ linux, darwin, windows ]
-              arch: [ amd64, arm64 ]
-          requires:
-            - get-version
-          filters:
-            branches:
-              only:
-                - main
-      - test:
-          context: cdk-notifier-integration-test
-      - publish:
-          requires:
-            - build
-            - build-amd64-linux
-            - build-amd64-darwin
-            - build-amd64-windows
-            - build-arm64-linux
-            - build-arm64-darwin
-            - build-arm64-windows
-            - test
-          context: semantics-release
-          filters:
-            branches:
-              only:
-                - main
+# workflows:
+#   build:
+#     jobs:
+#       - get-version:
+#           filters:
+#             branches:
+#               only:
+#                 - main
+#           context: semantics-release
+#       - build:
+#           name: build-linux
+#           os: linux
+#           arch: amd64
+#       - build:
+#           matrix:
+#             parameters:
+#               os: [ linux, darwin, windows ]
+#               arch: [ amd64, arm64 ]
+#           requires:
+#             - get-version
+#           filters:
+#             branches:
+#               only:
+#                 - main
+#       - test:
+#           context: cdk-notifier-integration-test
+#       - publish:
+#           requires:
+#             - build
+#             - build-amd64-linux
+#             - build-amd64-darwin
+#             - build-amd64-windows
+#             - build-arm64-linux
+#             - build-arm64-darwin
+#             - build-arm64-windows
+#             - test
+#           context: semantics-release
+#           filters:
+#             branches:
+#               only:
+#                 - main
