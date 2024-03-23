@@ -418,7 +418,7 @@ func TestGetJobLink(t *testing.T) {
 	// Set up test cases
 	os.Setenv("CDK_NOTIFIER_DEACTIVATE_JOB_LINK", "false")
 	os.Setenv("CIRCLECI", "false")
-	os.Setenv("GITHUB_ACTIONS", "false")
+	os.Setenv("GITHUB_ACTIONS", "")
 	cases := []struct {
 		name     string
 		envVars  map[string]string
