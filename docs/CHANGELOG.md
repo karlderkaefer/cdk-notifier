@@ -1,3 +1,10 @@
+# [2.12.0](https://github.com/karlderkaefer/cdk-notifier/compare/v2.11.1...v2.12.0) (2024-03-23)
+
+
+### Features
+
+* trigger release for max comment length 24cee10 ([1b205d0](https://github.com/karlderkaefer/cdk-notifier/commit/1b205d094003c3cd304d3c7ec86b4ea033fe4ab2)), closes [#154](https://github.com/karlderkaefer/cdk-notifier/issues/154)
+
 ## [2.11.1](https://github.com/karlderkaefer/cdk-notifier/compare/v2.11.0...v2.11.1) (2024-03-01)
 
 
