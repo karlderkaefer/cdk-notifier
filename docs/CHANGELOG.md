@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.12.3] - 2024-04-14
+
+### 🐛 Bug Fixes
+
+- *(ci)* Passing version to ldflags by @karlderkaefer ([9867a19](9867a193501058662296c34431eb5b66adb1d0a0))
+
+
 ## [2.12.2] - 2024-04-14
 
 ### 🐛 Bug Fixes
