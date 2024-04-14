@@ -67,7 +67,7 @@ The docker image is available on [dockerhub](https://hub.docker.com/r/karlderkae
 As alternative to passing arguments to cli you can create a env file with required variables, this is an example for github.
 
 ```bash
-cat <<EOF >
+cat <<EOF > docker.env
 REPO_OWNER=karlderkaefer
 PR_ID=156
 REPO_NAME=cdk-notifier
