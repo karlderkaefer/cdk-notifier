@@ -1,0 +1,73 @@
+name: release
+
+on:
+  push:
+    branches:
+      - "main"
+
+permissions:
+  contents: read
+
+jobs:
+  generate-changelog:
+    runs-on: ubuntu-latest
+    needs: 
+      - goreleaser
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Generate a changelog
+        uses: orhun/git-cliff-action@v3
+        with:
+          config: cliff.toml
+          args: --verbose
+        env:
+          OUTPUT: docs/CHANGELOG.md
+      
+      - name: Commit files
+        id: commit
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit."
+            echo "hasdiff=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Changes detected."
+            echo "hasdiff=true" >> "$GITHUB_OUTPUT"
+            git config --local user.email "github-actions[bot]@users.noreply.github.com"
+            git config --local user.name "github-actions[bot]"
+            git add docs/CHANGELOG.md
+            git commit -m "chore(docs): update changelog"
+          fi
+      - name: Push changes
+        if: ${{ steps.commit.outputs.hasdiff == 'true' }}
+        uses: ad-m/github-push-action@v0.8.0
+        with:
+          github_token: ${{ secrets.CHANGELOG_GITHUB_TOKEN }}
+  goreleaser:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Go
+        uses: actions/setup-go@v4
+      - name: Install GoReleaser
+        uses: goreleaser/goreleaser-action@v4
+        with:
+          install-only: true
+      - name: Show GoReleaser version
+        run: goreleaser -v
+      - name: Semantic Release
+        uses: cycjimmy/semantic-release-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.CHANGELOG_GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.CHANGELOG_GITHUB_TOKEN }}
+        with:
+          extra_plugins: |
+            @semantic-release/git
+            @semantic-release/exec
