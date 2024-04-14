@@ -72,6 +72,7 @@ REPO_OWNER=karlderkaefer
 PR_ID=156
 REPO_NAME=cdk-notifier
 GITHUB_TOKEN=***
+EOF
 ```
 
 Then you can run the docker image with the env file.
