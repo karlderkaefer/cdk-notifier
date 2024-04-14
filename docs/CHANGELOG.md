@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### 📚 Documentation
+
+- Add docker instruction by @karlderkaefer ([8f62ba6](8f62ba6504a79ba5eaa34470c113f12092f685c3))
+
+
 ## [2.12.3] - 2024-04-14
 
 ### 🐛 Bug Fixes
