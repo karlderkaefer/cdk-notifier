@@ -60,6 +60,27 @@ cdk-notifier --help
 
 ```
 
+### Using docker
+
+The docker image is available on [dockerhub](https://hub.docker.com/r/karlderkaefer/cdk-notifier).
+
+As alternative to passing arguments to cli you can create a env file with required variables, this is an example for github.
+
+```bash
+cat <<EOF >
+REPO_OWNER=karlderkaefer
+PR_ID=156
+REPO_NAME=cdk-notifier
+GITHUB_TOKEN=***
+```
+
+Then you can run the docker image with the env file.
+
+```bash
+docker run -v $(pwd)/data:/data --env-file docker.env karlderkaefer/cdk-notifier -l /data/cdk-diff1.log
+$ time="2024-04-14T14:57:50Z" level=info msg="Created comment with id 2054088709 and tag id stack https://github.com/karlderkaefer/cdk-notifier/pull/156#issuecomment-2054088709"
+```
+
 ## Usage
 
 First create the output of cdk diff to file. You can stream cdk diff to stdout and to file with following.
