@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 - Add docker instruction by @karlderkaefer ([8f62ba6](8f62ba6504a79ba5eaa34470c113f12092f685c3))
 - Update docker setup by @karlderkaefer ([31f376a](31f376a4b7e93809c8cdd9309c9f044ff945f9f4))
+- Update docker setup by @karlderkaefer ([9b1db0a](9b1db0ad8129895a14af83d14c5674197e093724))
 
 
 ## [2.12.3] - 2024-04-14
