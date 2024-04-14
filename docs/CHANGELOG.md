@@ -2,20 +2,6 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.12.4] - 2024-04-14
-
-### 🐛 Bug Fixes
-
-- *(ci)* Release config for gz by @karlderkaefer ([ac3a9bb](ac3a9bb373bc850e493db4765834da1233500602))
-
-
-## [2.12.3] - 2024-04-14
-
-### 🐛 Bug Fixes
-
-- *(ci)* Use gz format by @karlderkaefer ([64f32ab](64f32abb7b1276de4ddb9428bd9cc4fb3cfa7020))
-
-
 ## [2.12.2] - 2024-04-14
 
 ### 🐛 Bug Fixes
@@ -25,6 +11,8 @@ All notable changes to this project will be documented in this file.
 - *(ci)* Run CVE scan only on main by @karlderkaefer ([5258374](52583745229c3444a60b1dd14108d1d3dd6f6c03))
 - *(ci)* Linting seed by @karlderkaefer ([98f32d3](98f32d356960f493075367c14bd1a45dea2eb351))
 - *(ci)* Ldflag version by @karlderkaefer ([4b93eb4](4b93eb47533fee6fd33457f62aec12714f8d7e74))
+- *(ci)* Use gz format by @karlderkaefer ([64f32ab](64f32abb7b1276de4ddb9428bd9cc4fb3cfa7020))
+- *(ci)* Release config for gz by @karlderkaefer ([ac3a9bb](ac3a9bb373bc850e493db4765834da1233500602))
 
 
 ## [2.12.1] - 2024-04-01
