@@ -22,6 +22,8 @@ archives:
       {{ .ProjectName }}_
       {{- .Os }}_
       {{- .Arch }}{{ with .Arm }}v{{ . }}{{ end }}
+    files:
+      - none*
 checksum:
   name_template: "checksums.txt"
 snapshot:
