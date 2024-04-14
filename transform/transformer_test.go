@@ -188,11 +188,11 @@ type TruncateTest struct {
 }
 
 func randomStringRunes(n int) string {
-	rand.Seed(time.Now().UnixNano())
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 	b := make([]rune, n)
 	for i := range b {
-		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+		b[i] = letterRunes[r.Intn(len(letterRunes))]
 	}
 	return string(b)
 }
@@ -418,6 +418,7 @@ func TestGetJobLink(t *testing.T) {
 	// Set up test cases
 	os.Setenv("CDK_NOTIFIER_DEACTIVATE_JOB_LINK", "false")
 	os.Setenv("CIRCLECI", "false")
+	os.Setenv("GITHUB_ACTIONS", "")
 	cases := []struct {
 		name     string
 		envVars  map[string]string
