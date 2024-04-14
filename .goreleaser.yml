@@ -16,7 +16,7 @@ builds:
     ldflags:
       - -X cmd.Version={{.Version}}
 archives:
-  - format: tar.gz
+  - format: gz
     # this name template makes the OS and Arch compatible with the results of uname.
     name_template: >-
       {{ .ProjectName }}_
