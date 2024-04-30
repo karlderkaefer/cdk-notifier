@@ -2,7 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [2.12.4] - 2024-04-30
+
+### 🐛 Bug Fixes
+
+- Arm64 docker image by @karlderkaefer ([f6206a9](f6206a97bf2453ed53a81ca88dab0c2bc6b4ac95))
 
 ### 📚 Documentation
 
