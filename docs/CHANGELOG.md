@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.12.5] - 2024-05-01
+
+### 🐛 Bug Fixes
+
+- *(deps)* Update golang dependencies by @renovate[bot] ([6d86342](6d86342cc46374c851a1c87aebe8eff2cc6d7618))
+
+
 ## [2.12.4] - 2024-04-30
 
 ### 🐛 Bug Fixes
