@@ -2,7 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [2.12.7] - 2024-06-01
+
+### 🐛 Bug Fixes
+
+- *(deps)* Update module github.com/google/go-github/v53 to v62 by @renovate[bot] ([48e3a9a](48e3a9adaea04187e4502f22c1b9c8d4a0a94f0e))
+- Migrate deprecated github enterprise client by @karlderkaefer ([1922260](1922260e52eeb7a8343230d71246d080ad813660))
 
 
 ## [2.12.6] - 2024-06-01
