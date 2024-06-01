@@ -2,5 +2,20 @@
   "extends": [
     "github>karlderkaefer/renovate-config:golang",
     "schedule:monthly"
+  ],
+  "packageRules": [
+    {
+      "matchPackagePatterns": [
+        "^github.com/google/go-github/"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "automerge": true
+    }
+  ],
+  "postUpdateOptions": [
+    "gomodUpdateImportPaths",
+    "gomodTidy"
   ]
 }
