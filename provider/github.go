@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/google/go-github/v53/github"
+	"github.com/google/go-github/v62/github"
 	"github.com/karlderkaefer/cdk-notifier/config"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
@@ -50,10 +50,9 @@ func NewGithubClient(ctx context.Context, cfg config.NotifierConfig) (*GithubCli
 
 	switch cfg.Vcs {
 	case config.VcsGithubEnterprise:
-		c.Client, err = github.NewEnterpriseClient(
+		c.Client, err = github.NewClient(tokenClient).WithEnterpriseURLs(
 			fmt.Sprintf("https://%s/api/v3", cfg.GithubHost),
 			fmt.Sprintf("https://%s/api/upload", cfg.GithubHost),
-			tokenClient,
 		)
 		logrus.Infof("Using GitHub Enterprise Client: %s", cfg.GithubHost)
 	default:
