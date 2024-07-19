@@ -5,6 +5,7 @@ import (
 	"os"
 	"text/template"
 
+	"github.com/Masterminds/sprig/v3"
 	"github.com/sirupsen/logrus"
 )
 
@@ -161,7 +162,7 @@ func (ct *commentTemplate) getCustomTemplate() (string, error) {
 func (t *commentTemplate) render() (string, error) {
 	templateContent := t.ChooseTemplate().getTemplateContent()
 	logrus.Debugf("Using template content %s", templateContent)
-	tmpl, err := template.New("commentTemplate").Parse(templateContent)
+	tmpl, err := template.New("commentTemplate").Funcs(sprig.FuncMap()).Parse(templateContent)
 	if err != nil {
 		return "", err
 	}
