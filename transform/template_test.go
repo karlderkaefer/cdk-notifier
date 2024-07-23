@@ -112,9 +112,9 @@ func TestCommentTemplateChooseTemplate(t *testing.T) {
 
 func TestRender(t *testing.T) {
 	tests := []struct {
-		name      string
-		template  commentTemplate
-		expected  string
+		name        string
+		template    commentTemplate
+		expected    string
 		expectError bool
 	}{
 		{
@@ -123,7 +123,7 @@ func TestRender(t *testing.T) {
 				customTemplate: "cdk diff {{.TagID}}!",
 				TagID:          "small",
 			},
-			expected:  "cdk diff small!",
+			expected:    "cdk diff small!",
 			expectError: false,
 		},
 		{
@@ -131,7 +131,7 @@ func TestRender(t *testing.T) {
 			template: commentTemplate{
 				customTemplate: "cdk diff {{.TagID}}!",
 			},
-			expected:  "cdk diff !",
+			expected: "cdk diff !",
 		},
 		{
 			name: "WithInvalidTemplate",
@@ -139,8 +139,16 @@ func TestRender(t *testing.T) {
 				customTemplate: "cdk diff {{.TagID}!",
 				TagID:          "small",
 			},
-			expected:  "",
+			expected:    "",
 			expectError: true,
+		},
+		{
+			name: "WithCustomSprigTemplate",
+			template: commentTemplate{
+				customTemplate: "cdk diff {{ upper \"badgers\" }}",
+			},
+			expected:    "cdk diff BADGERS",
+			expectError: false,
 		},
 	}
 
