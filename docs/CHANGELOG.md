@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.13.0] - 2024-07-23
+
+### 🚀 Features
+
+- Add Sprig template funcs by @joshmyers ([9dfa742](9dfa74243f817e421d8b652e701188f2e9109350))
+
+
 ## [2.12.7] - 2024-06-01
 
 ### 🐛 Bug Fixes
