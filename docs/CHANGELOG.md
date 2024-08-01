@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.13.1] - 2024-08-01
+
+### 🐛 Bug Fixes
+
+- *(deps)* Update module github.com/google/go-github/v62 to v63 by @renovate[bot] ([58e1f01](58e1f01f56f24c1ad8423606609060aa44a40c8d))
+
+
 ## [2.13.0] - 2024-07-23
 
 ### 🚀 Features
