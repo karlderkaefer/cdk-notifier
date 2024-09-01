@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+
 ## [2.13.1] - 2024-08-01
 
 ### 🐛 Bug Fixes
@@ -392,11 +395,6 @@ All notable changes to this project will be documented in this file.
 ## [2.2.0] - 2022-08-23
 
 
-
-
-## New Contributors
-* @napalm684 made their first contribution
-
 ## [2.1.1] - 2022-08-23
 
 
@@ -412,11 +410,6 @@ All notable changes to this project will be documented in this file.
 - Update README.md [skip ci] by @allcontributors[bot] ([1556794](1556794a56998fde8dbf2fff11163361eb0975d4))
 - Create .all-contributorsrc [skip ci] by @allcontributors[bot] ([ab4dd52](ab4dd52432126e8a461f8db105689eecb3992544))
 
-
-
-
-## New Contributors
-* @ made their first contribution in [#45](https://github.com/karlderkaefer/cdk-notifier/pull/45)
 
 ## [2.0.2] - 2022-07-30
 
