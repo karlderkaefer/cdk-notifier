@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.13.5] - 2024-12-01
+
+### 🐛 Bug Fixes
+
+- *(deps)* Update module github.com/google/go-github/v66 to v67 by @renovate[bot] ([3f25e90](3f25e904972b0f2e10775eff5037fdbda578c0b3))
+
+
 ## [2.13.4] - 2024-11-01
 
 ### 🐛 Bug Fixes
