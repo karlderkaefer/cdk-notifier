@@ -7,7 +7,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/google/go-github/v67/github"
+	"github.com/google/go-github/v68/github"
 	"github.com/karlderkaefer/cdk-notifier/config"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -96,8 +96,8 @@ func TestUpdateExistingComment(t *testing.T) {
 	initLogger()
 	commentsMock := []*github.IssueComment{
 		{
-			ID:   github.Int64(1),
-			Body: github.String(fmt.Sprintf("%s %s\n%s", HeaderPrefix, defaultTag, "hello-word")),
+			ID:   github.Ptr(int64(1)),
+			Body: github.Ptr(fmt.Sprintf("%s %s\n%s", HeaderPrefix, defaultTag, "hello-word")),
 		},
 	}
 	client := defaultTestGithubProvider(commentsMock)
@@ -134,8 +134,8 @@ func TestGithubClient_DeleteComment(t *testing.T) {
 	initLogger()
 	commentsMock := []*github.IssueComment{
 		{
-			ID:   github.Int64(1),
-			Body: github.String(fmt.Sprintf("%s %s\n%s", HeaderPrefix, defaultTag, "hello-word")),
+			ID:   github.Ptr(int64(1)),
+			Body: github.Ptr(fmt.Sprintf("%s %s\n%s", HeaderPrefix, defaultTag, "hello-word")),
 		},
 	}
 	client := defaultTestGithubProvider(commentsMock)
@@ -155,8 +155,8 @@ func TestGithubClient_ListComments(t *testing.T) {
 	var commentsMock []*github.IssueComment
 	for i := 1; i <= maxLength; i++ {
 		commentsMock = append(commentsMock, &github.IssueComment{
-			ID:   github.Int64(int64(i)),
-			Body: github.String(fmt.Sprintf("%s example-%d", HeaderPrefix, i)),
+			ID:   github.Ptr(int64(i)),
+			Body: github.Ptr(fmt.Sprintf("%s example-%d", HeaderPrefix, i)),
 		})
 	}
 	client := defaultTestGithubProvider(commentsMock)
