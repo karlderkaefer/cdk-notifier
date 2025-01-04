@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [2.13.6] - 2025-01-04
+
+### 🐛 Bug Fixes
+
+- *(deps)* Update golang dependencies by @renovate[bot] ([986ac47](986ac475ea1c90fda599d6583fa3edc5e06f232a))
+- Adapt migrated golang client from gitlab.com by @karlderkaefer ([0cd80d4](0cd80d435289eec434cc2cbe734efa801115a7ba))
+- Upgrade github client to v68 by @karlderkaefer ([6457e6e](6457e6e5402ec818b94eaef86701676e5c51c8e3))
 
 
 ## [2.13.5] - 2024-12-01
