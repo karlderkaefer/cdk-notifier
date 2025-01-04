@@ -27,7 +27,7 @@ jobs:
         env:
           BITBUCKET_TEST_TOKEN: ${{ secrets.BITBUCKET_TEST_TOKEN }}
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
   
   docker-build:
     runs-on: ubuntu-latest
@@ -55,7 +55,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - uses: docker/build-push-action@v5
+      - uses: docker/build-push-action@v6
         with:
           context: .
           # push only on main or on tags
