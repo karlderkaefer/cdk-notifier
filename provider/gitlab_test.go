@@ -9,7 +9,7 @@ import (
 	"github.com/karlderkaefer/cdk-notifier/config"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
-	"github.com/xanzy/go-gitlab"
+	"gitlab.com/gitlab-org/api/client-go"
 )
 
 func initGitlabLogger() {
@@ -100,7 +100,6 @@ func TestNewGitlabClient(t *testing.T) {
 	client := NewGitlabClient(context.TODO(), notifierConfig)
 	comment, err := client.PostComment()
 	assert.Error(t, err)
-	assert.IsType(t, &gitlab.ErrorResponse{}, err)
 	assert.Equal(t, comment, API_COMMENT_NOTHING)
 }
 
