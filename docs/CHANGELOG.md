@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.13.7] - 2025-02-21
+
+### 🐛 Bug Fixes
+
+- *(deps)* Update golang dependencies by @renovate[bot] ([93bec59](93bec59988afe8437d00af1439bd37b15291f8ba))
+- *(deps)* Fix(deps): bump golang.org/x/crypto from 0.26.0 to 0.31.0 by @dependabot[bot] in [#186](https://github.com/karlderkaefer/cdk-notifier/pull/186)  ([d1a3510](d1a35101a9ac43745556e6e328f5b6c609f403de))
+
+
+
+
+## New Contributors
+* @dependabot[bot] made their first contribution in [#186](https://github.com/karlderkaefer/cdk-notifier/pull/186)
+
 ## [2.13.6] - 2025-01-04
 
 ### 🐛 Bug Fixes
