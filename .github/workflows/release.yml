@@ -63,7 +63,7 @@ jobs:
       - name: Show GoReleaser version
         run: goreleaser -v
       - name: Semantic Release
-        uses: cycjimmy/semantic-release-action@v3
+        uses: cycjimmy/semantic-release-action@v4
         env:
           GITHUB_TOKEN: ${{ secrets.CHANGELOG_GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.CHANGELOG_GITHUB_TOKEN }}
