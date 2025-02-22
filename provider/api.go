@@ -77,7 +77,8 @@ func postComment(ns NotifierService, config config.NotifierConfig) (CommentOpera
 	}
 	if comment != nil {
 		// if commit exists but there are no change then delete comment in case DeleteComment is active
-		if config.DeleteComment && !diffHasChanges(ns.GetCommentContent()) {
+		// always execute if DeleteComment and ForceDeleteComment is true
+		if config.DeleteComment && (config.ForceDeleteComment || !diffHasChanges(ns.GetCommentContent())) {
 			err = ns.DeleteComment(comment.Id)
 			if err != nil {
 				logrus.Error(err)

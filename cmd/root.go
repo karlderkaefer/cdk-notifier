@@ -39,7 +39,8 @@ var rootCmd = &cobra.Command{
 			logrus.Warnf("Suppressing hash changes detected %d hash changes and %d total changes", transformer.HashChanges, transformer.TotalChanges)
 			if transformer.TotalChanges == transformer.HashChanges {
 				logrus.Warnf("Skipping... because suppress-hash-changes is set and only hash changes detected")
-				return
+				// if there are only hash changes we also want to delete the comment
+				appConfig.ForceDeleteComment = true
 			}
 		}
 
