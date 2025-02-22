@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.14.0] - 2025-02-22
+
+### 🚀 Features
+
+- Configurable hash detector regex by @karlderkaefer ([206cbf2](206cbf22ae2be2f0b1131fe570092766dfef42c9))
+- Delete comment if only hash changes detected by @karlderkaefer ([e58b6ca](e58b6cadaee9d98097bd5822f0eb1ef9684ea179))
+
+
 ## [2.13.7] - 2025-02-21
 
 ### 🐛 Bug Fixes
