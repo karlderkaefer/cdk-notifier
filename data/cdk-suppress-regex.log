@@ -1,0 +1,12 @@
+Resources
+[~] AWS::ECS::TaskDefinition Service/Kitu/TaskDef KituTaskDef078AED91 replace
+ └─ [~] ContainerDefinitions (requires replacement)
+     └─ @@ -67,7 +67,7 @@
+        [ ]       {
+        [ ]         "Ref": "AWS::URLSuffix"
+        [ ]       },
+        [-]       "/kitu:444056a84a62f4af0a34df9913fb73d5010f20af"
+        [+]       "/kitu:005327c14a639fb661a33c45cde3cad8e663b990"
+        [ ]     ]
+        [ ]   ]
+        [ ] },

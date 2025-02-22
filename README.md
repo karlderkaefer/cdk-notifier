@@ -225,7 +225,7 @@ my custom template
 
 ## Config Priority Mapping
 The config for CDK-Notifier is mapping in following priority (from low to high)
-1. Environment Variables of Map Struct
+1. Environment Variables of Map Struct. For full list of Envs please check [code](https://github.com/karlderkaefer/cdk-notifier/blob/7e8b72d91096f7ee1c3fc1d97fb68ab84a129bc2/cmd/root.go#L109-L130)
     ```
     REPO_NAME
     REPO_OWNER
@@ -256,7 +256,11 @@ The diff output file is using same path of cdk log file, but is appending `.diff
 
 See github issue [issue#125](https://github.com/karlderkaefer/cdk-notifier/issues/125).
 In case you want to suppress any hash changes in the diff, you can use the flag `--suppress-hash-changes`.
-For example this would not post a diff for any changes in the hash of the resources [see example](./data/cdk-diff-resources-changes.log).
+For example this would not post a diff for any changes in the hash of the resources [see example](./data/cdk-diff-resources-changes.log). You can override the regex that is used to detect hash changes with the flag `--suppress-hash-changes-regex` or setting the Environment Variable `SUPPRESS_HASH_CHANGES_REGEX`.
+
+```bash
+cdk-notifier -l data/cdk-suppress-regex.log --tag-id test --suppress-hash-changes --suppress-hash-changes-regex "^[+-].*?[a-fA-F0-9]{40}"
+```
 
 ## Security
 **Disclaimer**: Consider using on private repositories only.

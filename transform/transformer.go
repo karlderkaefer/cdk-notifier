@@ -36,6 +36,7 @@ type LogTransformer struct {
 	ProcessorsChain           LineProcessor
 	TotalChanges              int
 	HashChanges               int
+	SuppressHashChangesRegex  string
 }
 
 type ResourceMetric struct {
@@ -69,16 +70,17 @@ func (p *BaseProcessor) ProcessLine(line string, lt *LogTransformer) string {
 // NewLogTransformer create new log transfer based on config.AppConfig
 func NewLogTransformer(config *config.NotifierConfig) *LogTransformer {
 	lt := &LogTransformer{
-		LogContent:             "",
-		Logfile:                config.LogFile,
-		TagID:                  config.TagID,
-		NoPostMode:             config.NoPostMode,
-		Vcs:                    config.Vcs,
-		DisableCollapse:        config.DisableCollapse,
-		ShowOverview:           config.ShowOverview,
-		Template:               config.Template,
-		CustomTemplate:         config.CustomTemplate,
-		GithubMaxCommentLength: config.GithubMaxCommentLength,
+		LogContent:               "",
+		Logfile:                  config.LogFile,
+		TagID:                    config.TagID,
+		NoPostMode:               config.NoPostMode,
+		Vcs:                      config.Vcs,
+		DisableCollapse:          config.DisableCollapse,
+		ShowOverview:             config.ShowOverview,
+		Template:                 config.Template,
+		CustomTemplate:           config.CustomTemplate,
+		GithubMaxCommentLength:   config.GithubMaxCommentLength,
+		SuppressHashChangesRegex: config.SuppressHashChangesRegex,
 	}
 	lt.initProcessorsChain()
 	return lt
@@ -216,7 +218,7 @@ func (p *IgnoreHashesProcessor) ProcessLine(line string, lt *LogTransformer) str
 	if regex.MatchString(line) {
 		lt.TotalChanges++
 		// https://regex101.com/r/WbUrKv/1
-		regexHash := regexp.MustCompile(`^[+-].*?[a-fA-F0-9]{64,65}`)
+		regexHash := regexp.MustCompile(lt.SuppressHashChangesRegex)
 		if regexHash.MatchString(line) {
 			lt.HashChanges++
 		}
