@@ -488,6 +488,7 @@ func TestIgnoreHashesProcessor_ProcessLine(t *testing.T) {
 		line           string
 		expectedTotal  int
 		expectedHashes int
+		suppressRegex  string
 	}{
 		{
 			line:           "+ some line",
@@ -529,12 +530,23 @@ func TestIgnoreHashesProcessor_ProcessLine(t *testing.T) {
 			expectedTotal:  1,
 			expectedHashes: 1,
 		},
+		{
+			line:           "+        [+]       \"/kitu:005327c14a639fb661a33c45cde3cad8e663b990",
+			expectedTotal:  1,
+			expectedHashes: 0,
+		},
+		{
+			line:           "+        [+]       \"/kitu:005327c14a639fb661a33c45cde3cad8e663b990",
+			expectedTotal:  1,
+			expectedHashes: 1,
+			suppressRegex:  `^[+-].*?[a-fA-F0-9]{40}`,
+		},
 	}
 
 	processor := &IgnoreHashesProcessor{
 		BaseProcessor: BaseProcessor{},
 	}
-
+	
 	lt := &LogTransformer{
 		TotalChanges: 0,
 		HashChanges:  0,
@@ -543,6 +555,10 @@ func TestIgnoreHashesProcessor_ProcessLine(t *testing.T) {
 	for _, c := range cases {
 		lt.TotalChanges = 0
 		lt.HashChanges = 0
+		lt.SuppressHashChangesRegex = config.DefaultSuppressHashChangesRegex
+		if c.suppressRegex != "" {
+			lt.SuppressHashChangesRegex = c.suppressRegex
+		}
 		processor.ProcessLine(c.line, lt)
 		assert.Equal(t, c.expectedTotal, lt.TotalChanges)
 		assert.Equal(t, c.expectedHashes, lt.HashChanges)

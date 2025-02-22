@@ -105,6 +105,7 @@ func init() {
 	rootCmd.Flags().String("template", "default", "Template to use for comment [default|extended|extendedWithResources]")
 	rootCmd.Flags().String("custom-template", "", "File path or string input to custom template. When set it will override the template flag.")
 	rootCmd.Flags().Bool("suppress-hash-changes", false, "EXPERIMENTAL: when set to true it will ignore changes in hash values")
+	rootCmd.Flags().String("suppress-hash-changes-regex", config.DefaultSuppressHashChangesRegex, "Define Regex to suppress hash changes. Only used when suppress-hash-changes is set to true")
 
 	// mapping for viper [mapstruct value, flag name]
 	viperMappings := make(map[string]string)
@@ -128,6 +129,7 @@ func init() {
 	viperMappings["GITHUB_ENTERPRISE_HOST"] = "github-host"
 	viperMappings["GITHUB_ENTERPRISE_MAX_COMMENT_LENGTH"] = "github-max-comment-length"
 	viperMappings["SUPPRESS_HASH_CHANGES"] = "suppress-hash-changes"
+	viperMappings["SUPPRESS_HASH_CHANGES_REGEX"] = "suppress-hash-changes-regex"
 
 	for k, v := range viperMappings {
 		err := viper.BindPFlag(k, rootCmd.Flags().Lookup(v))

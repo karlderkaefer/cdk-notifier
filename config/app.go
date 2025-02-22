@@ -11,6 +11,11 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	// Default regex for supressing hash changes
+	DefaultSuppressHashChangesRegex string = `^[+-].*?[a-fA-F0-9]{64,65}`
+)
+
 // ValidationError indicated a missing configuration either CLI argument or environment variable
 type ValidationError struct {
 	CliArg string
@@ -115,26 +120,26 @@ const (
 
 // NotifierConfig holds configuration
 type NotifierConfig struct {
-	LogFile                string `mapstructure:"LOG_FILE"`
-	TagID                  string `mapstructure:"TAG_ID"`
-	RepoName               string `mapstructure:"REPO_NAME"`
-	RepoOwner              string `mapstructure:"REPO_OWNER"`
-	Token                  string `mapstructure:"TOKEN"`
-	TokenUser              string `mapstructure:"TOKEN_USER"`
-	PullRequestID          int    `mapstructure:"PR_ID"`
-	DeleteComment          bool   `mapstructure:"DELETE_COMMENT"`
-	Vcs                    string `mapstructure:"VERSION_CONTROL_SYSTEM"`
-	Ci                     string `mapstructure:"CI_SYSTEM"`
-	Url                    string `mapstructure:"URL"`
-	GithubHost             string `mapstructure:"GITHUB_ENTERPRISE_HOST"`
-	GithubMaxCommentLength int    `mapstructure:"GITHUB_ENTERPRISE_MAX_COMMENT_LENGTH"`
-	NoPostMode             bool   `mapstructure:"NO_POST_MODE"`
-	DisableCollapse        bool   `mapstructure:"DISABLE_COLLAPSE"`
-	// TODO deprecated
-	ShowOverview        bool   `mapstructure:"SHOW_OVERVIEW"`
-	Template            string `mapstructure:"NOTIFIER_TEMPLATE"`
-	CustomTemplate      string `mapstructure:"CUSTOM_TEMPLATE"`
-	SuppressHashChanges bool   `mapstructure:"SUPPRESS_HASH_CHANGES"`
+	LogFile                  string `mapstructure:"LOG_FILE"`
+	TagID                    string `mapstructure:"TAG_ID"`
+	RepoName                 string `mapstructure:"REPO_NAME"`
+	RepoOwner                string `mapstructure:"REPO_OWNER"`
+	Token                    string `mapstructure:"TOKEN"`
+	TokenUser                string `mapstructure:"TOKEN_USER"`
+	PullRequestID            int    `mapstructure:"PR_ID"`
+	DeleteComment            bool   `mapstructure:"DELETE_COMMENT"`
+	Vcs                      string `mapstructure:"VERSION_CONTROL_SYSTEM"`
+	Ci                       string `mapstructure:"CI_SYSTEM"`
+	Url                      string `mapstructure:"URL"`
+	GithubHost               string `mapstructure:"GITHUB_ENTERPRISE_HOST"`
+	GithubMaxCommentLength   int    `mapstructure:"GITHUB_ENTERPRISE_MAX_COMMENT_LENGTH"`
+	NoPostMode               bool   `mapstructure:"NO_POST_MODE"`
+	DisableCollapse          bool   `mapstructure:"DISABLE_COLLAPSE"`
+	Template                 string `mapstructure:"NOTIFIER_TEMPLATE"`
+	CustomTemplate           string `mapstructure:"CUSTOM_TEMPLATE"`
+	SuppressHashChanges      bool   `mapstructure:"SUPPRESS_HASH_CHANGES"`
+	SuppressHashChangesRegex string `mapstructure:"SUPPRESS_HASH_CHANGES_REGEX"`
+	ShowOverview             bool   `mapstructure:"SHOW_OVERVIEW"` // TODO deprecated
 }
 
 // Init will create default NotifierConfig with following priority
