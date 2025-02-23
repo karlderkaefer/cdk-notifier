@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### 📚 Documentation
+
+- Docs: add regex requester by @karlderkaefer in [#191](https://github.com/karlderkaefer/cdk-notifier/pull/191)  ([c7aa6a1](c7aa6a1883723f1b2ec6b15c4e7dbba9cabf1678))
+
+
 ## [2.14.0] - 2025-02-22
 
 ### 🚀 Features
