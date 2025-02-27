@@ -96,7 +96,7 @@ func postComment(ns NotifierService, config config.NotifierConfig) (CommentOpera
 		logrus.Infof("Updated comment with id %d and tag id %s %v", comment.Id, config.TagID, comment.Link)
 		return API_COMMENT_UPDATED, nil
 	}
-	if !diffHasChanges(ns.GetCommentContent()) {
+	if config.ForceDeleteComment || !diffHasChanges(ns.GetCommentContent()) {
 		logrus.Infof("There is no diff detected for tag id %s. Skip posting diff.", config.TagID)
 		return API_COMMENT_NOTHING, nil
 	}
