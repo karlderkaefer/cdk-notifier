@@ -2,7 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [2.14.1] - 2025-03-01
+
+### 🐛 Bug Fixes
+
+- *(deps)* Fix(deps): update golang dependencies by @renovate[bot] in [#194](https://github.com/karlderkaefer/cdk-notifier/pull/194)  ([bc647b9](bc647b9f03f39e162f7ab8bd390f2e38f869c9df))
 
 ### 📚 Documentation
 
