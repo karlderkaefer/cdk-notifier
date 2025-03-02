@@ -2,7 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [2.14.2] - 2025-03-01
+
+### 🐛 Bug Fixes
+
+- *(deps)* Fix(deps): update module github.com/google/go-github/v68 to v69 by @renovate[bot] in [#195](https://github.com/karlderkaefer/cdk-notifier/pull/195)  ([5496ae4](5496ae4f7d85d8fe05dd9a38c92d0e237617ab09))
+
+
+## [2.14.1] - 2025-03-01
+
+### 🐛 Bug Fixes
+
+- *(deps)* Fix(deps): update golang dependencies by @renovate[bot] in [#194](https://github.com/karlderkaefer/cdk-notifier/pull/194)  ([bc647b9](bc647b9f03f39e162f7ab8bd390f2e38f869c9df))
 
 ### 📚 Documentation
 

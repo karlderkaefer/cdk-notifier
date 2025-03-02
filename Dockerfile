@@ -7,7 +7,7 @@
 
 ################################################################################
 # Create a stage for building the application.
-ARG GO_VERSION=1.23
+ARG GO_VERSION=1.24
 FROM --platform=$BUILDPLATFORM golang:${GO_VERSION} AS build
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
