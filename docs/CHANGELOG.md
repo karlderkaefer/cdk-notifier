@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.14.3] - 2025-03-02
+
+### 🐛 Bug Fixes
+
+- Fix: Minor logic bug if hash suppressing by @joshmyers in [#192](https://github.com/karlderkaefer/cdk-notifier/pull/192)  ([c52324c](c52324cab128a1517b9fb0fbbae468bbf1173809))
+
+
 ## [2.14.2] - 2025-03-01
 
 ### 🐛 Bug Fixes
