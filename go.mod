@@ -5,7 +5,7 @@ go 1.23.4
 require (
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d
-	github.com/google/go-github/v72 v72.0.0
+	github.com/google/go-github/v73 v73.0.0
 	github.com/google/go-querystring v1.1.0
 	github.com/quasilyte/go-ruleguard/dsl v0.3.22
 	github.com/sirupsen/logrus v1.9.3

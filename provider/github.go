@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/google/go-github/v72/github"
+	"github.com/google/go-github/v73/github"
 	"github.com/karlderkaefer/cdk-notifier/config"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
