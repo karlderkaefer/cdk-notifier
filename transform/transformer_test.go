@@ -86,8 +86,14 @@ type TemplateTest struct {
 func TestLogTransformer_AddHeader(t *testing.T) {
 
 	// do not add job link
-	os.Setenv("CDK_NOTIFIER_DEACTIVATE_JOB_LINK", "true")
-	defer os.Unsetenv("CDK_NOTIFIER_DEACTIVATE_JOB_LINK")
+	if err := os.Setenv("CDK_NOTIFIER_DEACTIVATE_JOB_LINK", "true"); err != nil {
+		t.Fatalf("failed to set env var: %v", err)
+	}
+	defer func() {
+		if err := os.Unsetenv("CDK_NOTIFIER_DEACTIVATE_JOB_LINK"); err != nil {
+			t.Logf("failed to unset env var: %v", err)
+		}
+	}()
 
 	cases := []TemplateTest{
 		// empty VCS should not have collapsible section
@@ -164,7 +170,11 @@ func TestLogTransformer_WriteDiffFile(t *testing.T) {
 		NoPostMode: false,
 	}
 
-	defer os.Remove(fileDiff)
+	defer func() {
+		if err := os.Remove(fileDiff); err != nil {
+			t.Logf("failed to remove diff file: %v", err)
+		}
+	}()
 
 	err := transformer.writeDiffFile()
 	assert.NoError(t, err)
@@ -416,9 +426,15 @@ func TestResourceDiffExtractorProcessor_ProcessLine(t *testing.T) {
 }
 func TestGetJobLink(t *testing.T) {
 	// Set up test cases
-	os.Setenv("CDK_NOTIFIER_DEACTIVATE_JOB_LINK", "false")
-	os.Setenv("CIRCLECI", "false")
-	os.Setenv("GITHUB_ACTIONS", "")
+	if err := os.Setenv("CDK_NOTIFIER_DEACTIVATE_JOB_LINK", "false"); err != nil {
+		t.Fatalf("failed to set env var: %v", err)
+	}
+	if err := os.Setenv("CIRCLECI", "false"); err != nil {
+		t.Fatalf("failed to set env var: %v", err)
+	}
+	if err := os.Setenv("GITHUB_ACTIONS", ""); err != nil {
+		t.Fatalf("failed to set env var: %v", err)
+	}
 	cases := []struct {
 		name     string
 		envVars  map[string]string
@@ -467,13 +483,17 @@ func TestGetJobLink(t *testing.T) {
 			oldEnv := make(map[string]string)
 			for k, v := range tt.envVars {
 				oldEnv[k] = os.Getenv(k)
-				os.Setenv(k, v)
+				if err := os.Setenv(k, v); err != nil {
+					t.Fatalf("failed to set env var %s: %v", k, err)
+				}
 			}
 
 			// Reset the environment after the test
 			t.Cleanup(func() {
 				for k, v := range oldEnv {
-					os.Setenv(k, v)
+					if err := os.Setenv(k, v); err != nil {
+						t.Logf("failed to reset env var %s: %v", k, err)
+					}
 				}
 			})
 
@@ -546,7 +566,7 @@ func TestIgnoreHashesProcessor_ProcessLine(t *testing.T) {
 	processor := &IgnoreHashesProcessor{
 		BaseProcessor: BaseProcessor{},
 	}
-	
+
 	lt := &LogTransformer{
 		TotalChanges: 0,
 		HashChanges:  0,

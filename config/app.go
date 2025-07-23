@@ -41,7 +41,7 @@ func (p *PullRequest) ConvertUrlToPullRequest(inputUrl string) error {
 	}
 	u, err := url.Parse(inputUrl)
 	if err != nil {
-		return fmt.Errorf("Unable to parse URL for pull request '%s': %w", inputUrl, err)
+		return fmt.Errorf("unable to parse URL for pull request '%s': %w", inputUrl, err)
 	}
 
 	p.Host = u.Host
@@ -63,10 +63,10 @@ func (p *PullRequest) ConvertUrlToPullRequest(inputUrl string) error {
 		p.Repo = path[2]
 		p.Number, err = strconv.Atoi(path[4])
 	default:
-		return fmt.Errorf("Unexpected URL structure for pull request '%s'", inputUrl)
+		return fmt.Errorf("unexpected URL structure for pull request '%s'", inputUrl)
 	}
 	if err != nil {
-		return fmt.Errorf("Unable to extract pull request number from url '%s': %w", inputUrl, err)
+		return fmt.Errorf("unable to extract pull request number from url '%s': %w", inputUrl, err)
 	}
 	return nil
 }
