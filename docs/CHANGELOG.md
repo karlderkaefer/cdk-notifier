@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.14.4] - 2025-07-23
+
+### 🐛 Bug Fixes
+
+- *(deps)* Fix(deps): update golang dependencies by @renovate[bot] in [#197](https://github.com/karlderkaefer/cdk-notifier/pull/197)  ([abde5bd](abde5bd46ad2222176b99ca1de9800d1374f9e54))
+- *(deps)* Fix(deps): update module github.com/google/go-github/v69 to v71 by @renovate[bot] in [#199](https://github.com/karlderkaefer/cdk-notifier/pull/199)  ([20d3582](20d3582d930dd8b30a6574cc168969321e4e6221))
+- *(deps)* Fix(deps): update golang dependencies by @renovate[bot] in [#200](https://github.com/karlderkaefer/cdk-notifier/pull/200)  ([0da524e](0da524edf6f80af0b657987849dbfa6c1a2ee02d))
+- *(deps)* Fix(deps): update module github.com/google/go-github/v71 to v72 by @renovate[bot] in [#201](https://github.com/karlderkaefer/cdk-notifier/pull/201)  ([2c09c0b](2c09c0b2c21e2dae8ed575a52a42b2c439c9cffd))
+- *(deps)* Fix(deps): update module gitlab.com/gitlab-org/api/client-go to v0.130.1 by @renovate[bot] in [#202](https://github.com/karlderkaefer/cdk-notifier/pull/202)  ([787b0c8](787b0c80f11bce41d14197a906560ae16902ce85))
+- *(deps)* Fix(deps): update module github.com/google/go-github/v72 to v73 by @renovate[bot] in [#203](https://github.com/karlderkaefer/cdk-notifier/pull/203)  ([ed7ba3b](ed7ba3b12f5f35a30f2c363e93c976d513dc9611))
+- *(deps)* Chore(deps): update golangci/golangci-lint-action action to v8 by @renovate[bot] in [#198](https://github.com/karlderkaefer/cdk-notifier/pull/198)  ([35ef9c6](35ef9c6c7f6067cc426d427d15c1bf5b53d97e78))
+
+
 ## [2.14.3] - 2025-03-02
 
 ### 🐛 Bug Fixes
