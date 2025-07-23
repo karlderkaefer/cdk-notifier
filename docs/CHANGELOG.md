@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.14.5] - 2025-07-23
+
+### 🐛 Bug Fixes
+
+- Fix: update dependencies by @karlderkaefer in [#205](https://github.com/karlderkaefer/cdk-notifier/pull/205)  ([8b8fd05](8b8fd058d0c404507cc6a3f6bb7fd4882506ec36))
+
+
 ## [2.14.4] - 2025-07-23
 
 ### 🐛 Bug Fixes
