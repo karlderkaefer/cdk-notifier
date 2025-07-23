@@ -253,7 +253,11 @@ func (c *BitbucketClient) Do(ctx context.Context, req *http.Request, v interface
 	if err != nil {
 		return resp, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			logrus.Warnf("failed to close response body: %v", err)
+		}
+	}()
 	body, err := io.ReadAll(resp.Body)
 	decErr := json.Unmarshal(body, v)
 	if decErr != nil {

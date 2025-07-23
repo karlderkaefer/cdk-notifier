@@ -85,7 +85,7 @@ func (gc *GithubClient) CreateComment() (*Comment, error) {
 		return nil, err
 	}
 	if comment == nil {
-		return nil, errors.New("Comment is nil. Please check your GitHub token.")
+		return nil, errors.New("comment is nil, please check your GitHub token")
 	}
 	return transform(comment), err
 }
@@ -96,7 +96,7 @@ func (gc *GithubClient) UpdateComment(id int64) (*Comment, error) {
 		return nil, err
 	}
 	if editedComment == nil {
-		return nil, errors.New("Comment is nil. Please check your GitHub token.")
+		return nil, errors.New("comment is nil, please check your GitHub token")
 	}
 	return transform(editedComment), err
 }

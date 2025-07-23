@@ -176,7 +176,7 @@ func TestNotifierConfig_Init(t *testing.T) {
 				Ci:            CiCircleCi,
 				Vcs: 	  VcsGithub,
 			},
-			err: fmt.Errorf("Unable to extract pull request number from url '%s': %w", "23as", &strconv.NumError{
+			err: fmt.Errorf("unable to extract pull request number from url '%s': %w", "23as", &strconv.NumError{
 				Func: "Atoi",
 				Num:  "23as",
 				Err:  strconv.ErrSyntax,
