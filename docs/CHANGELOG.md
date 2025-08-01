@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.14.6] - 2025-08-01
+
+### 🐛 Bug Fixes
+
+- *(deps)* Fix(deps): update module github.com/google/go-github/v73 to v74 by @renovate[bot] in [#206](https://github.com/karlderkaefer/cdk-notifier/pull/206)  ([d74150f](d74150f4c922e5345ffe0421c8f9a15ada542521))
+
+
 ## [2.14.5] - 2025-07-23
 
 ### 🐛 Bug Fixes
