@@ -12,6 +12,12 @@
       "matchPackageNames": [
         "/^github.com/google/go-github//"
       ]
+    },
+    {
+      "groupName": "Go version",
+      "matchDatasources": ["golang-version", "docker"],
+      "matchPackageNames": ["go", "golang"],
+      "matchDepTypes": ["golang-version"]
     }
   ],
   "postUpdateOptions": [
