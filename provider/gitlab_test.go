@@ -32,7 +32,7 @@ func (p *MockProjectService) GetProject(pid interface{}, opt *gitlab.GetProjectO
 	return project, nil, nil
 }
 
-func (m *MockMergeRequestService) DeleteMergeRequestNote(pid interface{}, mergeRequest, note int, options ...gitlab.RequestOptionFunc) (*gitlab.Response, error) {
+func (m *MockMergeRequestService) DeleteMergeRequestNote(pid interface{}, mergeRequest, note int64, options ...gitlab.RequestOptionFunc) (*gitlab.Response, error) {
 	var index int
 	var found bool
 	for i, currNote := range m.notes {
@@ -50,7 +50,7 @@ func (m *MockMergeRequestService) DeleteMergeRequestNote(pid interface{}, mergeR
 	return nil, nil
 }
 
-func (m *MockMergeRequestService) UpdateMergeRequestNote(pid interface{}, mergeRequest, note int, opt *gitlab.UpdateMergeRequestNoteOptions, options ...gitlab.RequestOptionFunc) (*gitlab.Note, *gitlab.Response, error) {
+func (m *MockMergeRequestService) UpdateMergeRequestNote(pid interface{}, mergeRequest, note int64, opt *gitlab.UpdateMergeRequestNoteOptions, options ...gitlab.RequestOptionFunc) (*gitlab.Note, *gitlab.Response, error) {
 	m.Lock()
 	defer m.Unlock()
 	for i, localNote := range m.notes {
@@ -65,7 +65,7 @@ func (m *MockMergeRequestService) UpdateMergeRequestNote(pid interface{}, mergeR
 	return nil, nil, fmt.Errorf("could not find note with id %d in database %v", note, *opt.Body)
 }
 
-func (m *MockMergeRequestService) CreateMergeRequestNote(pid interface{}, mergeRequest int, opt *gitlab.CreateMergeRequestNoteOptions, options ...gitlab.RequestOptionFunc) (*gitlab.Note, *gitlab.Response, error) {
+func (m *MockMergeRequestService) CreateMergeRequestNote(pid interface{}, mergeRequest int64, opt *gitlab.CreateMergeRequestNoteOptions, options ...gitlab.RequestOptionFunc) (*gitlab.Note, *gitlab.Response, error) {
 	m.Lock()
 	defer m.Unlock()
 	note := &gitlab.Note{
@@ -76,7 +76,7 @@ func (m *MockMergeRequestService) CreateMergeRequestNote(pid interface{}, mergeR
 	return note, nil, nil
 }
 
-func (m *MockMergeRequestService) ListMergeRequestNotes(pid interface{}, mergeRequest int, opt *gitlab.ListMergeRequestNotesOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Note, *gitlab.Response, error) {
+func (m *MockMergeRequestService) ListMergeRequestNotes(pid interface{}, mergeRequest int64, opt *gitlab.ListMergeRequestNotesOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Note, *gitlab.Response, error) {
 	return m.notes, nil, nil
 }
 
@@ -166,7 +166,7 @@ func TestGitlabClient_ListComments(t *testing.T) {
 	var notesMock []*gitlab.Note
 	for i := 1; i <= maxLength; i++ {
 		notesMock = append(notesMock, &gitlab.Note{
-			ID:   i,
+			ID:   int64(i),
 			Body: fmt.Sprintf("%s example-%d", HeaderPrefix, i),
 		})
 	}

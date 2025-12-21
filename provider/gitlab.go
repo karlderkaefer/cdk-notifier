@@ -14,10 +14,10 @@ const GitlabMaxCommentLength = 1000000
 
 // NotesService interface for required Gitlab actions with API
 type GitlabNotesService interface {
-	ListMergeRequestNotes(pid interface{}, mergeRequest int, opt *gitlab.ListMergeRequestNotesOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Note, *gitlab.Response, error)
-	DeleteMergeRequestNote(pid interface{}, mergeRequest, note int, options ...gitlab.RequestOptionFunc) (*gitlab.Response, error)
-	UpdateMergeRequestNote(pid interface{}, mergeRequest, note int, opt *gitlab.UpdateMergeRequestNoteOptions, options ...gitlab.RequestOptionFunc) (*gitlab.Note, *gitlab.Response, error)
-	CreateMergeRequestNote(pid interface{}, mergeRequest int, opt *gitlab.CreateMergeRequestNoteOptions, options ...gitlab.RequestOptionFunc) (*gitlab.Note, *gitlab.Response, error)
+	ListMergeRequestNotes(pid interface{}, mergeRequest int64, opt *gitlab.ListMergeRequestNotesOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Note, *gitlab.Response, error)
+	DeleteMergeRequestNote(pid interface{}, mergeRequest, note int64, options ...gitlab.RequestOptionFunc) (*gitlab.Response, error)
+	UpdateMergeRequestNote(pid interface{}, mergeRequest, note int64, opt *gitlab.UpdateMergeRequestNoteOptions, options ...gitlab.RequestOptionFunc) (*gitlab.Note, *gitlab.Response, error)
+	CreateMergeRequestNote(pid interface{}, mergeRequest int64, opt *gitlab.CreateMergeRequestNoteOptions, options ...gitlab.RequestOptionFunc) (*gitlab.Note, *gitlab.Response, error)
 }
 
 // ProjectsService interface for required Gitlab actions with API
@@ -90,7 +90,7 @@ func (gc *GitlabClient) CreateComment() (*Comment, error) {
 	if err != nil {
 		return nil, err
 	}
-	note, _, err := gc.Notes.CreateMergeRequestNote(projectId, gc.Config.PullRequestID, &gitlab.CreateMergeRequestNoteOptions{Body: &gc.NoteContent})
+	note, _, err := gc.Notes.CreateMergeRequestNote(projectId, int64(gc.Config.PullRequestID), &gitlab.CreateMergeRequestNoteOptions{Body: &gc.NoteContent})
 	return convert(note), err
 }
 
@@ -99,7 +99,7 @@ func (gc *GitlabClient) UpdateComment(id int64) (*Comment, error) {
 	if err != nil {
 		return nil, err
 	}
-	editedNote, _, err := gc.Notes.UpdateMergeRequestNote(projectId, gc.Config.PullRequestID, int(id), &gitlab.UpdateMergeRequestNoteOptions{Body: &gc.NoteContent})
+	editedNote, _, err := gc.Notes.UpdateMergeRequestNote(projectId, int64(gc.Config.PullRequestID), id, &gitlab.UpdateMergeRequestNoteOptions{Body: &gc.NoteContent})
 	return convert(editedNote), err
 }
 
@@ -108,7 +108,7 @@ func (gc *GitlabClient) DeleteComment(id int64) error {
 	if err != nil {
 		return err
 	}
-	_, err = gc.Notes.DeleteMergeRequestNote(projectId, gc.Config.PullRequestID, int(id))
+	_, err = gc.Notes.DeleteMergeRequestNote(projectId, int64(gc.Config.PullRequestID), id)
 	return err
 }
 
@@ -132,7 +132,7 @@ func (gc *GitlabClient) ListComments() ([]Comment, error) {
 	opt := &gitlab.ListMergeRequestNotesOptions{
 		ListOptions: gitlab.ListOptions{PerPage: 100},
 	}
-	notes, _, err := gc.Notes.ListMergeRequestNotes(projectId, gc.Config.PullRequestID, opt)
+	notes, _, err := gc.Notes.ListMergeRequestNotes(projectId, int64(gc.Config.PullRequestID), opt)
 	if err != nil {
 		return nil, err
 	}
