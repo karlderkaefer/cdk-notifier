@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.14.10] - 2025-12-21
+
+### 🐛 Bug Fixes
+
+- Trigger release by @karlderkaefer ([3dbfa9a](3dbfa9a78b5748596db9e9b15b1b630342058abf))
+
+
 ## [2.14.9] - 2025-12-21
 
 ### 🐛 Bug Fixes
