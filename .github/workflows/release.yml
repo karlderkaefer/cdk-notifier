@@ -15,7 +15,7 @@ jobs:
       - goreleaser
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -43,19 +43,19 @@ jobs:
           fi
       - name: Push changes
         if: ${{ steps.commit.outputs.hasdiff == 'true' }}
-        uses: ad-m/github-push-action@v0.8.0
+        uses: ad-m/github-push-action@v1.0.0
         with:
           github_token: ${{ secrets.CHANGELOG_GITHUB_TOKEN }}
   goreleaser:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           persist-credentials: false
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
       - name: Install GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
