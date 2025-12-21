@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.14.9] - 2025-12-21
+
+### 🐛 Bug Fixes
+
+- Fix: upgrade xcrypto by @karlderkaefer in [#213](https://github.com/karlderkaefer/cdk-notifier/pull/213)  ([d264616](d264616079cf3b046e910efe28b331a69f515e76))
+
+
 ## [2.14.8] - 2025-12-21
 
 ### 🐛 Bug Fixes
