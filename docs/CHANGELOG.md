@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.14.12] - 2026-02-01
+
+### 🐛 Bug Fixes
+
+- *(deps)* Fix(deps): update module github.com/google/go-github/v80 to v82 by @renovate[bot] in [#217](https://github.com/karlderkaefer/cdk-notifier/pull/217)  ([720fa95](720fa9557259e26ea0423dbd0937c309a6e469f5))
+
+
 ## [2.14.11] - 2026-02-01
 
 ### 🐛 Bug Fixes
