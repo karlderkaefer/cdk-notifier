@@ -7,7 +7,7 @@ toolchain go1.25.6
 require (
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d
-	github.com/google/go-github/v80 v80.0.0
+	github.com/google/go-github/v82 v82.0.0
 	github.com/google/go-querystring v1.2.0
 	github.com/quasilyte/go-ruleguard/dsl v0.3.23
 	github.com/sirupsen/logrus v1.9.4
