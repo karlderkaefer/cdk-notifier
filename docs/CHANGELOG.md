@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.14.15] - 2026-04-01
+
+### 🐛 Bug Fixes
+
+- *(deps)* Fix(deps): update module golang.org/x/oauth2 to v0.36.0 by @renovate[bot] in [#225](https://github.com/karlderkaefer/cdk-notifier/pull/225)  ([56274a9](56274a96cdf7ff3fd211290ba9cbddf5269bb34d))
+
+
 ## [2.14.14] - 2026-03-02
 
 ### 🐛 Bug Fixes
