@@ -43,7 +43,7 @@ jobs:
           fi
       - name: Push changes
         if: ${{ steps.commit.outputs.hasdiff == 'true' }}
-        uses: ad-m/github-push-action@v1.0.0
+        uses: ad-m/github-push-action@v1.1.0
         with:
           github_token: ${{ secrets.CHANGELOG_GITHUB_TOKEN }}
   goreleaser:
