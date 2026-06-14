@@ -24,6 +24,7 @@ type LogTransformer struct {
 	Logfile                   string
 	TagID                     string
 	NoPostMode                bool
+	NoTruncate                bool
 	Vcs                       string
 	DisableCollapse           bool
 	ShowOverview              bool
@@ -74,6 +75,7 @@ func NewLogTransformer(config *config.NotifierConfig) *LogTransformer {
 		Logfile:                  config.LogFile,
 		TagID:                    config.TagID,
 		NoPostMode:               config.NoPostMode,
+		NoTruncate:               config.NoTruncate,
 		Vcs:                      config.Vcs,
 		DisableCollapse:          config.DisableCollapse,
 		ShowOverview:             config.ShowOverview,
@@ -239,6 +241,9 @@ func (t *LogTransformer) transformDiff() {
 
 // truncate to avoid Message:Body is too long (maximum is set per VCS)
 func (t *LogTransformer) truncate() {
+	if t.NoTruncate {
+		return
+	}
 	var maxCommentLength int
 	if t.Vcs == config.VcsGithubEnterprise && t.GithubMaxCommentLength != 0 {
 		maxCommentLength = t.GithubMaxCommentLength

@@ -37,26 +37,30 @@ cdk-notifier --help
 #   cdk-notifier [flags]
 
 # Flags:
-#       --ci string                CI System used [circleci|bitbucket|gitlab] (default "circleci")
-#       --custom-template string   File path or string input to custom template. When set it will override the template flag.
-#   -d, --delete                   delete comments when no changes are detected for a specific tag id (default true)
-#       --disable-collapse         Collapsible comments are enabled by default for GitHub and GitLab. When set to true it will not use collapsed sections.
-#       --github-host string       Optional set host for GitHub Enterprise
-#       --gitlab-url string        Optional set gitlab url (default "https://gitlab.com/")
-#   -h, --help                     help for cdk-notifier
-#   -l, --log-file string          path to cdk log file
-#       --no-post-mode             Optional do not post comment to VCS, instead write additional file and print diff to stdout
-#   -o, --owner string             Name of owner. If not set will lookup for env var [REPO_OWNER|CIRCLE_PROJECT_USERNAME|BITBUCKET_REPO_OWNER]
-#   -p, --pull-request-id string   Id or URL of pull request. If not set will lookup for env var [PR_ID|CIRCLE_PULL_REQUEST|BITBUCKET_PR_ID|CI_MERGE_REQUEST_IID]
-#   -r, --repo string              Name of repository without organisation. If not set will lookup for env var [REPO_NAME|CIRCLE_PROJECT_REPONAME|BITBUCKET_REPO_SLUG],'
-#       --show-overview            [Deprected: use template extended instead] Show Overview are disabled by default. When set to true it will show the number of cdk stacks with diff and  the number of replaced resources in the overview section.
-#   -t, --tag-id string            unique identifier for stack within pipeline (default "stack")
-#       --template string          Template to use for comment [default|extended|extendedWithResources] (default "default")
-#       --token string             Authentication token used to post comments to PR. If not set will lookup for env var [TOKEN_USER|GITHUB_TOKEN|BITBUCKET_TOKEN|GITLAB_TOKEN]
-#   -u, --user string              Optional set username for token (required for bitbucket)
-#       --vcs string               Version Control System [github|github-enterprise|bitbucket|gitlab] (default "github")
-#   -v, --verbosity string         Log level (debug, info, warn, error, fatal, panic) (default "info")
-#       --version                  version for cdk-notifier
+#       --ci string                            CI System used [circleci|bitbucket|gitlab] (default "circleci")
+#       --custom-template string               File path or string input to custom template. When set it will override the template flag.
+#   -d, --delete                               delete comments when no changes are detected for a specific tag id (default true)
+#       --disable-collapse                     Collapsible comments are enabled by default for GitHub and GitLab. When set to true it will not use collapsed sections.
+#       --github-host string                   Optional set host for GitHub Enterprise
+#       --github-max-comment-length int        Optional set max comment length for GitHub Enterprise
+#       --gitlab-url string                    Optional set gitlab url (default "https://gitlab.com/")
+#   -h, --help                                 help for cdk-notifier
+#   -l, --log-file string                      path to cdk log file
+#       --no-post-mode                         Optional do not post comment to VCS, instead write additional file and print diff to stdout
+#       --no-truncate                          Disable truncation of diff output. Useful when posting only to GHA job summary where VCS comment size limits do not apply.
+#   -o, --owner string                         Name of owner. If not set will lookup for env var [REPO_OWNER|CIRCLE_PROJECT_USERNAME|BITBUCKET_REPO_OWNER]
+#   -p, --pull-request-id string               Id or URL of pull request. If not set will lookup for env var [PR_ID|CIRCLE_PULL_REQUEST|BITBUCKET_PR_ID|CI_MERGE_REQUEST_IID]
+#   -r, --repo string                          Name of repository without organisation. If not set will lookup for env var [REPO_NAME|CIRCLE_PROJECT_REPONAME|BITBUCKET_REPO_SLUG],'
+#       --show-overview                        [Deprected: use template extended instead] Show Overview are disabled by default. When set to true it will show the number of cdk stacks with diff and  the number of replaced resources in the overview section.
+#       --suppress-hash-changes                EXPERIMENTAL: when set to true it will ignore changes in hash values
+#       --suppress-hash-changes-regex string   Define Regex to suppress hash changes. Only used when suppress-hash-changes is set to true (default "^[+-].*?[a-fA-F0-9]{64,65}")
+#   -t, --tag-id string                        unique identifier for stack within pipeline (default "stack")
+#       --template string                      Template to use for comment [default|extended|extendedWithResources] (default "default")
+#       --token string                         Authentication token used to post comments to PR. If not set will lookup for env var [TOKEN_USER|GITHUB_TOKEN|BITBUCKET_TOKEN|GITLAB_TOKEN]
+#   -u, --user string                          Optional set username for token (required for bitbucket)
+#       --vcs string                           Version Control System [github|github-enterprise|bitbucket|gitlab] (default "github")
+#   -v, --verbosity string                     Log level (debug, info, warn, error, fatal, panic) (default "info")
+#       --version                              version for cdk-notifier
 
 ```
 
@@ -251,6 +255,8 @@ In case you only want to do the transformation into markdown diff, as described 
 Any validation is skipped, you only need to set `--log-file` and `--tag-id`.
 Enable this option `--no-post-mode` will write the markdown diff to stdout and a logfile.
 The diff output file is using same path of cdk log file, but is appending `.diff` extension.
+
+When not posting to a VCS comment there is no size limit to enforce. Use `--no-truncate` (or env var `NO_TRUNCATE=true`) to output the full diff without cutting it off.
 
 ## Suppress Hash Changes
 
