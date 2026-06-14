@@ -140,6 +140,7 @@ type NotifierConfig struct {
 	SuppressHashChanges      bool   `mapstructure:"SUPPRESS_HASH_CHANGES"`
 	SuppressHashChangesRegex string `mapstructure:"SUPPRESS_HASH_CHANGES_REGEX"`
 	ShowOverview             bool   `mapstructure:"SHOW_OVERVIEW"` // TODO deprecated
+	NoTruncate               bool   `mapstructure:"NO_TRUNCATE"`
 	ForceDeleteComment       bool   // only used for suppress hash changes in order to delete comment if no-op
 }
 

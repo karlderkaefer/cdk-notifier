@@ -319,6 +319,25 @@ func TestLogTransform_Truncate(t *testing.T) {
 	}
 }
 
+func TestLogTransform_NoTruncate(t *testing.T) {
+	providers := []string{config.VcsGithub, config.VcsGithubEnterprise, config.VcsBitbucket, config.VcsGitlab}
+	for _, vcs := range providers {
+		transformer := &LogTransformer{
+			Vcs:        vcs,
+			NoTruncate: true,
+		}
+		if vcs == config.VcsGithubEnterprise {
+			transformer.GithubMaxCommentLength = 80000
+		}
+		// use a length that would normally trigger truncation for every provider
+		transformer.LogContent = randomStringRunes(1100000)
+		originalLength := len(transformer.LogContent)
+		transformer.truncate()
+		assert.Equal(t, originalLength, len(transformer.LogContent), "expected no truncation for vcs %s when NoTruncate is true", vcs)
+		assert.NotContains(t, transformer.LogContent, "**Warning**")
+	}
+}
+
 func TestNewLogTransformer(t *testing.T) {
 	c := &config.NotifierConfig{
 		LogFile:    "../data/cdk-nochanges.log",

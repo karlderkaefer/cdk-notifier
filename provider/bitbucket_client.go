@@ -219,7 +219,7 @@ func (c *BitbucketClient) NewRequest(method string, url string, body interface{}
 
 func addOptions(s string, opts interface{}) (string, error) {
 	v := reflect.ValueOf(opts)
-	if v.Kind() == reflect.Ptr && v.IsNil() {
+	if v.Kind() == reflect.Pointer && v.IsNil() {
 		return s, nil
 	}
 
