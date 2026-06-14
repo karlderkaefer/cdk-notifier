@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.14.20] - 2026-06-14
+
+### 🐛 Bug Fixes
+
+- Fix: use strict tag matching to prevent prefix overlap between stack names by @karlderkaefer in [#237](https://github.com/karlderkaefer/cdk-notifier/pull/237)  ([2b99c46](2b99c46f4c02530281e0bf8556aac4da9788b3d7))
+
+
 ## [2.14.19] - 2026-06-14
 
 ### 🐛 Bug Fixes
