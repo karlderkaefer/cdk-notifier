@@ -210,7 +210,7 @@ func TestCreateNotifierService(t *testing.T) {
 	for _, c := range testCase {
 		t.Logf("%s", c.description)
 		notifierConfig := config.NotifierConfig{
-			Token: "",
+			Token: "dummy-token",
 			Vcs:   c.vcs,
 		}
 		svc, err := CreateNotifierService(context.TODO(), notifierConfig)
