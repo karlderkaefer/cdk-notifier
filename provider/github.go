@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/google/go-github/v88/github"
 	"github.com/karlderkaefer/cdk-notifier/config"
@@ -43,11 +44,15 @@ func NewGithubClient(ctx context.Context, cfg config.NotifierConfig) (*GithubCli
 	}
 	switch cfg.Vcs {
 	case config.VcsGithubEnterprise:
+		githubHost := cfg.GithubHost
+		if !strings.HasPrefix(githubHost, "https://") && !strings.HasPrefix(githubHost, "http://") {
+			githubHost = "https://" + githubHost
+		}
 		c.Client, err = github.NewClient(
 			github.WithAuthToken(cfg.Token),
-			github.WithEnterpriseURLs(cfg.GithubHost, cfg.GithubHost),
+			github.WithEnterpriseURLs(githubHost, githubHost),
 		)
-		logrus.Infof("Using GitHub Enterprise Client: %s", cfg.GithubHost)
+		logrus.Infof("Using GitHub Enterprise Client: %s", githubHost)
 	default:
 		c.Client, err = github.NewClient(github.WithAuthToken(cfg.Token))
 	}
