@@ -7,7 +7,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/google/go-github/v84/github"
+	"github.com/google/go-github/v88/github"
 	"github.com/karlderkaefer/cdk-notifier/config"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -84,12 +84,8 @@ func TestNewGithubClient(t *testing.T) {
 		Token: "",
 	}
 	client, err := NewGithubClient(context.TODO(), notifierConfig)
-	assert.NoError(t, err)
-
-	comment, err := client.PostComment()
 	assert.Error(t, err)
-	assert.IsType(t, &github.ErrorResponse{}, err)
-	assert.Equal(t, comment, API_COMMENT_NOTHING)
+	assert.Nil(t, client)
 }
 
 func TestUpdateExistingComment(t *testing.T) {
