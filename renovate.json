@@ -1,9 +1,13 @@
 {
   "extends": [
     "github>karlderkaefer/renovate-config:golang",
-    "schedule:monthly"
+    "schedule:monthly",
+    "helpers:pinGitHubActionDigests"
   ],
   "packageRules": [
+    {
+      "minimumReleaseAge": "7 days"
+    },
     {
       "matchUpdateTypes": [
         "major"
