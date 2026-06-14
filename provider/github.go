@@ -3,7 +3,6 @@ package provider
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/google/go-github/v88/github"
 	"github.com/karlderkaefer/cdk-notifier/config"
@@ -46,10 +45,7 @@ func NewGithubClient(ctx context.Context, cfg config.NotifierConfig) (*GithubCli
 	case config.VcsGithubEnterprise:
 		c.Client, err = github.NewClient(
 			github.WithAuthToken(cfg.Token),
-			github.WithEnterpriseURLs(
-				fmt.Sprintf("https://%s/api/v3", cfg.GithubHost),
-				fmt.Sprintf("https://%s/api/upload", cfg.GithubHost),
-			),
+			github.WithEnterpriseURLs(cfg.GithubHost, cfg.GithubHost),
 		)
 		logrus.Infof("Using GitHub Enterprise Client: %s", cfg.GithubHost)
 	default:
