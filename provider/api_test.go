@@ -13,6 +13,7 @@ import (
 // mockNotifierService simulates the NotifierService interface for testing postComment.
 type mockNotifierService struct {
 	commentExists     bool
+	comments          []Comment // optional: explicit list overrides commentExists
 	returnFindErr     bool
 	deleteErr         error
 	updateErr         error
@@ -64,6 +65,9 @@ func (m *mockNotifierService) PostComment() (CommentOperation, error) {
 func (m *mockNotifierService) ListComments() ([]Comment, error) {
 	if m.returnFindErr {
 		return nil, errors.New("mock: error on findComment")
+	}
+	if m.comments != nil {
+		return m.comments, nil
 	}
 	if m.commentExists {
 		return []Comment{{Id: 123, Body: "## cdk diff for myTag\nSomething"}}, nil
@@ -230,4 +234,67 @@ Stack OutputStack
 Outputs
 [+] Output output output: {"Value":"","Export":{"Name":"output"}}
 `))
+}
+
+func TestMatchesHeaderTag(t *testing.T) {
+	tests := []struct {
+		name      string
+		body      string
+		headerTag string
+		want      bool
+	}{
+		{
+			name:      "exact match followed by newline",
+			body:      "## cdk diff for foo\nsome content",
+			headerTag: "## cdk diff for foo",
+			want:      true,
+		},
+		{
+			name:      "exact match followed by space and job link",
+			body:      "## cdk diff for foo [Job](https://ci.example.com/1)",
+			headerTag: "## cdk diff for foo",
+			want:      true,
+		},
+		{
+			name:      "tag at end of string",
+			body:      "## cdk diff for foo",
+			headerTag: "## cdk diff for foo",
+			want:      true,
+		},
+		{
+			name:      "prefix must not match longer tag",
+			body:      "## cdk diff for foo-bar\nsome content",
+			headerTag: "## cdk diff for foo",
+			want:      false,
+		},
+		{
+			name:      "longer tag matches itself",
+			body:      "## cdk diff for foo-bar\nsome content",
+			headerTag: "## cdk diff for foo-bar",
+			want:      true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, matchesHeaderTag(tt.body, tt.headerTag))
+		})
+	}
+}
+
+// TestPostCommentPrefixTagRegression ensures that when two comments exist for
+// tags "foo" and "foo-bar", posting for tag "foo" only matches the "foo" comment.
+func TestPostCommentPrefixTagRegression(t *testing.T) {
+	ms := &mockNotifierService{
+		comments: []Comment{
+			{Id: 1, Body: "## cdk diff for foo\nold foo content"},
+			{Id: 2, Body: "## cdk diff for foo-bar\nold foo-bar content"},
+		},
+		commentContent: "## cdk diff for foo\nPolicy Changes\nnew foo content",
+	}
+	cfg := config.NotifierConfig{TagID: "foo"}
+
+	op, err := postComment(ms, cfg)
+	assert.NoError(t, err)
+	assert.Equal(t, API_COMMENT_UPDATED, op)
+	assert.Equal(t, int64(1), ms.updatedCommentId, "must update the foo comment, not foo-bar")
 }
