@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.14.18] - 2026-06-14
+
+### 🐛 Bug Fixes
+
+- *(security)* Fix(security): upgrade x/crypto to v0.52.0 and pin Alpine base image by @karlderkaefer in [#236](https://github.com/karlderkaefer/cdk-notifier/pull/236)  ([9d08ea6](9d08ea62867dec0fb68a363deba67973e2dbea79))
+
+
 ## [2.14.17] - 2026-06-14
 
 ### 🐛 Bug Fixes
