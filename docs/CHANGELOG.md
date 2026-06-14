@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.14.17] - 2026-06-14
+
+### 🐛 Bug Fixes
+
+- *(renovate)* Fix(renovate): add matchPackagePatterns selector to minimumReleaseAge rule by @karlderkaefer in [#234](https://github.com/karlderkaefer/cdk-notifier/pull/234)  ([030b7a8](030b7a854879c9c81a2575eb74f896e62b0326b9))
+
+
+## [2.14.16] - 2026-06-14
+
+### 🐛 Bug Fixes
+
+- *(deps)* Fix(deps): update golang dependencies (major) by @renovate[bot] in [#226](https://github.com/karlderkaefer/cdk-notifier/pull/226)  ([abfc4d7](abfc4d77662d39940b259f72154f2047c5b91770))
+
+
 ## [2.14.15] - 2026-04-01
 
 ### 🐛 Bug Fixes

@@ -3,12 +3,11 @@ package provider
 import (
 	"context"
 	"errors"
-	"fmt"
+	"strings"
 
-	"github.com/google/go-github/v84/github"
+	"github.com/google/go-github/v88/github"
 	"github.com/karlderkaefer/cdk-notifier/config"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/oauth2"
 )
 
 // maxCommentLength is the maximum number of chars allowed in a single comment
@@ -43,26 +42,28 @@ func NewGithubClient(ctx context.Context, cfg config.NotifierConfig) (*GithubCli
 	if ctx == nil {
 		c.Context = context.Background()
 	}
-	token := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: cfg.Token},
-	)
-	tokenClient := oauth2.NewClient(c.Context, token)
-
 	switch cfg.Vcs {
 	case config.VcsGithubEnterprise:
-		c.Client, err = github.NewClient(tokenClient).WithEnterpriseURLs(
-			fmt.Sprintf("https://%s/api/v3", cfg.GithubHost),
-			fmt.Sprintf("https://%s/api/upload", cfg.GithubHost),
+		githubHost := cfg.GithubHost
+		if !strings.HasPrefix(githubHost, "https://") && !strings.HasPrefix(githubHost, "http://") {
+			githubHost = "https://" + githubHost
+		}
+		c.Client, err = github.NewClient(
+			github.WithAuthToken(cfg.Token),
+			github.WithEnterpriseURLs(githubHost, githubHost),
 		)
-		logrus.Infof("Using GitHub Enterprise Client: %s", cfg.GithubHost)
+		logrus.Infof("Using GitHub Enterprise Client: %s", githubHost)
 	default:
-		c.Client = github.NewClient(tokenClient)
+		c.Client, err = github.NewClient(github.WithAuthToken(cfg.Token))
 	}
 
+	if err != nil {
+		return nil, err
+	}
 	if c.Issues == nil {
 		c.Issues = c.Client.Issues
 	}
-	return c, err
+	return c, nil
 }
 
 func transform(i *github.IssueComment) *Comment {
