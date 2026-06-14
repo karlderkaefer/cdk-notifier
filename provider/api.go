@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"regexp"
-	"strings"
 
 	"github.com/karlderkaefer/cdk-notifier/config"
 	"github.com/sirupsen/logrus"
@@ -45,6 +44,15 @@ type NotifierService interface {
 
 func getHeaderTagID(c config.NotifierConfig) string {
 	return fmt.Sprintf("%s %s", HeaderPrefix, c.TagID)
+}
+
+// matchesHeaderTag returns true only when the comment body contains the header
+// tag as a complete token, not as a prefix of a longer tag. This prevents
+// "foo" from matching a comment for "foo-bar".
+func matchesHeaderTag(body, headerTag string) bool {
+	pattern := regexp.QuoteMeta(headerTag) + `(\s|$)`
+	re := regexp.MustCompile(pattern)
+	return re.MatchString(body)
 }
 
 func diffHasChanges(log string) bool {
@@ -116,7 +124,7 @@ func findComment(ns NotifierService, config config.NotifierConfig) (*Comment, er
 		return nil, err
 	}
 	for _, comment := range comments {
-		if strings.Contains(comment.Body, getHeaderTagID(config)) {
+		if matchesHeaderTag(comment.Body, getHeaderTagID(config)) {
 			logrus.Debugf("Found existing comment for %s", config.TagID)
 			return &comment, nil
 		}
