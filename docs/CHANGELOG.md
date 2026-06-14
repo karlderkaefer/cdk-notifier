@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.14.17] - 2026-06-14
+
+### 🐛 Bug Fixes
+
+- *(renovate)* Fix(renovate): add matchPackagePatterns selector to minimumReleaseAge rule by @karlderkaefer in [#234](https://github.com/karlderkaefer/cdk-notifier/pull/234)  ([030b7a8](030b7a854879c9c81a2575eb74f896e62b0326b9))
+
+
 ## [2.14.16] - 2026-06-14
 
 ### 🐛 Bug Fixes
