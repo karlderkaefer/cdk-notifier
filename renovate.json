@@ -6,8 +6,10 @@
   ],
   "packageRules": [
     {
-      "matchPackagePatterns": ["*"],
-      "minimumReleaseAge": "7 days"
+      "minimumReleaseAge": "7 days",
+      "matchPackageNames": [
+        "*"
+      ]
     },
     {
       "matchUpdateTypes": [
