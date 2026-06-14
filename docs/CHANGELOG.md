@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.14.19] - 2026-06-14
+
+### 🐛 Bug Fixes
+
+- Fix: add option to turn of truncate by @karlderkaefer in [#231](https://github.com/karlderkaefer/cdk-notifier/pull/231)  ([14e39cd](14e39cd8aeef14c18c578b1f03f1b907933274de))
+
+
 ## [2.14.18] - 2026-06-14
 
 ### 🐛 Bug Fixes
