@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.14.21] - 2026-07-01
+
+### 🐛 Bug Fixes
+
+- *(deps)* Fix(deps): update module gitlab.com/gitlab-org/api/client-go/v2 to v2.42.0 by @renovate[bot] in [#240](https://github.com/karlderkaefer/cdk-notifier/pull/240)  ([3c340b8](3c340b8a8b82ecb8c2a03c5dd20c9cbed03b6bb8))
+
+
 ## [2.14.20] - 2026-06-14
 
 ### 🐛 Bug Fixes
