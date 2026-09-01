@@ -2,7 +2,7 @@ module github.com/karlderkaefer/cdk-notifier
 
 go 1.25.0
 
-toolchain go1.26.5
+toolchain go1.27.0
 
 require (
 	github.com/Masterminds/sprig/v3 v3.3.0
