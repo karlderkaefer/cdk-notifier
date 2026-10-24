@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.14.22] - 2026-10-24
+
+### 🐛 Bug Fixes
+
+- *(deps)* Fix(deps): update module gitlab.com/gitlab-org/api/client-go/v2 to v2.51.0 by @renovate[bot] in [#243](https://github.com/karlderkaefer/cdk-notifier/pull/243)  ([a817c5c](a817c5ca361b8ee5dc63b4ae8ac80f1f19e1c543))
+- *(deps)* Fix(deps): update module github.com/google/go-github/v88 to v89 by @renovate[bot] in [#244](https://github.com/karlderkaefer/cdk-notifier/pull/244)  ([9a51af3](9a51af397c5db7e53e02f85e6c29f824bdb3365f))
+- *(deps)* Fix(deps): update golang dependencies by @renovate[bot] in [#246](https://github.com/karlderkaefer/cdk-notifier/pull/246)  ([a5e2930](a5e293009f80e99407f29487002f16d3a5f92883))
+- *(deps)* Fix(deps): update module github.com/google/go-github/v89 to v90 by @renovate[bot] in [#247](https://github.com/karlderkaefer/cdk-notifier/pull/247)  ([8ad9a0a](8ad9a0a9981f368a590eb704185ad4fef057bbf4))
+
+
 ## [2.14.21] - 2026-07-01
 
 ### 🐛 Bug Fixes
@@ -277,6 +287,7 @@ All notable changes to this project will be documented in this file.
 
 ### 🐛 Bug Fixes
 
+- *(ci)* Migrate to github actions by @karlderkaefer ([b0e7720](b0e7720b517e1b90de4eed5451511ad46704d439))
 - *(ci)* Add Dockerfile by @karlderkaefer ([4254966](4254966381738339f4157a2e9e5b214fd0a7bb2e))
 - *(ci)* Upgrade to go version 1.22 by @karlderkaefer ([fe4ae64](fe4ae64ecad12deafaf472ddd51cf61d7fd694d6))
 - *(ci)* Run CVE scan only on main by @karlderkaefer ([5258374](52583745229c3444a60b1dd14108d1d3dd6f6c03))
@@ -295,7 +306,6 @@ All notable changes to this project will be documented in this file.
 
 ### 🐛 Bug Fixes
 
-- *(ci)* Migrate to github actions by @karlderkaefer ([b0e7720](b0e7720b517e1b90de4eed5451511ad46704d439))
 - *(deps)* Update golang dependencies by @renovate[bot] ([b50bcdd](b50bcdd8c2aca7fda8b96a7244c0084faf3e5cf6))
 
 
@@ -330,17 +340,17 @@ All notable changes to this project will be documented in this file.
 
 - Add job link header by @karlderkaefer ([8592aa9](8592aa954a5e5514ef7f64cfc94a5eb689446838))
 
+### 📚 Documentation
+
+- Update README.md [skip ci] by @allcontributors[bot] ([0710dea](0710dea94181aeb1dc23f5195f4940a0f5cdf2f3))
+- Update .all-contributorsrc [skip ci] by @allcontributors[bot] ([401514e](401514eb9732ea0e361c27c29d37fe0af11aea36))
+
 
 ## [2.9.3] - 2024-02-16
 
 ### 🐛 Bug Fixes
 
 - Allow collapsible comments when using GHE by @joshmyers ([244538f](244538f6623f1d346768c7ef7e98c2651c8edbcb))
-
-### 📚 Documentation
-
-- Update README.md [skip ci] by @allcontributors[bot] ([0710dea](0710dea94181aeb1dc23f5195f4940a0f5cdf2f3))
-- Update .all-contributorsrc [skip ci] by @allcontributors[bot] ([401514e](401514eb9732ea0e361c27c29d37fe0af11aea36))
 
 
 
@@ -369,6 +379,16 @@ All notable changes to this project will be documented in this file.
 
 ## [2.9.0] - 2023-12-03
 
+### 🚀 Features
+
+- Add report template by @karlderkaefer ([b50ced1](b50ced1a40a54c9b54daf0367db241463f6cf05c))
+- Add resource modification overview by @karlderkaefer ([a603f5f](a603f5f655c4dc4dff1560cc6a985c96025ddfaa))
+
+### 🚜 Refactor
+
+- Use chain of responsibility pattern for transformers by @karlderkaefer ([d253813](d253813e7b3fc41ab58f924dde4b1a98a4bc8cd2))
+- Add some more tests by @karlderkaefer ([e272929](e2729293184d8b46a0bd9682c1a8edc7033d5e89))
+
 ### 📚 Documentation
 
 - Update readme for custom templates by @karlderkaefer ([ed3ba9a](ed3ba9ae89c9904857806ac26172cde0a8260e2b))
@@ -376,19 +396,9 @@ All notable changes to this project will be documented in this file.
 
 ## [2.8.1] - 2023-12-01
 
-### 🚀 Features
-
-- Add report template by @karlderkaefer ([b50ced1](b50ced1a40a54c9b54daf0367db241463f6cf05c))
-- Add resource modification overview by @karlderkaefer ([a603f5f](a603f5f655c4dc4dff1560cc6a985c96025ddfaa))
-
 ### 🐛 Bug Fixes
 
 - *(deps)* Update golang dependencies by @renovate[bot] ([ce17e2c](ce17e2cd9a3e745c7544bfca77245121e0b0021c))
-
-### 🚜 Refactor
-
-- Use chain of responsibility pattern for transformers by @karlderkaefer ([d253813](d253813e7b3fc41ab58f924dde4b1a98a4bc8cd2))
-- Add some more tests by @karlderkaefer ([e272929](e2729293184d8b46a0bd9682c1a8edc7033d5e89))
 
 
 ## [2.8.0] - 2023-11-11
@@ -421,17 +431,17 @@ All notable changes to this project will be documented in this file.
 
 - *(deps)* Update golang dependencies by @renovate[bot] ([b4580a0](b4580a01c1daa5ea3fa9a55433c024508112ffb7))
 
+### 📚 Documentation
+
+- Update README.md [skip ci] by @allcontributors[bot] ([413910e](413910ef1831aecd5314032b3db225b74ab455bc))
+- Update .all-contributorsrc [skip ci] by @allcontributors[bot] ([1ed7e78](1ed7e7809849ae2b8591d73871ab9e4fa91d3cab))
+
 
 ## [2.6.0] - 2023-10-20
 
 ### 🚀 Features
 
 - Support bitbucket workspace access tokens by @peter-svensson ([ec271a0](ec271a0835e7535450046f34b20e58c8c40c1a1c))
-
-### 📚 Documentation
-
-- Update README.md [skip ci] by @allcontributors[bot] ([413910e](413910ef1831aecd5314032b3db225b74ab455bc))
-- Update .all-contributorsrc [skip ci] by @allcontributors[bot] ([1ed7e78](1ed7e7809849ae2b8591d73871ab9e4fa91d3cab))
 
 
 
@@ -464,11 +474,17 @@ All notable changes to this project will be documented in this file.
 - *(deps)* Update module github.com/google/go-github/v37 to v53 by @renovate[bot] ([279b733](279b7336b98a85824877aa5526654b14dac83c55))
 - Increase github client version from 35 to 53 by @karlderkaefer ([e4440f4](e4440f4f652e8f26f908db1e3eceea4531419d33))
 
+### 📚 Documentation
+
+- Update README.md [skip ci] by @allcontributors[bot] ([1a2148f](1a2148ffbb4500ca72e1ff061e82fee52a417c68))
+- Update .all-contributorsrc [skip ci] by @allcontributors[bot] ([a55c6ca](a55c6ca6065905aee1693b8036b1e185cdb29d53))
+
 
 ## [2.5.0] - 2023-07-09
 
 ### 🚀 Features
 
+- Github Enterprise support by @mmogylenko ([3c3c01f](3c3c01f7525f376b132bb49894501437af1dcc2a))
 - Refactor github enterprise integration by @karlderkaefer ([f46fb80](f46fb8057d1735b168683fdb4fd2f45daa398316))
 
 ### 🐛 Bug Fixes
@@ -477,8 +493,14 @@ All notable changes to this project will be documented in this file.
 
 ### 📚 Documentation
 
+- Added GH Enterprise to README.md by @mmogylenko ([16a534c](16a534cb95767adeaad127d71ead3cfe1611ece2))
 - Update documentation by @karlderkaefer ([281b9c3](281b9c3b1c0a6e1e416af0b24cfa4843c6f8e654))
 
+
+
+
+## New Contributors
+* @mmogylenko made their first contribution
 
 ## [2.4.6] - 2023-07-08
 
@@ -550,23 +572,10 @@ All notable changes to this project will be documented in this file.
 
 ## [2.3.1] - 2022-12-10
 
-### 🚀 Features
-
-- Github Enterprise support by @mmogylenko ([3c3c01f](3c3c01f7525f376b132bb49894501437af1dcc2a))
-
 ### 🐛 Bug Fixes
 
 - Fix release process by @karlderkaefer ([77796bb](77796bb6dd6a204d9741d349f37be7e1b1e39cdd))
 
-### 📚 Documentation
-
-- Added GH Enterprise to README.md by @mmogylenko ([16a534c](16a534cb95767adeaad127d71ead3cfe1611ece2))
-
-
-
-
-## New Contributors
-* @mmogylenko made their first contribution
 
 ## [2.3.0] - 2022-12-10
 
@@ -582,8 +591,6 @@ All notable changes to this project will be documented in this file.
 
 ### 📚 Documentation
 
-- Update README.md [skip ci] by @allcontributors[bot] ([1a2148f](1a2148ffbb4500ca72e1ff061e82fee52a417c68))
-- Update .all-contributorsrc [skip ci] by @allcontributors[bot] ([a55c6ca](a55c6ca6065905aee1693b8036b1e185cdb29d53))
 - Add no post mode documentation by @karlderkaefer ([0786e89](0786e899f386f381d7c1c2a7da166651aaf1fde9))
 
 
@@ -618,20 +625,6 @@ All notable changes to this project will be documented in this file.
 
 - *(deps)* Update golang.org/x/oauth2 digest to 0ebed06 by @renovate[bot] ([4d35a3f](4d35a3fc79951a3f03ff50c3a3817b0aef76b5c7))
 
-
-## [2.2.0] - 2022-08-23
-
-
-## [2.1.1] - 2022-08-23
-
-
-## [2.1.0] - 2022-08-23
-
-### 🚀 Features
-
-- *(gitlab)* Add gitlab support ([f8ff3b5](f8ff3b5f8ecd52be58dd88c65ff253cd5cb8a3fd))
-- *(gitlab)* Gitlab support in [#45](https://github.com/karlderkaefer/cdk-notifier/pull/45)  ([e889e6e](e889e6e349803890125a0e95005eebaeb4708595))
-
 ### 📚 Documentation
 
 - Update README.md [skip ci] by @allcontributors[bot] ([1556794](1556794a56998fde8dbf2fff11163361eb0975d4))
@@ -641,10 +634,24 @@ All notable changes to this project will be documented in this file.
 
 
 ## New Contributors
-* @ made their first contribution in [#45](https://github.com/karlderkaefer/cdk-notifier/pull/45)
-
-
 * @allcontributors[bot] made their first contribution
+
+## [2.2.0] - 2022-08-23
+
+### 🚀 Features
+
+- *(gitlab)* Add gitlab support ([f8ff3b5](f8ff3b5f8ecd52be58dd88c65ff253cd5cb8a3fd))
+
+
+## [2.1.1] - 2022-08-23
+
+
+## [2.1.0] - 2022-08-23
+
+### 🚀 Features
+
+- *(gitlab)* Gitlab support in [#45](https://github.com/karlderkaefer/cdk-notifier/pull/45)  ([e889e6e](e889e6e349803890125a0e95005eebaeb4708595))
+
 
 ## [2.0.2] - 2022-07-30
 
@@ -655,23 +662,9 @@ All notable changes to this project will be documented in this file.
 
 ## [2.0.1] - 2022-07-30
 
-
-## [2.0.0] - 2022-07-30
-
 ### 🐛 Bug Fixes
 
-- Prepare environment handling for multiple ci and vcs systems by @karlderkaefer ([8228367](82283671482087eb5148ccc68c85c3e83c681d67))
-- Update description of cli args by @karlderkaefer ([4090911](40909116da538b3aab54c2076eae471e7a39735b))
-- *(security)* Escape new line on debug messages by @karlderkaefer ([5efe98a](5efe98aca579505dabacf625ab2d9e872365271c))
-- Increase code coverage by @karlderkaefer ([9afa427](9afa42766647d871caee1b410fb7e124fc74d826))
-- *(github)* Increase code coverage by @karlderkaefer ([c80a5c4](c80a5c4c4987ae19a05109182a0de5400f2885c7))
-- *(bitbucket)* Increase code coverage by @karlderkaefer ([6756a2c](6756a2c8465fdfc3becd8f5e1c1a56e962a77412))
 - *(deps)* Update golang dependencies by @renovate[bot] ([5e49c43](5e49c4374d90137f9aeaac4ed7a85a4ea2e84cd8))
-
-### 📚 Documentation
-
-- Update readme by @karlderkaefer ([79cc452](79cc452fb4c8a97a96dd68f520320f433bf507b9))
-- Cross post medium link by @karlderkaefer ([243769d](243769d51c0dc17eac3a45eb298d5b59921a1846))
 
 
 
@@ -679,11 +672,35 @@ All notable changes to this project will be documented in this file.
 ## New Contributors
 * @renovate[bot] made their first contribution
 
+## [2.0.0] - 2022-07-30
+
+### 🚀 Features
+
+- [**breaking**] Better general naming for cli arguments by @karlderkaefer ([a662a3c](a662a3cada8254cc778764d9ce151820cd61ad4f))
+- Prepare abstraction for multiple VCS by @karlderkaefer ([f640e3d](f640e3de141b19aca9d9d7ae865845804eee59a6))
+- Add bitbucket support by @karlderkaefer ([f232145](f2321453de6a5cab76bcf35456ec59b32b5add02))
+
+### 🐛 Bug Fixes
+
+- Rename github package by @karlderkaefer ([8775b56](8775b56229995b3f90a6400d6d64fd13538f5b52))
+- *(security)* Do not print full url with query params in debug mode by @karlderkaefer ([37ce19b](37ce19bbf03f925755e94882c14fe87304dc0480))
+- Prepare environment handling for multiple ci and vcs systems by @karlderkaefer ([8228367](82283671482087eb5148ccc68c85c3e83c681d67))
+- Update description of cli args by @karlderkaefer ([4090911](40909116da538b3aab54c2076eae471e7a39735b))
+- *(security)* Escape new line on debug messages by @karlderkaefer ([5efe98a](5efe98aca579505dabacf625ab2d9e872365271c))
+- Increase code coverage by @karlderkaefer ([9afa427](9afa42766647d871caee1b410fb7e124fc74d826))
+- *(github)* Increase code coverage by @karlderkaefer ([c80a5c4](c80a5c4c4987ae19a05109182a0de5400f2885c7))
+- *(bitbucket)* Increase code coverage by @karlderkaefer ([6756a2c](6756a2c8465fdfc3becd8f5e1c1a56e962a77412))
+
+### 📚 Documentation
+
+- Update readme by @karlderkaefer ([79cc452](79cc452fb4c8a97a96dd68f520320f433bf507b9))
+- Cross post medium link by @karlderkaefer ([243769d](243769d51c0dc17eac3a45eb298d5b59921a1846))
+
+
 ## [1.2.12] - 2022-06-12
 
 ### 🐛 Bug Fixes
 
-- *(security)* Do not print full url with query params in debug mode by @karlderkaefer ([37ce19b](37ce19bbf03f925755e94882c14fe87304dc0480))
 - *(go)* Upgrade to go 1.18 by @karlderkaefer ([00edef5](00edef56449b582c18fd3189eb2488d82b002064))
 
 
@@ -703,10 +720,6 @@ All notable changes to this project will be documented in this file.
 
 ## [1.2.9] - 2022-05-18
 
-### 🚀 Features
-
-- Add bitbucket support by @karlderkaefer ([f232145](f2321453de6a5cab76bcf35456ec59b32b5add02))
-
 ### 🐛 Bug Fixes
 
 - *(deps)* Fix(deps): update module github.com/quasilyte/go-ruleguard/dsl to v0.3.21 by @renovate-bot in [#34](https://github.com/karlderkaefer/cdk-notifier/pull/34)  ([108a628](108a628fdd83cf05559c79ab808b9ee95b04f98b))
@@ -714,14 +727,8 @@ All notable changes to this project will be documented in this file.
 
 ## [1.2.8] - 2022-04-12
 
-### 🚀 Features
-
-- [**breaking**] Better general naming for cli arguments by @karlderkaefer ([a662a3c](a662a3cada8254cc778764d9ce151820cd61ad4f))
-- Prepare abstraction for multiple VCS by @karlderkaefer ([f640e3d](f640e3de141b19aca9d9d7ae865845804eee59a6))
-
 ### 🐛 Bug Fixes
 
-- Rename github package by @karlderkaefer ([8775b56](8775b56229995b3f90a6400d6d64fd13538f5b52))
 - *(deps)* Fix(deps): update golang.org/x/oauth2 digest to 9780585 by @renovate-bot in [#31](https://github.com/karlderkaefer/cdk-notifier/pull/31)  ([c12f706](c12f706d1cf38594551b533d4a35287e680b37b7))
 
 
@@ -794,6 +801,8 @@ All notable changes to this project will be documented in this file.
 
 ### 🐛 Bug Fixes
 
+- Mock github api test by @karlderkaefer ([7043428](70434289da7bceb22d70e995cd8f1cacbc9650a2))
+- Fixing golang lint errors by @karlderkaefer ([c3432d8](c3432d83dcd5257c18d37949d0c8571299c6e0e6))
 - Fix merge conflict by @karlderkaefer ([11d4b42](11d4b4274227766d2fba637ec1ffc125661419f9))
 - Add issue url to output by @karlderkaefer ([f5f05ba](f5f05badf54638102a12d530e5b10f37070ca51c))
 - Set log level for printing app config to trace by @karlderkaefer ([9586f43](9586f43134c2b732a596092f6605f2e813f71c07))
@@ -807,8 +816,6 @@ All notable changes to this project will be documented in this file.
 
 ### 🐛 Bug Fixes
 
-- Mock github api test by @karlderkaefer ([7043428](70434289da7bceb22d70e995cd8f1cacbc9650a2))
-- Fixing golang lint errors by @karlderkaefer ([c3432d8](c3432d83dcd5257c18d37949d0c8571299c6e0e6))
 - Make pull request id optional value by @karlderkaefer ([f8e86ef](f8e86ef931268b9bc80b5b15f743cd761210c277))
 - Fix: make pull request id optional value by @karlderkaefer in [#5](https://github.com/karlderkaefer/cdk-notifier/pull/5)  ([119c4bc](119c4bc73000bd0f42f38b59e510c75f139b74cc))
 
