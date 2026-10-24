@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.14.23] - 2026-10-24
+
+### 🐛 Bug Fixes
+
+- Fix: resolve High CVEs (x/crypto, x/text) and harden image with chainguard/static by @karlderkaefer in [#248](https://github.com/karlderkaefer/cdk-notifier/pull/248)  ([844c848](844c8481cf7cc3a3a96f381ea8f4d6f301674cab))
+
+
 ## [2.14.22] - 2026-10-24
 
 ### 🐛 Bug Fixes
