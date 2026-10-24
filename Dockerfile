@@ -34,40 +34,18 @@ RUN --mount=type=cache,target=/go/pkg/mod/ \
 
 ################################################################################
 # Create a new stage for running the application that contains the minimal
-# runtime dependencies for the application. This often uses a different base
-# image from the build stage where the necessary files are copied from the build
-# stage.
+# runtime dependencies for the application.
 #
-# The example below uses the alpine image as the foundation for running the app.
-# By specifying the "latest" tag, it will also use whatever happens to be the
-# most recent version of that image when you build your Dockerfile. If
-# reproducability is important, consider using a versioned tag
-# (e.g., alpine:3.17.2) or SHA (e.g., alpine:sha256:c41ab5c992deb4fe7e5da09f67a8804a46bd0592bfdf0b1847dde0e0889d2bff).
-FROM alpine:3.24 AS final
+# cgr.dev/chainguard/static is a hardened, minimal base for statically linked
+# binaries (built here with CGO_ENABLED=0). It ships a CA-certificates bundle
+# (SSL_CERT_FILE is preset) and runs as the non-root user "nonroot" (uid/gid
+# 65532) by default. It contains no shell and no package manager, which
+# minimizes the attack surface and removes OS-package CVEs such as the Alpine
+# musl advisories.
+FROM cgr.dev/chainguard/static:latest AS final
 
-# Install any runtime dependencies that are needed to run your application.
-# Leverage a cache mount to /var/cache/apk/ to speed up subsequent builds.
-RUN apk --update --no-cache upgrade && \
-    apk add --no-cache \
-        ca-certificates \
-        tzdata \
-    && update-ca-certificates
-
-# Create a non-privileged user that the app will run under.
-# See https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#user
-ARG UID=10001
-RUN adduser \
-    --disabled-password \
-    --gecos "" \
-    --home "/nonexistent" \
-    --shell "/sbin/nologin" \
-    --no-create-home \
-    --uid "${UID}" \
-    appuser
-USER appuser
-
-# Copy the executable from the "build" stage.
-COPY --from=build /bin/cdk-notifier /bin/
+# Copy the statically linked executable from the "build" stage.
+COPY --from=build /bin/cdk-notifier /bin/cdk-notifier
 
 # What the container should run when it is started.
 ENTRYPOINT [ "/bin/cdk-notifier" ]
