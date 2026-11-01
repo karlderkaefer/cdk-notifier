@@ -10,11 +10,11 @@ require (
 	github.com/google/go-github/v90 v90.0.0
 	github.com/google/go-querystring v1.2.0
 	github.com/quasilyte/go-ruleguard/dsl v0.3.23
-	github.com/sirupsen/logrus v1.10.1
+	github.com/sirupsen/logrus v1.10.2
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.12.1
-	gitlab.com/gitlab-org/api/client-go/v2 v2.51.0
+	gitlab.com/gitlab-org/api/client-go/v2 v2.64.0
 )
 
 require (
