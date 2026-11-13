@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/karlderkaefer/cdk-notifier/config"
-	gitlab "gitlab.com/gitlab-org/api/client-go/v2"
+	gitlab "gitlab.com/gitlab-org/api/client-go/v3"
 )
 
 // gitlabMaxCommentLength is the maximum number of chars allowed by Gitlab in a
